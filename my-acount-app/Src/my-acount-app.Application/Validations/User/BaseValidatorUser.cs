@@ -43,6 +43,28 @@ namespace MyAccountApp.Application.Validations.User
                 .Must(BeAValidUserType).WithMessage($"El 'UserType' debe estar entre los valores permitidos ({GetAllowedUserTypes()}).");
         }
 
+        protected void ValidateUserRegistrationMethod(Expression<Func<T, string>> expression)
+        {
+            RuleFor(expression)
+                .NotEmpty().WithMessage("El campo 'RegistrationMethod' no puede estar vacío.")
+                .Must(BeAValidUserRegistrationMethodType).WithMessage($"El 'RegistrationMethod' debe estar entre los valores permitidos ({GetAllUserRegistrationMethodTypes()}).");
+        }
+
+
+
+        private bool BeAValidUserRegistrationMethodType(string value)
+        {
+            // Verifica si el valor coincide con alguno de los nombres de los enums
+            return UserRegistrationMethodEnum.List.Select(u => u.Name).Contains(value);
+        }
+
+        private static string GetAllUserRegistrationMethodTypes()
+        {
+            // se obtienen todos los nombres de los enums y únelos en una cadena separada por comas
+            IEnumerable<string> userTypes = UserRegistrationMethodEnum.List.Select(u => u.Name);
+            return string.Join(", ", userTypes);
+        }
+
         private bool BeAValidUserType(string value)
         {
             // Verifica si el valor coincide con alguno de los nombres de los enums

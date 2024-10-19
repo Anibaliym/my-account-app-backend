@@ -64,7 +64,6 @@ namespace MyAccountApp.Application.Services
             {
                 User userExistsByEmail = await _userRepository.GetActiveUserByEmail(model.Email.ToUpper());
 
-
                 if (userExistsByEmail != null)
                 {
                     response.Resolution = false;

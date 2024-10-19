@@ -1,4 +1,5 @@
 ﻿using MyAccountApp.Application.ViewModels.User;
+using MyAccountApp.Core.Entities;
 
 namespace MyAccountApp.Application.Validations.User
 {
@@ -6,10 +7,11 @@ namespace MyAccountApp.Application.Validations.User
     {
         public UserCreateValidator()
         {
-            ValidateFirstName(x => x.FirstName);
-            ValidateLastName(x => x.LastName);
-            ValidateEmail(x => x.Email);
-            ValidateUserType(x => x.UserType);
+            ValidateFirstName(user => user.FirstName);
+            ValidateLastName(user => user.LastName);
+            ValidateEmail(user => user.Email);
+            ValidateUserType(user => user.UserType);
+            ValidateUserRegistrationMethod(user => user.RegistrationMethod);
         }
     }
 }
