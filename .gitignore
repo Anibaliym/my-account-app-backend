@@ -1,0 +1,42 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+.env
+
+# Visual Studio
+.vs/
+*.vscode/
+
+# User-specific files
+*.user
+*.userosscache
+*.sln.docstates
+
+# Auto-generated files
+*.suo
+*.obj
+*.log
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.pdb
+*.ipch
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.tmp
+*.vsix
+*.swp
+*.dir
+
+# Build directory
+[Oo]bj/
+[Bb]in/
