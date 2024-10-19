@@ -9,8 +9,19 @@ create table Public."User"
     "UserType" varchar(30), 
     "Email" varchar(100), 
     "IsActive" boolean, 
+    "RegistrationMethod" varchar(50), 
     constraint pk_User primary key ("Id")
 ); 
+
+create table Public."UserSecurity" 
+(
+    "Id" uuid not null,
+    "UserId" uuid not null,
+    "PasswordHash" varchar(255),
+    "PasswordSalt" varchar(255),
+    "LastPasswordChangeDate" timestamp,
+    constraint fk_UserSecurity_User foreign key ("UserId") references Public."User"("Id") on delete cascade
+);
 
 create table Public."Account"
 (
@@ -59,10 +70,9 @@ create table Public."Vignette"
     constraint fk_Card foreign key ("CardId") references public."Card"("Id")
 );
 
-
-
 /*
     select * from "User";
+    select * from "UserSecurity"; 
     select * from "Account";
     select * from "Sheet";
     select * from "Card";

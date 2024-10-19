@@ -1,4 +1,4 @@
-<mxfile host="Electron" modified="2024-10-19T20:57:19.589Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.18 Chrome/120.0.6099.199 Electron/28.1.2 Safari/537.36" etag="zOKBdcVWeGb2hJHh63VX" version="22.1.18" type="device">
+<mxfile host="Electron" modified="2024-10-19T20:57:26.972Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.18 Chrome/120.0.6099.199 Electron/28.1.2 Safari/537.36" etag="JGP-HtOln02zr7K-5hZO" version="22.1.18" type="device">
   <diagram name="Página-1" id="PNPzHJma1M_xxknpWBnT">
     <mxGraphModel dx="1674" dy="2005" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
@@ -41,7 +41,7 @@
           <mxGeometry y="218" width="413" height="62" as="geometry" />
         </mxCell>
         <mxCell id="b94cVA0k29TKZ7IqqX47-48" value="&lt;font style=&quot;font-size: 36px;&quot;&gt;my-account-app&lt;/font&gt;&lt;br&gt;Relational Model" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;" parent="1" vertex="1">
-          <mxGeometry x="950" y="-70" width="100" height="40" as="geometry" />
+          <mxGeometry x="1420" y="-140" width="100" height="40" as="geometry" />
         </mxCell>
         <mxCell id="wFJW2fMRg7TKFNwS5shS-7" value="&lt;b&gt;Account&lt;/b&gt;" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#00CC00;" parent="1" vertex="1">
           <mxGeometry x="520" y="440" width="410" height="188" as="geometry" />
