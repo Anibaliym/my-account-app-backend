@@ -62,12 +62,13 @@ namespace MyAccountApp.Application.Services
 
             try
             {
-                User userExistsByEmail = await _userRepository.GetActiveUserByEmail(model.Email);
+                User userExistsByEmail = await _userRepository.GetActiveUserByEmail(model.Email.ToUpper());
+
 
                 if (userExistsByEmail != null)
                 {
                     response.Resolution = false;
-                    response.Message = $"El usuario con el correo '{model.Email}', ya existe.";
+                    response.Message = $"El usuario con el correo '{model.Email.ToUpper()}', ya existe.";
                     return response;
                 }
 
