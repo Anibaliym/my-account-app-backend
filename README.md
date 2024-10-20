@@ -53,3 +53,7 @@ El proyecto hace uso de varias librerías externas para facilitar el desarrollo 
 1. Clona el repositorio.
 2. **Ejecuta el script SQL** (`script.sql`) proporcionado para crear la base de datos y las tablas en PostgreSQL que está en la ruta "my-account-app-backend\data-base\script.sql":
 3. Ejecuta el proyecto.
+
+### Contribuciones
+Este proyecto está en desarrollo, por lo que cualquier contribución es bienvenida. Si tienes ideas, mejoras o encuentras errores, por favor abre un issue o envía un pull request.
+
