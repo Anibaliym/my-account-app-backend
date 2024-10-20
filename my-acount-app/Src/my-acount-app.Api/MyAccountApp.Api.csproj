@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\my-acount-app.Application\my-account-app.Application.csproj" />
-    <ProjectReference Include="..\my-acount-app.Infrastructure\my-account-app.Infrastructure.csproj" />
+    <ProjectReference Include="..\my-acount-app.Application\MyAccountApp.Application.csproj" />
+    <ProjectReference Include="..\my-acount-app.Infrastructure\MyAccountApp.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
