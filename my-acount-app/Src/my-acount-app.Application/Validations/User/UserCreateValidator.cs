@@ -1,5 +1,4 @@
 ﻿using MyAccountApp.Application.ViewModels.User;
-using MyAccountApp.Core.Entities;
 
 namespace MyAccountApp.Application.Validations.User
 {

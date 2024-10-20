@@ -17,6 +17,8 @@ using MyAccountApp.Application.ViewModels.Card;
 using MyAccountApp.Application.Validations.Vignette;
 using MyAccountApp.Application.ViewModels.Vignette;
 using MyAccountApp.Application.Validations.Sheet;
+using MyAccountApp.Application.Validations.UserSecurity;
+using MyAccountApp.Application.ViewModels.UserSecurity;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +34,7 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ISheetRepository, SheetRepository>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<IVignetteRepository, VignetteRepository>();
+builder.Services.AddScoped<IUserSecurityRepository, UserSecurityRepository>();
 
 // Registrar servicios de aplicación
 builder.Services.AddScoped<IUserAppService, UserAppService>();
@@ -54,6 +57,7 @@ builder.Services.AddScoped<IValidator<CreateCardViewModel>, CardCreateValidator>
 builder.Services.AddScoped<IValidator<UpdateCardViewModel>, CardUpdateValidator>();
 builder.Services.AddScoped<IValidator<VignetteCreateViewModel>, VignetteCreateValidator>();
 builder.Services.AddScoped<IValidator<VignetteViewModel>, VignetteUpdateValidator>();
+builder.Services.AddScoped<IValidator<UserSecurityCreateViewModel>, UserSecurityCreateValidator>();
 
 builder.Services.AddScoped<IValidator<Guid>, IdValidator>();//validador generico
 

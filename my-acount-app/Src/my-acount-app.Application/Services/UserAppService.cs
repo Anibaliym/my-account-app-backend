@@ -3,29 +3,38 @@ using FluentValidation;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.User;
+using MyAccountApp.Application.ViewModels.UserSecurity;
 using MyAccountApp.Core.Entities;
+using MyAccountApp.Core.Enum.User;
 using MyAccountApp.Core.Interfaces;
+using MyAccountApp.Core.Utils;
 
 namespace MyAccountApp.Application.Services
 {
     public class UserAppService : IUserAppService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserSecurityRepository _userSecurityRepository;
         private readonly IValidator<UserCreateViewModel> _createUserValidator;
+        private readonly IValidator<UserSecurityCreateViewModel> _createUserSecurityValidator;
         private readonly IValidator<UserUpdateViewModel> _updateUserValidator;
         private readonly IMapper _mapper;
 
         public UserAppService(
             IMapper mapper,
-            IUserRepository userRepository, 
+            IUserRepository userRepository,
+            IUserSecurityRepository userSecurityRepository,
             IValidator<UserCreateViewModel> createUserValidator, 
-            IValidator<UserUpdateViewModel> updateUserValidator
+            IValidator<UserUpdateViewModel> updateUserValidator,
+            IValidator<UserSecurityCreateViewModel> createUserSecurityValidator
         )
         {
             _mapper = mapper;
             _userRepository = userRepository;
+            _userSecurityRepository = userSecurityRepository; 
             _createUserValidator = createUserValidator;
             _updateUserValidator = updateUserValidator;
+            _createUserSecurityValidator = createUserSecurityValidator;
         }
 
         public async Task<UserViewModel> GetActiveUserById(Guid id)
@@ -46,6 +55,7 @@ namespace MyAccountApp.Application.Services
         public async Task<GenericResponse> RegisterUser(UserCreateViewModel model)
         {
             GenericResponse response = new GenericResponse();
+            UserSecurity userSecurity = new UserSecurity(); 
             User user = _mapper.Map<User>(model);
 
             FluentValidation.Results.ValidationResult validationResult = _createUserValidator.Validate(model);
@@ -58,6 +68,20 @@ namespace MyAccountApp.Application.Services
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
                     Message = "Se encontraron errores de validación."
                 };
+            }
+
+            FluentValidation.Results.ValidationResult validationUserSecurityResult = _createUserSecurityValidator.Validate(model.UserSecurity);
+
+            if (!validationUserSecurityResult.IsValid)
+            {
+                if (model.RegistrationMethod == UserRegistrationMethodEnum.MANUAL_AUTH.Name) { 
+                    return new GenericResponse
+                    {
+                        Resolution = false,
+                        Errors = validationUserSecurityResult.Errors.Select(e => e.ErrorMessage).ToArray(),
+                        Message = "Se encontraron errores de validación."
+                    };
+                }
             }
 
             try
@@ -81,6 +105,24 @@ namespace MyAccountApp.Application.Services
                 await _userRepository.CreateUser(user);
                 response.Resolution = true;
                 response.Data = user;
+
+                //Crea la seguridad del usuario en el caso que el usuario haya elegido la autenticación propia del sistema.
+                if (response.Resolution == true && model.RegistrationMethod == UserRegistrationMethodEnum.MANUAL_AUTH.Name)
+                {
+                    byte[] passwordHash, passwordSalt;
+                    PasswordUtils.CreatePasswordHash(model.UserSecurity.Password, out passwordHash, out passwordSalt);
+
+
+                    userSecurity.Id = Guid.NewGuid();
+                    userSecurity.UserId = user.Id;
+                    userSecurity.PasswordHash = Convert.ToBase64String(passwordHash);
+                    userSecurity.PasswordSalt = Convert.ToBase64String(passwordSalt);
+
+                    userSecurity.LastPasswordChangeDate = DateTime.UtcNow;
+
+                    await _userSecurityRepository.CreateUserSecurity(userSecurity); 
+
+                }
             }
             catch (Exception ex)
             {

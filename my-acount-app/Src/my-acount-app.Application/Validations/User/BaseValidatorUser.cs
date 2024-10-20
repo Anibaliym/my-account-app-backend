@@ -50,8 +50,6 @@ namespace MyAccountApp.Application.Validations.User
                 .Must(BeAValidUserRegistrationMethodType).WithMessage($"El 'RegistrationMethod' debe estar entre los valores permitidos ({GetAllUserRegistrationMethodTypes()}).");
         }
 
-
-
         private bool BeAValidUserRegistrationMethodType(string value)
         {
             // Verifica si el valor coincide con alguno de los nombres de los enums
