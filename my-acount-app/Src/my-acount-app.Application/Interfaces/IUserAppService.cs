@@ -5,6 +5,7 @@ namespace MyAccountApp.Application.Interfaces
 {
     public interface IUserAppService : IDisposable
     {
+        Task<GenericResponse> Login(string email, string password);
         Task<UserViewModel> GetActiveUserById(Guid id);
         Task<UserViewModel> GetActiveUserByEmail(string email);
         Task<IEnumerable<UserViewModel>> GetAllActiveUsers();

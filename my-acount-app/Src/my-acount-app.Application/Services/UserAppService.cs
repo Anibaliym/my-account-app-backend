@@ -37,6 +37,58 @@ namespace MyAccountApp.Application.Services
             _createUserSecurityValidator = createUserSecurityValidator;
         }
 
+        public async Task<GenericResponse> Login(string email, string password)
+        {
+            GenericResponse response = new GenericResponse();
+
+            User userFound = await _userRepository.GetActiveUserByEmail(email.ToUpper());
+
+            if (userFound == null)
+            {
+                return new GenericResponse
+                {
+                    Resolution = false,
+                    Errors = new[] { "Usuario o contraseña incorrectos." },
+                    Message = "Se encontraron errores de validación."
+                };
+            }
+
+            UserSecurity userSecurityFound = await _userSecurityRepository.GetUserSecurityByUserId(userFound.Id);
+
+            if (userSecurityFound == null)
+            {
+                // Devolver un mensaje de error genérico
+                return new GenericResponse
+                {
+                    Resolution = false,
+                    Errors = new[] { "Usuario o contraseña incorrectos." },
+                    Message = "Se encontraron errores de validación."
+                };
+            }
+
+            // Verifica la contraseña proporcionada
+            bool isPasswordValid = PasswordUtils.VerifyPasswordHash(password, Convert.FromBase64String(userSecurityFound.PasswordHash), Convert.FromBase64String(userSecurityFound.PasswordSalt));
+
+            if (!isPasswordValid)
+            {
+                // Contraseña incorrecta
+                return new GenericResponse
+                {
+                    Resolution = false,
+                    Errors = new[] { "Usuario o contraseña incorrectos." },
+                    Message = "Se encontraron errores de validación."
+                };
+            }
+
+            // Si todo es correcto, devolver el usuario encontrado
+            return new GenericResponse
+            {
+                Resolution = true,
+                Data = userFound,
+                Message = "Inicio de sesión exitoso."
+            };
+        }
+
         public async Task<UserViewModel> GetActiveUserById(Guid id)
         {
             return _mapper.Map<UserViewModel>(await _userRepository.GetActiveUserById(id));

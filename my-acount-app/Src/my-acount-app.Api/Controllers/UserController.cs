@@ -17,6 +17,30 @@ namespace MyAccountApp.Api.Controllers
             _userAppService = userAppService;
         }
 
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] UserLoginViewModel loginModel)
+        {
+            GenericResponse response = await _userAppService.Login(loginModel.Email, loginModel.Password);
+
+            if (!response.Resolution)
+            {
+                return Unauthorized(new
+                {
+                    message = response.Message,
+                    errors = response.Errors
+                });
+            }
+
+            // Aquí puedes devolver el token JWT o cualquier otro dato necesario si el login fue exitoso
+            return Ok(new
+            {
+                message = "Inicio de sesión exitoso.",
+                user = response.Data // Aquí puedes incluir el objeto de usuario
+            });
+        }
+
+
+
         [HttpGet("GetActiveUserById/{id:guid}")]
         public async Task<UserViewModel> GetActiveUserById(Guid id)
         {
