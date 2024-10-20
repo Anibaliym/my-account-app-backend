@@ -1,171 +1,55 @@
-﻿my-account-app - Back-end
-
-my-account-app (MiCuentaApp) es el back-end de una aplicación de gestión de cuentas personales. Esta API, construida con .NET Core 8.0, se encarga de gestionar las operaciones de negocio, el almacenamiento de datos en PostgreSQL y la autenticación de usuarios.
-
-Tecnologías Utilizadas
-
-- 	.NET Core 8.0
-- `	`PostgreSQL como base de datos relacional
-- `	`Entity Framework Core como ORM
-- `	`AutoMapper para mapear entidades y DTOs
-- `	`FluentValidation para la validación de datos
-- `	`JWT (JSON Web Tokens) para la autenticación y autorización
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-Librerías de Terceros
-
-El proyecto utiliza varias librerías externas para facilitar el desarrollo:
-
-1. `	`Entity Framework Core: Para el manejo de la base de datos y las operaciones CRUD.
-
-bash
-
-Copiar código
-
-dotnet add package Microsoft.EntityFrameworkCore
-
-dotnet add package Microsoft.EntityFrameworkCore.Design
-
-dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL
-
-1. `	`AutoMapper: Para mapear entre entidades y Data Transfer Objects (DTOs), lo que permite una separación clara entre los modelos de dominio y las respuestas que se envían a los clientes.
-
-bash
-
-Copiar código
-
-dotnet add package AutoMapper.Extensions.Microsoft.DependencyInjection
-
-1. `	`FluentValidation: Para la validación de los datos que se reciben en las solicitudes.
-
-bash
-
-Copiar código
-
-dotnet add package FluentValidation.AspNetCore
-
-1. `	`JWT Bearer Authentication: Para implementar autenticación mediante tokens JWT.
-
-bash
-
-Copiar código
-
-dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-Configuración de la Base de Datos
-
-Esta aplicación utiliza PostgreSQL como sistema de gestión de base de datos. Asegúrate de tener PostgreSQL instalado y configurado.
-
-1. Configurar la Cadena de Conexión
-
-La cadena de conexión debe configurarse en el archivo appsettings.json dentro del proyecto back-end. Asegúrate de ajustar los valores de acuerdo con tu entorno local:
-
-json
-
-Copiar código
-
-"ConnectionStrings": {
-
-"DefaultConnection": "Host=<HOST>;Database=<DB\_NAME>;Username=<USERNAME>;Password=<PASSWORD>"
-
-}
-
-1. Aplicar Migraciones
-
-Para inicializar la base de datos, ejecuta los siguientes comandos para aplicar las migraciones y crear las tablas necesarias:
-
-bash
-
-Copiar código
-
-dotnet ef migrations add InitialCreate
-
-dotnet ef database update
-
-Esto creará las tablas en la base de datos PostgreSQL, basadas en los modelos definidos.
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-Configuración del Proyecto
-
-Requisitos Previos
-
-Asegúrate de tener instalados los siguientes programas:
-
-- 	.NET Core SDK 8.0: Descargar .NET Core SDK
-- `	`PostgreSQL: Descargar PostgreSQL
-
-Instalación
-
-1. `	`Clonar el repositorio:
-
-bash
-
-Copiar código
-
-git clone <url-del-repositorio>
-
-cd MiCuentaApp/back-end
-
-1. `	`Restaurar las dependencias del proyecto:
-
-bash
-
-Copiar código
-
-dotnet restore
-
-1. `	`Configurar la conexión a la base de datos en el archivo appsettings.json.
-1. `	`Aplicar las migraciones para inicializar la base de datos:
-
-bash
-
-Copiar código
-
-dotnet ef database update
-
-1. `	`Ejecutar la aplicación:
-
-bash
-
-Copiar código
-
-dotnet run
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-Autenticación
-
-El sistema de autenticación está basado en JSON Web Tokens (JWT). Para acceder a los recursos protegidos, los usuarios deben autenticarse y recibir un token JWT que luego se utilizará en el encabezado de las solicitudes HTTP (Authorization: Bearer <token>).
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-Uso
-
-Una vez el back-end esté ejecutándose, puedes interactuar con la API a través de herramientas como Postman o cURL para realizar las operaciones CRUD sobre las cuentas y usuarios.
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-Contribuir
-
-Si deseas contribuir al desarrollo del back-end, por favor sigue los siguientes pasos:
-
-1. `	`Haz un fork del repositorio.
-1. `	`Crea una nueva rama para tu funcionalidad (git checkout -b feature/nueva-funcionalidad).
-1. `	`Realiza los cambios y haz commit (git commit -m 'Añadir nueva funcionalidad').
-1. `	`Empuja la rama a tu fork (git push origin feature/nueva-funcionalidad).
-1. `	`Crea un Pull Request en el repositorio principal.
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-Licencia
-
-Este proyecto está licenciado bajo la MIT License - ver el archivo LICENSE para más detalles.
-
-\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
-
-Este README está centrado exclusivamente en el back-end de la aplicación. Si deseas modificar algún detalle o agregar información más específica sobre alguna funcionalidad, no dudes en decírmelo.
-
+﻿# My Account App
+
+### Descripción General
+**My Account App** es una aplicación full-stack diseñada para la gestión de cuentas de usuario, incluyendo autenticación, manejo de datos financieros y seguimiento de transacciones. Está construida utilizando tecnologías modernas y sigue una arquitectura por capas que garantiza escalabilidad, separación de responsabilidades y mantenibilidad.
+
+### Funcionalidades
+- Autenticación de usuarios con Google Sign-In y sistema opcional de registro manual con contraseñas.
+- Gestión segura de cuentas, tarjetas y viñetas con almacenamiento encriptado.
+- API receptiva construida con .NET 8.0 para manejar solicitudes de manera eficiente.
+- Integración con PostgreSQL para almacenamiento persistente de datos.
+
+### Tecnologías Utilizadas
+- **Backend**: .NET Core 8.0 (C#)
+- **Base de datos**: PostgreSQL
+- **Autenticación**: OAuth de Google y sistema manual de contraseñas.
+
+### Arquitectura
+El proyecto sigue un patrón de arquitectura limpia con las siguientes capas:
+
+1. **Capa Api**: Encargada de gestionar las solicitudes HTTP, dirigirlas a los servicios adecuados y devolver respuestas al cliente.
+2. **Capa Application**: Esta capa contiene la lógica de aplicación, incluidos los servicios, las validaciones y las interfaces que conectan las capas de Core e Infrastructure. La capa incluye:
+   - **AutoMapper**: Para el mapeo de objetos entre distintas capas.
+   - **Interfaces**: Definiciones de contratos para los servicios.
+   - **Responses**: Manejadores de respuestas estandarizadas para las solicitudes.
+   - **Services**: Implementaciones de la lógica de negocio que actúan como intermediarios entre el controlador y la infraestructura.
+   - **Validations**: Validaciones de entrada y lógica de negocio.
+   - **ViewModels**: Modelos que representan los datos que se envían a la vista o se reciben de ella.
+3. **Capa Core**: Contiene la lógica de negocio central, las entidades de dominio y los servicios que no dependen de ninguna infraestructura específica.
+4. **Capa Infrastructure**: Maneja la persistencia de datos y las interacciones con la base de datos, además de gestionar las conexiones con APIs externas. Aquí se encuentran los repositorios y los servicios de integración.
+
+### Librerías Externas Utilizadas
+El proyecto hace uso de varias librerías externas para facilitar el desarrollo y agregar funcionalidades adicionales. A continuación se detallan las principales:
+
+- **Entity Framework Core**: Utilizado para la gestión de la base de datos, permite realizar mapeo objeto-relacional (ORM) para facilitar la interacción con PostgreSQL. Además, se usa para implementar migraciones `Code First`, lo que facilita la evolución del esquema de la base de datos sin necesidad de escribir scripts SQL manuales.
+  
+- **AutoMapper**: Esta librería se usa para simplificar el mapeo entre objetos, por ejemplo, convertir entidades de la base de datos en DTOs (Data Transfer Objects) que son enviados al cliente, o viceversa. Esto permite mantener un código más limpio y evitar la duplicación de lógica para transformar datos entre capas.
+
+- **FluentValidation**: Empleada para validar los datos de entrada en los servicios de la capa Application. Permite definir reglas de validación de manera declarativa y consistente, asegurando que los datos sean correctos antes de ser procesados en la lógica de negocio.
+
+- **ASP.NET Core Identity**: Proporciona una solución robusta para la gestión de usuarios, roles, autenticación y autorización dentro de la aplicación. Se utiliza para la autenticación tanto con Google OAuth como con el sistema manual de contraseñas, permitiendo el registro seguro de usuarios.
+
+- **Google.Apis.Auth**: Se utiliza para integrar la autenticación con Google, permitiendo a los usuarios iniciar sesión en la aplicación a través de sus cuentas de Google, aprovechando OAuth 2.0 para garantizar la seguridad de las credenciales.
+
+- **Newtonsoft.Json**: Utilizado para serializar y deserializar datos JSON en la API. Facilita la conversión de objetos C# a JSON y viceversa, lo cual es esencial para la comunicación entre el frontend y el backend.
+
+### Buenas Prácticas
+- **Inyección de Dependencias**: Se utiliza para gestionar los servicios y repositorios de la aplicación, permitiendo mejor desacoplamiento y facilitando las pruebas unitarias.
+- **Arquitectura por Capas**: Cada componente tiene una única responsabilidad, siguiendo los principios SOLID para mejorar la mantenibilidad y flexibilidad del código.
+- **Migraciones Code First**: Se usa Entity Framework Core para la gestión de la base de datos, lo que facilita la evolución del modelo de datos mediante migraciones.
+- **Pruebas Unitarias**: La arquitectura permite fácilmente integrar pruebas unitarias para cada capa, garantizando estabilidad y corrección en el desarrollo.
+
+### Instrucciones para Iniciar el Proyecto
+1. Clona el repositorio.
+2. **Ejecuta el script SQL** (`script.sql`) proporcionado para crear la base de datos y las tablas en PostgreSQL que está en la ruta "my-account-app-backend\data-base\script.sql":
+3. Ejecuta el proyecto.
