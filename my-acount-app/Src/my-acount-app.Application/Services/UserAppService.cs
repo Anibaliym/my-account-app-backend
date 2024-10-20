@@ -39,8 +39,6 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> Login(string email, string password)
         {
-            GenericResponse response = new GenericResponse();
-
             User userFound = await _userRepository.GetActiveUserByEmail(email.ToUpper());
 
             if (userFound == null)
@@ -51,6 +49,16 @@ namespace MyAccountApp.Application.Services
                     Errors = new[] { "Usuario o contraseña incorrectos." },
                     Message = "Se encontraron errores de validación."
                 };
+            }
+
+            if (userFound.RegistrationMethod == UserRegistrationMethodEnum.GOOGLE_AUTH.Name) {
+                return new GenericResponse
+                {
+                    Resolution = false,
+                    Errors = new[] { $"El usuario con el correo '{ email }', se ha regiatrado con la autenticación de google y no con la autenticación propia del sistema." },
+                    Message = "Se encontraron errores de validación."
+                };
+
             }
 
             UserSecurity userSecurityFound = await _userSecurityRepository.GetUserSecurityByUserId(userFound.Id);
