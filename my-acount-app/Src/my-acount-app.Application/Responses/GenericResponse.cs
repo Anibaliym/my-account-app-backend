@@ -5,7 +5,7 @@
         public GenericResponse()
         {
             Resolution = false;
-            Data = string.Empty;
+            Data = new Object{};
             Message = string.Empty;
         }
         public bool Resolution { get; set; }

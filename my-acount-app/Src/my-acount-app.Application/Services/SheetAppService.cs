@@ -35,9 +35,9 @@ namespace MyAccountApp.Application.Services
             return _mapper.Map<SheetViewModel>(await _sheetRepository.GetSheetById(id));
         }
 
-        public async Task<IEnumerable<SheetViewModel>> GetSheetByAccountId(Guid idCuenta)
+        public async Task<IEnumerable<SheetViewModel>> GetSheetByAccountId(Guid accountId)
         {
-            return _mapper.Map<IEnumerable<SheetViewModel>>(await _sheetRepository.GetSheetByAccountId(idCuenta));
+            return _mapper.Map<IEnumerable<SheetViewModel>>(await _sheetRepository.GetSheetByAccountId(accountId));
         }
 
         public async Task<GenericResponse> CreateSheet(CreateSheetViewModel model)

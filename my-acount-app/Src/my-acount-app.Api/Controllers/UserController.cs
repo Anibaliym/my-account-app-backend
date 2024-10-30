@@ -17,24 +17,6 @@ namespace MyAccountApp.Api.Controllers
             _userAppService = userAppService;
         }
 
-        [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] UserLoginViewModel loginModel)
-        {
-            try
-            {
-                GenericResponse response = await _userAppService.Login(loginModel.Email, loginModel.Password);
-
-                if (response.Resolution)
-                    return CreatedAtAction(nameof(GetActiveUserById), new { id = ((User)response.Data).Id }, response);
-                else
-                    return Unauthorized(response);
-            }
-            catch (Exception error)
-            {
-                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
-            }
-        }
-
         [HttpGet("GetActiveUserById/{id:guid}")]
         public async Task<UserViewModel> GetActiveUserById(Guid id)
         {
