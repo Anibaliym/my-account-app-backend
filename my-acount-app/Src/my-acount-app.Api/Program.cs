@@ -42,7 +42,7 @@ builder.Services.AddScoped<IAccountAppService, AccountAppService>();
 builder.Services.AddScoped<ISheetAppService, SheetAppService>();
 builder.Services.AddScoped<ICardAppService, CardAppService>();
 builder.Services.AddScoped<IVignetteAppService, VignetteAppService>();
-builder.Services.AddScoped<IDomainServices, DomainServices>();
+builder.Services.AddScoped<IDomainServicesAppService, DomainServicesAppServices>();
 
 // Registrar AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

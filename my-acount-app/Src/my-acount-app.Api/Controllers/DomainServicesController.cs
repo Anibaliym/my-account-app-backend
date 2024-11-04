@@ -9,9 +9,9 @@ namespace MyAccountApp.Api.Controllers
     [Route("api/[controller]")]
     public class DomainServicesController : ControllerBase
     {
-        private readonly IDomainServices _domainServices;
+        private readonly IDomainServicesAppService _domainServices;
 
-        public DomainServicesController(IDomainServices domainServices){
+        public DomainServicesController(IDomainServicesAppService domainServices){
             _domainServices = domainServices;
         }
 
@@ -27,14 +27,19 @@ namespace MyAccountApp.Api.Controllers
                 else
                     return Unauthorized(response);
 
-                return Ok(response);
+
             }
             catch (Exception error)
             {
                 return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
             }
         }
-    }
 
+        [HttpGet("GetSheetsAccount/{accountId:guid}")]
+        public async Task<GenericResponse> GetSheetsAccount(Guid accountId)
+        {
+            return await _domainServices.GetSheetsAccount(accountId);
+        }
+    }
 }
 

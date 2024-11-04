@@ -9,14 +9,14 @@ using MyAccountApp.Core.Utils;
 
 namespace MyAccountApp.Application.Services
 {
-    public class DomainServices : IDomainServices
+    public class DomainServicesAppServices : IDomainServicesAppService
     {
         private readonly IUserRepository _userRepository;
         private readonly IUserSecurityRepository _userSecurityRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly ISheetRepository _sheetRepository;
 
-        public DomainServices(
+        public DomainServicesAppServices(
             IUserRepository userRepository,
             IAccountRepository accountRepository,
             ISheetRepository sheetRepository, 
@@ -112,6 +112,45 @@ namespace MyAccountApp.Application.Services
                 Data = responseModel, 
                 Message = "Inicio de sesión exitoso."
             };
+        }
+
+        public async Task<GenericResponse> GetSheetsAccount(Guid accountId)
+        {
+            IEnumerable<Sheet> sheets; 
+            Account account = await _accountRepository.GetActiveAccountById(accountId);
+
+            if(account != null){
+                sheets = await _sheetRepository.GetSheetByAccountId(accountId);
+
+                if(sheets.Count() > 0){
+                    return new GenericResponse {
+                        Resolution = true,
+                        Data = new { 
+                            Account = new {
+                                name = account.Description,
+                                creationDate = account.CreationDate,
+                            }, 
+                            Sheets = sheets,
+                        },
+                        Message = $"La cuenta con el id { accountId }, no tiene hojas de calculo."
+                    }; 
+                }
+                else {
+                    return new GenericResponse {
+                        Resolution = true,
+                        Message = $"La cuenta con el id { accountId }, no tiene hojas de calculo."
+                    }; 
+                }
+            }
+            else {
+                return new GenericResponse {
+                    Resolution = false,
+                    Message = $"La cuenta con el id '{ accountId }', no existe."
+                }; 
+            }
+
+
+
         }
 
         public void Dispose()
