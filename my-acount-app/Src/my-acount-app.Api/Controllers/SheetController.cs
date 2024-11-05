@@ -22,6 +22,12 @@ namespace MyAccountApp.Api.Controllers
             return await _sheetAppService.GetSheetById(id);
         }
 
+        [HttpGet("GetSheetAccountByOrder")]
+        public async Task<SheetViewModel> GetSheetAccountByOrder(int order, Guid accountid)
+        {
+            return await _sheetAppService.GetSheetAccountByOrder(order, accountid);
+        }
+
         [HttpGet("GetSheetByAccountId/{accountId:guid}")]
         public async Task<IEnumerable<SheetViewModel>> GetSheetByAccountId(Guid accountId)
         {

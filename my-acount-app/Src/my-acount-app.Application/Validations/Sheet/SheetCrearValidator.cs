@@ -8,8 +8,6 @@ namespace MyAccountApp.Application.Validations.Sheet
         {
             ValidateAccountId(sheet => sheet.AccountId);
             ValidateDescription(sheet => sheet.Description);
-            ValidateCashBalance(sheet => sheet.CashBalance);
-            ValidateCurrentAccountBalance(sheet => sheet.CurrentAccountBalance);
         }
     }
 }

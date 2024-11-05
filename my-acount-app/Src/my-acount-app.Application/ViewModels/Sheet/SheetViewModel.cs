@@ -8,5 +8,6 @@
         public DateTime CreationDate { get; set; }
         public int SaldoEfectivo { get; set; }
         public int SaldoCtaCte { get; set; }
+        public int Order { get; set; }
     }
 }

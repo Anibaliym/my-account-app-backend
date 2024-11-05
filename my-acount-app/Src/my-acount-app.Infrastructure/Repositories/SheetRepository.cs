@@ -20,6 +20,16 @@ namespace MyAccountApp.Infrastructure.Repositories
             return await _dbContext.Sheet.FindAsync(id);
         }
 
+        public async Task<Sheet?> GetSheetAccountByOrder(int order, Guid accountId)
+        {
+            return await _dbContext.Sheet.Where(sheet => sheet.Order == order && sheet.AccountId == accountId).FirstOrDefaultAsync();
+        }
+        
+        public async Task<int> GetNextOrderByAccountId(Guid accountId)
+        {
+            return await _dbContext.Sheet.Where(hoja => hoja.AccountId == accountId).MaxAsync(hoja => (int?)hoja.Order) + 1 ?? 1;
+        }
+
         public async Task<IEnumerable<Sheet>> GetSheetByAccountId(Guid accountId)
         {
             return await _dbContext.Sheet.AsNoTracking().Where(hoja => hoja.AccountId == accountId).ToListAsync();

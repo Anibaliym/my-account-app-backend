@@ -132,7 +132,6 @@ namespace MyAccountApp.Application.Services
                             }, 
                             Sheets = sheets,
                         },
-                        Message = $"La cuenta con el id { accountId }, no tiene hojas de calculo."
                     }; 
                 }
                 else {

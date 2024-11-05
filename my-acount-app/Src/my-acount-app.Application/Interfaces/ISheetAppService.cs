@@ -6,6 +6,7 @@ namespace MyAccountApp.Application.Interfaces
     public interface ISheetAppService : IDisposable
     {
         Task<SheetViewModel> GetSheetById(Guid id);
+        Task<SheetViewModel> GetSheetAccountByOrder(int order, Guid accountId);
         Task<IEnumerable<SheetViewModel>> GetSheetByAccountId(Guid accountId);
         Task<GenericResponse> CreateSheet(CreateSheetViewModel model);
         Task<GenericResponse> UpdateSheet(UpdateSheetViewModel model);

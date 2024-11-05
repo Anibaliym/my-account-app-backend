@@ -35,6 +35,11 @@ namespace MyAccountApp.Application.Services
             return _mapper.Map<SheetViewModel>(await _sheetRepository.GetSheetById(id));
         }
 
+        public async Task<SheetViewModel> GetSheetAccountByOrder(int order, Guid accountid)
+        {
+            return _mapper.Map<SheetViewModel>(await _sheetRepository.GetSheetAccountByOrder(order, accountid));
+        }
+
         public async Task<IEnumerable<SheetViewModel>> GetSheetByAccountId(Guid accountId)
         {
             return _mapper.Map<IEnumerable<SheetViewModel>>(await _sheetRepository.GetSheetByAccountId(accountId));
@@ -59,7 +64,7 @@ namespace MyAccountApp.Application.Services
             try
             {
                 Account cuentaExistente = await _accountRepository.GetActiveAccountById(model.AccountId);
-
+                
                 if (cuentaExistente == null)
                 {
                     response.Resolution = false;
@@ -67,10 +72,13 @@ namespace MyAccountApp.Application.Services
                     return response;
                 }
 
+                //Se obtiene el orden de la hoja a crear
+                int order = await _sheetRepository.GetNextOrderByAccountId(model.AccountId);
+
                 Sheet sheet = _mapper.Map<Sheet>(model);
                 sheet.Id = Guid.NewGuid();
                 sheet.CreationDate = DateTime.UtcNow;
-
+                sheet.Order = order;
 
                 await _sheetRepository.CreateSheet(sheet);
                 response.Resolution = true;
@@ -79,7 +87,7 @@ namespace MyAccountApp.Application.Services
             catch (Exception ex)
             {
                 response.Resolution = false;
-                response.Data = ex.Message;
+                response.Message = ex.Message;
             }
 
             return response;
