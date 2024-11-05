@@ -79,6 +79,8 @@ namespace MyAccountApp.Application.Services
                 sheet.Id = Guid.NewGuid();
                 sheet.CreationDate = DateTime.UtcNow;
                 sheet.Order = order;
+                sheet.CurrentAccountBalance = 0; 
+                sheet.CashBalance = 0;
 
                 await _sheetRepository.CreateSheet(sheet);
                 response.Resolution = true;
