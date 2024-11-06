@@ -4,10 +4,10 @@
     {
         public Guid Id { get; set; }
         public Guid AccountId { get; set; }
-        public string Descripcion { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public DateTime CreationDate { get; set; }
-        public int SaldoEfectivo { get; set; }
-        public int SaldoCtaCte { get; set; }
+        public int cashBalance { get; set; }
+        public int currentAccountBalance { get; set; }
         public int Order { get; set; }
     }
 }

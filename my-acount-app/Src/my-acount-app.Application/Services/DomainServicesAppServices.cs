@@ -114,6 +114,42 @@ namespace MyAccountApp.Application.Services
             };
         }
 
+        // public async Task<GenericResponse> GetSheetsAccount(Guid accountId)
+        // {
+        //     IEnumerable<Sheet> sheets; 
+        //     Account account = await _accountRepository.GetActiveAccountById(accountId);
+
+        //     if(account != null){
+        //         sheets = await _sheetRepository.GetSheetByAccountId(accountId);
+
+        //         if(sheets.Count() > 0){
+        //             return new GenericResponse {
+        //                 Resolution = true,
+        //                 Data = new { 
+        //                     Account = new {
+        //                         name = account.Description,
+        //                         creationDate = account.CreationDate,
+        //                     }, 
+        //                     Sheets = sheets,
+        //                 },
+        //             }; 
+        //         }
+        //         else {
+        //             return new GenericResponse {
+        //                 Resolution = true,
+        //                 Message = $"La cuenta con el id { accountId }, no tiene hojas de calculo."
+        //             }; 
+        //         }
+        //     }
+        //     else {
+        //         return new GenericResponse {
+        //             Resolution = false,
+        //             Message = $"La cuenta con el id '{ accountId }', no existe."
+        //         }; 
+        //     }
+        // }
+
+
         public async Task<GenericResponse> GetSheetsAccount(Guid accountId)
         {
             IEnumerable<Sheet> sheets; 
@@ -122,24 +158,17 @@ namespace MyAccountApp.Application.Services
             if(account != null){
                 sheets = await _sheetRepository.GetSheetByAccountId(accountId);
 
-                if(sheets.Count() > 0){
-                    return new GenericResponse {
-                        Resolution = true,
-                        Data = new { 
-                            Account = new {
-                                name = account.Description,
-                                creationDate = account.CreationDate,
-                            }, 
-                            Sheets = sheets,
-                        },
-                    }; 
-                }
-                else {
-                    return new GenericResponse {
-                        Resolution = true,
-                        Message = $"La cuenta con el id { accountId }, no tiene hojas de calculo."
-                    }; 
-                }
+                return new GenericResponse {
+                    Resolution = true,
+                    Data = new { 
+                        Account = new {
+                            name = account.Description,
+                            creationDate = account.CreationDate,
+                        }, 
+                        Sheets = sheets,
+                    },
+                }; 
+
             }
             else {
                 return new GenericResponse {
@@ -147,9 +176,6 @@ namespace MyAccountApp.Application.Services
                     Message = $"La cuenta con el id '{ accountId }', no existe."
                 }; 
             }
-
-
-
         }
 
         public void Dispose()
