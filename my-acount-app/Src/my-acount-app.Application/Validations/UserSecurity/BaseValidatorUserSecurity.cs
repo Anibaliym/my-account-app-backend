@@ -9,7 +9,7 @@ namespace MyAccountApp.Application.Validations.UserSecurity
         {
             RuleFor(expression)
                 .NotEmpty().WithMessage("El campo 'Password' no puede estar vacío.")
-                .MinimumLength(5).WithMessage("El campo 'Password' debe tener al menos 6 caracteres.")
+                .MinimumLength(6).WithMessage("El campo 'Password' debe tener al menos 6 caracteres.")
                 .MaximumLength(20).WithMessage("El campo 'Password' no debe exceder los 20 caracteres.");
         }
     }

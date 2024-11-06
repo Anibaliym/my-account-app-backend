@@ -23,7 +23,7 @@ namespace MyAccountApp.Application.Validations.Account
         {
             RuleFor(descripcionExpression)
                 .NotEmpty().WithMessage("El campo 'Description' no puede estar vacío.")
-                .MinimumLength(5).WithMessage("El campo 'Descritcion' debe tener al menos 5 caracteres.")
+                .MinimumLength(3).WithMessage("El campo 'Descritcion' debe tener al menos 3 caracteres.")
                 .MaximumLength(300).WithMessage("El campo 'Descritcion' no debe exceder los 300 caracteres.");
         }
 

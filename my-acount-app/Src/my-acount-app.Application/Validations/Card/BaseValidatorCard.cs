@@ -24,7 +24,7 @@ namespace MyAccountApp.Application.Validations.Card
         {
             RuleFor(expression)
                 .NotEmpty().WithMessage("El campo 'Title' no puede estar vacío.")
-                .MinimumLength(5).WithMessage("El campo 'Title' debe tener al menos 5 caracteres.")
+                .MinimumLength(3).WithMessage("El campo 'Title' debe tener al menos 3 caracteres.")
                 .MaximumLength(100).WithMessage("El campo 'Title' no debe exceder los 100 caracteres.");
         }
 
@@ -32,7 +32,7 @@ namespace MyAccountApp.Application.Validations.Card
         {
             RuleFor(expression)
                 .NotEmpty().WithMessage("El campo 'Description' no puede estar vacío.")
-                .MinimumLength(5).WithMessage("El campo 'Description' debe tener al menos 5 caracteres.")
+                .MinimumLength(3).WithMessage("El campo 'Description' debe tener al menos 3 caracteres.")
                 .MaximumLength(300).WithMessage("El campo 'Description' no debe exceder los 300 caracteres.");
         }
 

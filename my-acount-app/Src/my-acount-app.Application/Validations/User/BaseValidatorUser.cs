@@ -17,7 +17,7 @@ namespace MyAccountApp.Application.Validations.User
         {
             RuleFor(expression)
                 .NotEmpty().WithMessage("El campo 'FirstName' no puede estar vacío.")
-                .MinimumLength(5).WithMessage("El campo 'FirstName' debe tener al menos 5 caracteres.")
+                .MinimumLength(3).WithMessage("El campo 'FirstName' debe tener al menos 3 caracteres.")
                 .MaximumLength(100).WithMessage("El campo 'FirstName' no debe exceder los 100 caracteres.");
         }
 
@@ -25,7 +25,7 @@ namespace MyAccountApp.Application.Validations.User
         {
             RuleFor(expression)
                 .NotEmpty().WithMessage("El campo 'LastName' no puede estar vacío.")
-                .MinimumLength(5).WithMessage("El campo 'LastName' debe tener al menos 5 caracteres.")
+                .MinimumLength(3).WithMessage("El campo 'LastName' debe tener al menos 3 caracteres.")
                 .MaximumLength(100).WithMessage("El campo 'LastName' no debe exceder los 100 caracteres.");
         }
 
