@@ -114,42 +114,6 @@ namespace MyAccountApp.Application.Services
             };
         }
 
-        // public async Task<GenericResponse> GetSheetsAccount(Guid accountId)
-        // {
-        //     IEnumerable<Sheet> sheets; 
-        //     Account account = await _accountRepository.GetActiveAccountById(accountId);
-
-        //     if(account != null){
-        //         sheets = await _sheetRepository.GetSheetByAccountId(accountId);
-
-        //         if(sheets.Count() > 0){
-        //             return new GenericResponse {
-        //                 Resolution = true,
-        //                 Data = new { 
-        //                     Account = new {
-        //                         name = account.Description,
-        //                         creationDate = account.CreationDate,
-        //                     }, 
-        //                     Sheets = sheets,
-        //                 },
-        //             }; 
-        //         }
-        //         else {
-        //             return new GenericResponse {
-        //                 Resolution = true,
-        //                 Message = $"La cuenta con el id { accountId }, no tiene hojas de calculo."
-        //             }; 
-        //         }
-        //     }
-        //     else {
-        //         return new GenericResponse {
-        //             Resolution = false,
-        //             Message = $"La cuenta con el id '{ accountId }', no existe."
-        //         }; 
-        //     }
-        // }
-
-
         public async Task<GenericResponse> GetSheetsAccount(Guid accountId)
         {
             IEnumerable<Sheet> sheets; 
@@ -176,6 +140,42 @@ namespace MyAccountApp.Application.Services
                     Message = $"La cuenta con el id '{ accountId }', no existe."
                 }; 
             }
+        }
+
+        public async Task<GenericResponse> GetUserAccountsWithSheets(Guid userId)
+        {
+            LoginResponseViewModel responseModel = new LoginResponseViewModel();
+
+            responseModel.Accounts = new List<AccountDto>();
+
+            IEnumerable<Account> userAccounts = await _accountRepository.GetActiveAccountByUserId(userId);
+
+            foreach (Account account in userAccounts)
+            {
+                AccountDto accountDto = new AccountDto
+                {
+                    Account = account,
+                    Sheets = new List<SheetDto>()
+                };
+
+                // Obtenemos todas las hojas asociadas a la cuenta
+                IEnumerable<Sheet> sheets = await _sheetRepository.GetSheetByAccountId(account.Id);
+
+                // Se agregan las hojas a la cuenta
+                foreach (Sheet sheet in sheets)
+                    accountDto.Sheets.Add(new SheetDto { Sheet = sheet });
+
+                // Se agrega la cuenta con sus hojas al responseModel
+                responseModel.Accounts.Add(accountDto);
+            }
+
+            // Si todo es correcto, devolver el usuario encontrado con las cuentas y hojas
+            return new GenericResponse
+            {
+                Resolution = true,
+                Data = responseModel,
+                Message = "Inicio de sesión exitoso."
+            };
         }
 
         public void Dispose()

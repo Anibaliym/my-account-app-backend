@@ -40,6 +40,12 @@ namespace MyAccountApp.Api.Controllers
         {
             return await _domainServices.GetSheetsAccount(accountId);
         }
+
+        [HttpGet("GetUserAccountsWithSheets/{userId:guid}")]
+        public async Task<GenericResponse> GetUserAccountsWithSheets(Guid userId)
+        {
+            return await _domainServices.GetUserAccountsWithSheets(userId);
+        }
     }
 }
 

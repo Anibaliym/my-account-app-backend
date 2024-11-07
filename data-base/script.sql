@@ -42,6 +42,7 @@ create table Public."Sheet"
     "CreationDate" timestamp, 
     "CashBalance" integer, 
     "CurrentAccountBalance" integer, 
+    "Order" integer, 
     constraint pk_Sheet primary key ("Id"), 
     constraint fk_Account foreign key ("AccountId") references public."Account"("Id")
 );
