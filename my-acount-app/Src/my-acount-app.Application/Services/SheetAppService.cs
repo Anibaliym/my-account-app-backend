@@ -148,6 +148,34 @@ namespace MyAccountApp.Application.Services
             return response;
         }
 
+        public async Task<GenericResponse> UpdateSheetOrderItems(List<UpdateSheetViewModel> model)
+        {
+            try
+            {
+                foreach(UpdateSheetViewModel sheet in model) {
+                    Sheet obtainedSheet = await _sheetRepository.GetSheetById(sheet.Id);
+
+                    obtainedSheet.Order = sheet.Order; 
+                    obtainedSheet.CreationDate = obtainedSheet.CreationDate.ToUniversalTime();
+                    await _sheetRepository.UpdateSheet(obtainedSheet);
+                }
+                
+                return new GenericResponse
+                {
+                    Resolution = true,
+                    Message = "Se actualizó el orden de las hojas de calculo correctamente ..."
+                };
+            }
+            catch (Exception error)
+            {
+                
+                return new GenericResponse {
+                    Resolution = false,
+                    Message = error.Message
+                };
+            }
+        }
+
         public async Task<GenericResponse> DeleteSheet(Guid id)
         {
             GenericResponse response = new GenericResponse();

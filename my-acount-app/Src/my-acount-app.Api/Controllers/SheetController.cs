@@ -70,6 +70,26 @@ namespace MyAccountApp.Api.Controllers
             }
         }
 
+
+        [HttpPut("UpdateSheetOrderItems")]
+        public async Task<IActionResult> UpdateSheetOrderItems(List<UpdateSheetViewModel> model)
+        {
+            try
+            {
+                GenericResponse response = await _sheetAppService.UpdateSheetOrderItems(model);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return BadRequest(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: { error.Message }");
+            }
+        }
+
+
         [HttpDelete("DeleteSheet")]
         public async Task<IActionResult> DeleteSheet(Guid id)
         {

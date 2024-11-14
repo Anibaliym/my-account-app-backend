@@ -10,6 +10,7 @@ namespace MyAccountApp.Application.Interfaces
         Task<IEnumerable<SheetViewModel>> GetSheetByAccountId(Guid accountId);
         Task<GenericResponse> CreateSheet(CreateSheetViewModel model);
         Task<GenericResponse> UpdateSheet(UpdateSheetViewModel model);
+        Task<GenericResponse> UpdateSheetOrderItems(List<UpdateSheetViewModel> model);
         Task<GenericResponse> DeleteSheet(Guid id);
     }
 }
