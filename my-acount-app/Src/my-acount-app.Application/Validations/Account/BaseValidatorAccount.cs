@@ -12,13 +12,6 @@ namespace MyAccountApp.Application.Validations.Account
                 .NotEqual(Guid.Empty).WithMessage("El campo 'Id' no es válido.");
         }
 
-        protected void ValidateUserId(Expression<Func<T, Guid>> idExpression)
-        {
-            RuleFor(idExpression)
-                .NotEmpty().WithMessage("El campo 'UserId' no puede estar vacío.")
-                .NotEqual(Guid.Empty).WithMessage("El campo 'UserId' no es válido.");
-        }
-
         protected void ValidateDescription(Expression<Func<T, string>> descripcionExpression)
         {
             RuleFor(descripcionExpression)

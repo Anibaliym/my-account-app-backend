@@ -7,7 +7,6 @@ namespace MyAccountApp.Application.Validations.Account
         public AccountUpdateValidator()
         {
             ValidateId(account => account.Id);
-            ValidateUserId(account => account.UserId);
             ValidateDescription(account => account.Description);
         }
     }

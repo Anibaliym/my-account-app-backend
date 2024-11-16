@@ -104,16 +104,8 @@ namespace MyAccountApp.Application.Services
 
             try
             {
-                User existingUser = await _userRepository.GetActiveUserById(model.UserId);
-
-                if (existingUser == null)
-                {
-                    response.Resolution = false;
-                    response.Message = $"El usuario con el id '{model.Id}', no existe.";
-                    return response;
-                }
-
                 Account existingAccount = await _accountRepository.GetActiveAccountById(model.Id);
+
                 if (existingAccount == null) {
                     response.Resolution = false;
                     response.Message = $"La cuenta con el id '{model.Id}', no existe.";
@@ -125,6 +117,7 @@ namespace MyAccountApp.Application.Services
 
                 // Asegúrate de que FechaCreacion está en UTC
                 existingAccount.CreationDate = existingAccount.CreationDate.ToUniversalTime();
+                
 
                 await _accountRepository.UpdateAccount(existingAccount);
                 response.Resolution = true;
