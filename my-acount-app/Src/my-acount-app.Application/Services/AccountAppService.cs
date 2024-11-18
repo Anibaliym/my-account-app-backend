@@ -11,6 +11,7 @@ namespace MyAccountApp.Application.Services
     public class AccountAppService : IAccountAppService
     {
         private readonly IAccountRepository _accountRepository;
+        private readonly ISheetRepository _sheetRepository;
         private readonly IUserRepository _userRepository;
         private readonly IValidator<CreateAccountViewModel> _createAccountValidator;
         private readonly IValidator<UpdateAccountViewModel> _updateAccountValidator;
@@ -21,6 +22,7 @@ namespace MyAccountApp.Application.Services
             IMapper mapper, 
             IAccountRepository accountRepository,
             IUserRepository userRepository,
+            ISheetRepository sheetRepository,
             IValidator<CreateAccountViewModel> createAccountValidator,
             IValidator<UpdateAccountViewModel> updateAccountValidator
         )
@@ -28,6 +30,7 @@ namespace MyAccountApp.Application.Services
             _mapper = mapper;
             _accountRepository = accountRepository;
             _userRepository = userRepository;
+            _sheetRepository = sheetRepository;
             _createAccountValidator = createAccountValidator;
             _updateAccountValidator = updateAccountValidator;
         }
@@ -139,6 +142,15 @@ namespace MyAccountApp.Application.Services
             try
             {
                 Account existingAccount = await _accountRepository.GetActiveAccountById(id);
+                IEnumerable<Sheet> sheetsAccount = await _sheetRepository.GetSheetByAccountId(id); 
+
+
+                if(sheetsAccount.Count() > 0) { 
+                    response.Resolution = false;
+                    response.Message = $"No se puede elimnar la cuenta, por que tiene hojas de cálculo asociadas.";
+                    return response;
+                }
+
                 if (existingAccount == null)
                 {
                     response.Resolution = false;

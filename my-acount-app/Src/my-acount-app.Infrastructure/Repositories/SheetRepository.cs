@@ -35,7 +35,7 @@ namespace MyAccountApp.Infrastructure.Repositories
 
         public async Task<IEnumerable<Sheet>> GetSheetByAccountId(Guid accountId)
         {
-            return await _dbContext.Sheet.AsNoTracking().Where(hoja => hoja.AccountId == accountId).OrderBy(hoja => hoja.Order).ToListAsync();
+            return await _dbContext.Sheet.AsNoTracking().Where(sheet => sheet.AccountId == accountId).OrderBy(sheet => sheet.Order).ToListAsync();
         }
 
         public async Task CreateSheet(Sheet model)
