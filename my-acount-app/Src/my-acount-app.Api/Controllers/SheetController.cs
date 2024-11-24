@@ -70,6 +70,42 @@ namespace MyAccountApp.Api.Controllers
             }
         }
 
+        [HttpPatch("UpdateCashBalance/{sheetId:guid}")]
+        public async Task<IActionResult> UpdateCashBalance(Guid sheetId, [FromBody] int newCashBalance)
+        {
+            try
+            {
+                GenericResponse response = await _sheetAppService.UpdateCashBalance(sheetId, newCashBalance);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return BadRequest(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+            }
+        }
+
+        [HttpPatch("UpdateCurrenteAccountBalance/{sheetId:guid}")]
+        public async Task<IActionResult> UpdateCurrenteAccountBalance(Guid sheetId, [FromBody] int newCashBalance)
+        {
+            try
+            {
+                GenericResponse response = await _sheetAppService.UpdateCurrenteAccountBalance(sheetId, newCashBalance);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return BadRequest(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+            }
+        }
+
 
         [HttpPut("UpdateSheetOrderItems")]
         public async Task<IActionResult> UpdateSheetOrderItems(List<UpdateSheetViewModel> model)

@@ -176,6 +176,76 @@ namespace MyAccountApp.Application.Services
             }
         }
 
+        public async Task<GenericResponse> UpdateCashBalance(Guid sheetId, int newCashBalance)
+        {
+            GenericResponse response = new GenericResponse();
+
+            try
+            {
+                // Obtén la hoja existente por su ID
+                Sheet existingSheet = await _sheetRepository.GetSheetById(sheetId);
+
+                if (existingSheet == null)
+                {
+                    response.Resolution = false;
+                    response.Message = "Hoja no encontrada.";
+                    return response;
+                }
+
+                // Actualiza solo el campo CashBalance
+                existingSheet.CashBalance = newCashBalance;
+                existingSheet.CreationDate = existingSheet.CreationDate.ToUniversalTime();
+
+                // Usa el método UpdateSheet del repositorio para guardar los cambios
+                await _sheetRepository.UpdateSheet(existingSheet);
+
+                response.Resolution = true;
+                response.Message = "CashBalance actualizado correctamente.";
+                response.Data = existingSheet;
+            }
+            catch (Exception ex)
+            {
+                response.Resolution = false;
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        public async Task<GenericResponse> UpdateCurrenteAccountBalance(Guid sheetId, int currentAccountBalance)
+        {
+            GenericResponse response = new GenericResponse();
+
+            try
+            {
+                Sheet existingSheet = await _sheetRepository.GetSheetById(sheetId);
+
+                if (existingSheet == null)
+                {
+                    response.Resolution = false;
+                    response.Message = "Hoja no encontrada.";
+                    return response;
+                }
+
+                existingSheet.CurrentAccountBalance = currentAccountBalance;
+                existingSheet.CreationDate = existingSheet.CreationDate.ToUniversalTime();
+
+                await _sheetRepository.UpdateSheet(existingSheet);
+
+                response.Resolution = true;
+                response.Message = "CurrentAccountBalance actualizado correctamente.";
+                response.Data = existingSheet;
+            }
+            catch (Exception ex)
+            {
+                response.Resolution = false;
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+
         public async Task<GenericResponse> DeleteSheet(Guid id)
         {
             GenericResponse response = new GenericResponse();
