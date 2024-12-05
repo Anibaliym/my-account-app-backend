@@ -8,8 +8,6 @@ namespace MyAccountApp.Application.Validations.Vignette
         {
             ValidateId(vignette => vignette.Id);
             ValidateCardId(vignette => vignette.CardId);
-            ValidateDescription(vignette => vignette.Description);
-            ValidateAmount(vignette => vignette.Amount);
             ValidateColor(vignette => vignette.Color);
             ValidateOrder(vignette => vignette.Order);
         }

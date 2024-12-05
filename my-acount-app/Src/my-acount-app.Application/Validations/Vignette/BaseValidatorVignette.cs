@@ -20,21 +20,6 @@ namespace MyAccountApp.Application.Validations.Vignette
                 .NotEqual(Guid.Empty).WithMessage("El campo 'CardId' no es válido.");
         }
 
-        protected void ValidateDescription(Expression<Func<T, string>> expression)
-        {
-            RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'Description' no puede estar vacío.")
-                .MinimumLength(3).WithMessage("El campo 'Description' debe tener al menos 3 caracteres.")
-                .MaximumLength(300).WithMessage("El campo 'Description' no debe exceder los 300 caracteres.");
-        }
-
-        protected void ValidateAmount(Expression<Func<T, int>> expression)
-        {
-            RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'Amount', no puede estar vacío.")
-                .LessThanOrEqualTo(1000000).WithMessage("El 'Amount', no puede exceder el límite permitido.");
-        }
-
         protected void ValidateColor(Expression<Func<T, string>> expression)
         {
             RuleFor(expression)

@@ -8,7 +8,6 @@ namespace MyAccountApp.Application.Validations.Card
         {
             ValidateSheetId(card => card.SheetId);
             ValidateTitle(card => card.Title);
-            ValidateDescription(card => card.Description);
             ValidateColor(card => card.Color);
         }
     }
