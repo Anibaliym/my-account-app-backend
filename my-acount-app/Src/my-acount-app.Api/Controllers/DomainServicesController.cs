@@ -46,6 +46,12 @@ namespace MyAccountApp.Api.Controllers
         {
             return await _domainServices.GetUserAccountsWithSheets(userId);
         }
+
+        [HttpGet("GetSheetCardsWithVignettes/{sheetId:guid}")]
+        public async Task<GenericResponse> GetSheetCardsWithVignettes(Guid sheetId)
+        {
+            return await _domainServices.GetSheetCardsWithVignettes(sheetId);
+        }
     }
 }
 

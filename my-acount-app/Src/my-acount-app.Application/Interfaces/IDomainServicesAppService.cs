@@ -6,6 +6,7 @@ namespace MyAccountApp.Application.Interfaces
     {
         Task<GenericResponse> Login(string email, string password);
         Task<GenericResponse> GetSheetsAccount(Guid accountId);
+        Task<GenericResponse> GetSheetCardsWithVignettes(Guid sheetId);
         Task<GenericResponse> GetUserAccountsWithSheets(Guid userId);
     }
 }

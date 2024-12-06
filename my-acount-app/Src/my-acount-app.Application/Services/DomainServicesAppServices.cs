@@ -6,6 +6,7 @@ using MyAccountApp.Core.Entities;
 using MyAccountApp.Core.Enum.User;
 using MyAccountApp.Core.Interfaces;
 using MyAccountApp.Core.Utils;
+using System.Reflection.Metadata.Ecma335;
 
 namespace MyAccountApp.Application.Services
 {
@@ -15,12 +16,16 @@ namespace MyAccountApp.Application.Services
         private readonly IUserSecurityRepository _userSecurityRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly ISheetRepository _sheetRepository;
+        private readonly ICardRepository _cardRepository;
+        private readonly IVignetteRepository _vignetteRepository;
 
         public DomainServicesAppServices (
             IUserRepository userRepository,
             IAccountRepository accountRepository,
             ISheetRepository sheetRepository, 
             IUserSecurityRepository userSecurityRepository,
+            ICardRepository cardRepository, 
+            IVignetteRepository vignetteRepository, 
             IValidator<UserSecurityCreateViewModel> createUserSecurityValidator
 
         )
@@ -29,6 +34,8 @@ namespace MyAccountApp.Application.Services
             _accountRepository = accountRepository;
             _sheetRepository = sheetRepository;
             _userSecurityRepository = userSecurityRepository; 
+            _cardRepository = cardRepository;
+            _vignetteRepository = vignetteRepository; 
         }
 
         public async Task<GenericResponse> Login(string email, string password)
@@ -176,6 +183,64 @@ namespace MyAccountApp.Application.Services
                 Data = responseModel,
                 Message = "Inicio de sesión exitoso."
             };
+        }
+
+        public async Task<GenericResponse> GetSheetCardsWithVignettes(Guid sheetId)
+        {
+            try
+            {
+                // Obtener las cards asociadas al sheetId
+                IEnumerable<Card> cards = await _cardRepository.GetCardBySheetId(sheetId);
+
+                // Crear el modelo que contiene las cards con sus vignettes
+                var model = new SheetCardsWithVignetteViewModel
+                {
+                    Cards = new List<CardWithVignettesDTO>()
+                };
+
+                foreach (Card card in cards)
+                {
+                    // Obtener las vignettes asociadas a la card actual
+                    IEnumerable<Vignette> vignettes = await _vignetteRepository.GetVignetteByCardId(card.Id);
+
+                    // Mapear la card con sus vignettes
+                    var cardWithVignettes = new CardWithVignettesDTO
+                    {
+                        Id = card.Id,
+                        Title = card.Title,
+                        Description = card.Description,
+                        CreationDate = card.CreationDate,
+                        Color = card.Color,
+                        Vignettes = vignettes.Select(v => new VignetteDTO
+                        {
+                            Id = v.Id,
+                            Description = v.Description,
+                            Amount = v.Amount,
+                            Color = v.Color,
+                            Order = v.Order
+                        }).ToList()
+                    };
+
+                    // Agregar la card al modelo
+                    model.Cards.Add(cardWithVignettes);
+                }
+
+                // Retornar el modelo en una respuesta genérica
+                return new GenericResponse
+                {
+                    Resolution = true,
+                    Message = "Cards and Vignettes fetched successfully.",
+                    Data = model
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GenericResponse
+                {
+                    Resolution = false,
+                    Message = $"An error occurred: {ex.Message}"
+                };
+            }
         }
 
 
