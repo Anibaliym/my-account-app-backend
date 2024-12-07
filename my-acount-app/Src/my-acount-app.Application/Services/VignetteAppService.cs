@@ -132,6 +132,33 @@ namespace MyAccountApp.Application.Services
             return response;
         }
 
+        public async Task<GenericResponse> UpdateVignetteOrderItems(List<UpdateVignetteViewModel> model)
+        {
+            try
+            {
+                foreach(UpdateVignetteViewModel vignette in model) {
+                    Vignette obtainedVignette = await _vignetteRepository.GetVignetteById(vignette.Id);
+
+                    obtainedVignette.Order = vignette.Order; 
+                    
+                    await _vignetteRepository.UpdateVignette(obtainedVignette);
+                }
+                
+                return new GenericResponse
+                {
+                    Resolution = true,
+                    Message = "Se actualizó el orden de las viñetas correctamente ..."
+                };
+            }
+            catch (Exception error)
+            {
+                return new GenericResponse {
+                    Resolution = false,
+                    Message = error.Message
+                };
+            }
+        }        
+
         public async Task<GenericResponse> DeleteVignette(Guid id)
         {
             GenericResponse response = new GenericResponse();

@@ -63,6 +63,25 @@ namespace MyAccountApp.Api.Controllers
             }
         }
 
+        [HttpPut("UpdateVignetteOrderItems")]
+        public async Task<IActionResult> UpdateVignetteOrderItems(List<UpdateVignetteViewModel> model)
+        {
+            try
+            {
+                GenericResponse response = await _vignetteAppService.UpdateVignetteOrderItems(model);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return BadRequest(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: { error.Message }");
+            }
+        }
+
+
         [HttpDelete("DeleteVignette")]
         public async Task<IActionResult> DeleteVignette(Guid id)
         {

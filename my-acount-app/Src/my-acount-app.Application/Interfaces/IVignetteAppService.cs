@@ -9,6 +9,7 @@ namespace MyAccountApp.Application.Interfaces
         Task<IEnumerable<VignetteViewModel>> GetVignetteByCardId(Guid cardId); 
         Task<GenericResponse> CreateVignette(VignetteCreateViewModel model);
         Task<GenericResponse> UpdateVignette(VignetteViewModel model);
+        Task<GenericResponse> UpdateVignetteOrderItems(List<UpdateVignetteViewModel> model);
         Task<GenericResponse> DeleteVignette(Guid id);
     }
 }
