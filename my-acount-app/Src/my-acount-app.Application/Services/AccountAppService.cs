@@ -147,7 +147,7 @@ namespace MyAccountApp.Application.Services
 
                 if(sheetsAccount.Count() > 0) { 
                     response.Resolution = false;
-                    response.Message = $"No se puede elimnar la cuenta, por que tiene hojas de cálculo asociadas.";
+                    response.Message = $"No se puede eliminar la cuenta, por que tiene hojas de cálculo asociadas. Primero debe eliminar las hojas de cálculo.";
                     return response;
                 }
 

@@ -73,7 +73,7 @@ namespace MyAccountApp.Application.Services
 
                 if (totalVignettesCard >= 20){
                     response.Resolution = false;
-                    response.Message = $"No se puede crear mas de 20 viñetas relacionadas a la carta con el id '{model.CardId}'.";
+                    response.Message = $"No se puede crear mas de 20 viñetas en una sola carta.";
                     return response;
                 }
 
