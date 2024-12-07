@@ -7,6 +7,7 @@ namespace MyAccountApp.Core.Interfaces
         Task<Vignette> GetVignetteById(Guid id);
         Task<IEnumerable<Vignette>> GetVignetteByCardId(Guid cardId);
         Task<int> GetNextOrderByCardId(Guid cardId);
+        Task<int> GetTotalVignettesCard(Guid cardId);
         Task CreateVignette(Vignette model);
         Task UpdateVignette(Vignette model);
         Task<bool> DeleteVignette(Guid id);

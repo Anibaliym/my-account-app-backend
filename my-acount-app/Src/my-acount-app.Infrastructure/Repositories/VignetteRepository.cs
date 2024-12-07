@@ -32,6 +32,14 @@ namespace MyAccountApp.Infrastructure.Repositories
                 .MaxAsync(vignette => (int?)vignette.Order) + 1 ?? 1;
         }
 
+        public async Task<int> GetTotalVignettesCard(Guid cardId)
+        {
+            return await _dbContext.Vignette
+                .AsNoTracking()
+                .Where(vignette => vignette.CardId == cardId)
+                .CountAsync();
+        }
+
         public async Task CreateVignette(Vignette model)
         {
             await _dbContext.Vignette.AddAsync(model);

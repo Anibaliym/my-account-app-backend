@@ -69,6 +69,14 @@ namespace MyAccountApp.Application.Services
                     return response;
                 }
 
+                int totalVignettesCard = await _vignetteRepository.GetTotalVignettesCard(model.CardId); 
+
+                if (totalVignettesCard >= 20){
+                    response.Resolution = false;
+                    response.Message = $"No se puede crear mas de 20 viñetas relacionadas a la carta con el id '{model.CardId}'.";
+                    return response;
+                }
+
                 int order = await _vignetteRepository.GetNextOrderByCardId(model.CardId);
 
                 Vignette vignette = _mapper.Map<Vignette>(model);
