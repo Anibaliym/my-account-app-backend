@@ -60,6 +60,7 @@ namespace MyAccountApp.Application.Services
                     };
                 }
 
+                //Se valida que la carta relacionada exista. 
                 Card existingCard = await _cardRepository.GetCardById(model.CardId);
 
                 if (existingCard == null){
@@ -68,8 +69,11 @@ namespace MyAccountApp.Application.Services
                     return response;
                 }
 
+                int order = await _vignetteRepository.GetNextOrderByCardId(model.CardId);
+
                 Vignette vignette = _mapper.Map<Vignette>(model);
                 vignette.Id = Guid.NewGuid();
+                vignette.Order = order; 
 
                 await _vignetteRepository.CreateVignette(vignette);
                 response.Resolution = true;
@@ -110,6 +114,7 @@ namespace MyAccountApp.Application.Services
                     response.Data = $"Vineta con el id '{ model.Id }'no encontrado ";
                     return response;
                 }
+
 
                 _mapper.Map(model, existingVignette);
 

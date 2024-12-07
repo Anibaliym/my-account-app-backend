@@ -7,8 +7,6 @@ namespace MyAccountApp.Application.Validations.Vignette
         public VignetteCreateValidator()
         {
             ValidateCardId(vignette => vignette.CardId);
-            ValidateColor(vignette => vignette.Color);
-            ValidateOrder(vignette => vignette.Order);
         }
     }
 }

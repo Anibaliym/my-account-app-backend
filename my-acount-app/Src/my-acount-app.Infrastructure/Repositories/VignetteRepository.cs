@@ -24,6 +24,13 @@ namespace MyAccountApp.Infrastructure.Repositories
         {
             return await _dbContext.Vignette.AsNoTracking().Where(vignette => vignette.CardId == cardId).ToListAsync(); 
         }
+        public async Task<int> GetNextOrderByCardId(Guid cardId)
+        {
+            return await _dbContext.Vignette
+                .AsNoTracking()
+                .Where(vignette => vignette.CardId == cardId)
+                .MaxAsync(vignette => (int?)vignette.Order) + 1 ?? 1;
+        }
 
         public async Task CreateVignette(Vignette model)
         {
