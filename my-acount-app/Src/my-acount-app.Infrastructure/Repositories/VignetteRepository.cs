@@ -22,7 +22,7 @@ namespace MyAccountApp.Infrastructure.Repositories
 
         public async Task<IEnumerable<Vignette>> GetVignetteByCardId(Guid cardId)
         {
-            return await _dbContext.Vignette.AsNoTracking().Where(vignette => vignette.CardId == cardId).ToListAsync(); 
+            return await _dbContext.Vignette.AsNoTracking().Where(vignette => vignette.CardId == cardId).OrderBy( vignette => vignette.Order ).ToListAsync(); 
         }
         public async Task<int> GetNextOrderByCardId(Guid cardId)
         {
