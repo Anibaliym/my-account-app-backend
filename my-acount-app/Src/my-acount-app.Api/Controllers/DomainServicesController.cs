@@ -52,6 +52,26 @@ namespace MyAccountApp.Api.Controllers
         {
             return await _domainServices.GetSheetCardsWithVignettes(sheetId);
         }
+
+        [HttpDelete("DeleteCardWithVignettes/{cardId:guid}")]
+        public async Task<IActionResult> DeleteCardWithVignettes(Guid cardId)
+        {
+            try
+            {
+                GenericResponse response = await _domainServices.DeleteCardWithVignettes(cardId);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return BadRequest(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+            }
+
+        }
+
     }
 }
 

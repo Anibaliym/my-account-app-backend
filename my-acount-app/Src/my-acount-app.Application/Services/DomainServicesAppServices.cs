@@ -185,6 +185,37 @@ namespace MyAccountApp.Application.Services
             };
         }
 
+        public async Task<GenericResponse> DeleteCardWithVignettes(Guid cardId)
+        {
+            LoginResponseViewModel responseModel = new LoginResponseViewModel();
+
+            Card cardFound = await _cardRepository.GetCardById(cardId); 
+
+            if(cardFound == null) {
+                return new GenericResponse
+                {
+                    Resolution = false,
+                    Message = $"La carta con el id '{ cardId }', no existe."
+                };
+            }
+
+            IEnumerable<Vignette> vignettes = await _vignetteRepository.GetVignetteByCardId(cardId);
+
+            //Se elininan todas las viñetas relacionadas a la carta. 
+            foreach(Vignette vignette in vignettes)
+                await _vignetteRepository.DeleteVignette(vignette.Id); 
+            
+
+            //se elimina la carta
+            await _cardRepository.DeleteCard(cardId); 
+
+            return new GenericResponse {
+                Resolution = true,
+                Data = responseModel,
+                Message = "Se elimina la carta con todas sus viñetas"
+            };
+        }
+
         public async Task<GenericResponse> GetSheetCardsWithVignettes(Guid sheetId)
         {
             try
@@ -242,8 +273,6 @@ namespace MyAccountApp.Application.Services
                 };
             }
         }
-
-
 
         public void Dispose()
         {
