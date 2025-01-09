@@ -140,6 +140,10 @@ namespace MyAccountApp.Application.Services
             return response;
         }
 
+        private int reculcalateTotalAmountCard() {
+            return 0;
+        }
+
         public async Task<GenericResponse> UpdateVignetteOrderItems(List<UpdateVignetteViewModel> model)
         {
             try

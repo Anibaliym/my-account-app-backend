@@ -13,6 +13,7 @@ public class CardWithVignettesDTO
     public DateTime CreationDate { get; set; }
     public string Color { get; set; } = string.Empty;
     public List<VignetteDTO> Vignettes { get; set; } = new List<VignetteDTO>();
+    public int TotalCardAmount { get; set; }
 }
 
 public class VignetteDTO

@@ -2,6 +2,7 @@
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.User;
+using MyAccountApp.Application.ViewModels.Vignette;
 
 namespace MyAccountApp.Api.Controllers
 {
@@ -26,8 +27,6 @@ namespace MyAccountApp.Api.Controllers
                     return Ok(response);
                 else
                     return Unauthorized(response);
-
-
             }
             catch (Exception error)
             {
@@ -69,9 +68,43 @@ namespace MyAccountApp.Api.Controllers
             {
                 return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
             }
-
         }
 
+        [HttpPut("UpdateVignetteAndRecalculateTotal")]
+        public async Task<IActionResult> UpdateVignetteAndRecalculateTotal(VignetteViewModel model)
+        {
+            try
+            {
+                GenericResponse response = await _domainServices.UpdateVignetteAndRecalculateTotal(model);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return BadRequest(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+            }
+        }
+
+        [HttpDelete("DeleteVignetteAndRecalculateTotal")]
+        public async Task<IActionResult> DeleteVignetteAndRecalculateTotal(Guid vignetteId)
+        {
+            try
+            {
+                GenericResponse response = await _domainServices.DeleteVignetteAndRecalculateTotal(vignetteId);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return BadRequest(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+            }
+        }
     }
 }
 

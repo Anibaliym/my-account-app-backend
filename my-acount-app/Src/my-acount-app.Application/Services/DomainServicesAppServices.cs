@@ -7,6 +7,8 @@ using MyAccountApp.Core.Enum.User;
 using MyAccountApp.Core.Interfaces;
 using MyAccountApp.Core.Utils;
 using System.Reflection.Metadata.Ecma335;
+using MyAccountApp.Application.ViewModels.Vignette;
+using AutoMapper;
 
 namespace MyAccountApp.Application.Services
 {
@@ -18,6 +20,8 @@ namespace MyAccountApp.Application.Services
         private readonly ISheetRepository _sheetRepository;
         private readonly ICardRepository _cardRepository;
         private readonly IVignetteRepository _vignetteRepository;
+        private readonly IValidator<VignetteViewModel> _updateVignetteValidator;
+        private readonly IMapper _mapper;
 
         public DomainServicesAppServices (
             IUserRepository userRepository,
@@ -26,8 +30,9 @@ namespace MyAccountApp.Application.Services
             IUserSecurityRepository userSecurityRepository,
             ICardRepository cardRepository, 
             IVignetteRepository vignetteRepository, 
-            IValidator<UserSecurityCreateViewModel> createUserSecurityValidator
-
+            IValidator<UserSecurityCreateViewModel> createUserSecurityValidator, 
+            IValidator<VignetteViewModel> updateVignetteValidator,
+            IMapper mapper
         )
         {
             _userRepository = userRepository;
@@ -36,6 +41,8 @@ namespace MyAccountApp.Application.Services
             _userSecurityRepository = userSecurityRepository; 
             _cardRepository = cardRepository;
             _vignetteRepository = vignetteRepository; 
+            _updateVignetteValidator = updateVignetteValidator;
+            _mapper = mapper;
         }
 
         public async Task<GenericResponse> Login(string email, string password)
@@ -218,6 +225,7 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> GetSheetCardsWithVignettes(Guid sheetId)
         {
+            int sumTotalAmount = 0;
             try
             {
                 // Obtener las cards asociadas al sheetId
@@ -234,6 +242,12 @@ namespace MyAccountApp.Application.Services
                     // Obtener las vignettes asociadas a la card actual
                     IEnumerable<Vignette> vignettes = await _vignetteRepository.GetVignetteByCardId(card.Id);
 
+                    foreach (var vignette in vignettes) {
+                        // sumTotalAmount = vignette != null ? sumTotalAmount + vignette.Amount : sumTotalAmount;
+                        sumTotalAmount = sumTotalAmount + vignette.Amount;
+
+                    }
+
                     // Mapear la card con sus vignettes
                     var cardWithVignettes = new CardWithVignettesDTO
                     {
@@ -242,6 +256,7 @@ namespace MyAccountApp.Application.Services
                         Description = card.Description,
                         CreationDate = card.CreationDate,
                         Color = card.Color,
+                        TotalCardAmount = sumTotalAmount,
                         Vignettes = vignettes.Select(v => new VignetteDTO
                         {
                             Id = v.Id,
@@ -249,8 +264,10 @@ namespace MyAccountApp.Application.Services
                             Amount = v.Amount,
                             Color = v.Color,
                             Order = v.Order
-                        }).ToList()
+                        }).ToList(), 
                     };
+
+                    sumTotalAmount = 0;
 
                     // Agregar la card al modelo
                     model.Cards.Add(cardWithVignettes);
@@ -274,10 +291,103 @@ namespace MyAccountApp.Application.Services
             }
         }
 
+        public async Task<GenericResponse> UpdateVignetteAndRecalculateTotal(VignetteViewModel model)
+        {
+            GenericResponse response = new GenericResponse();
+            int sumTotalAmount = 0;
+
+            try
+            {
+                FluentValidation.Results.ValidationResult validationResult = _updateVignetteValidator.Validate(model);
+
+                if (!validationResult.IsValid)
+                {
+                    return new GenericResponse
+                    {
+                        Resolution = false,
+                        Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
+                        Message = "Se encontraron errores de validación."
+                    };
+                }
+
+                Vignette existingVignette = await _vignetteRepository.GetVignetteById(model.Id);
+                if (existingVignette == null)
+                {
+                    response.Resolution = false;
+                    response.Data = $"Vineta con el id '{model.Id}' no encontrada.";
+                    return response;
+                }
+
+                if (existingVignette.Amount != model.Amount) {
+                    Card card = await _cardRepository.GetCardById(model.CardId);
+                }
+
+                IEnumerable<Vignette> cardVignettes = await _vignetteRepository.GetVignetteByCardId(model.CardId);
+
+                sumTotalAmount = cardVignettes.Sum(v => v.Amount);
+                sumTotalAmount = sumTotalAmount - existingVignette.Amount + model.Amount;
+
+                _mapper.Map(model, existingVignette);
+                await _vignetteRepository.UpdateVignette(existingVignette);
+
+                response.Resolution = true;
+                response.Data = new
+                {
+                    UpdatedVignette = existingVignette,
+                    TotalAmount = sumTotalAmount
+                };
+            }
+            catch (Exception ex)
+            {
+                response.Resolution = false;
+                response.Data = ex.Message;
+            }
+
+            return response;
+        }
+
+
+        public async Task<GenericResponse> DeleteVignetteAndRecalculateTotal(Guid vignetteId)
+        {
+            GenericResponse response = new GenericResponse();
+            int sumTotalAmount = 0;
+
+            try
+            {
+                Vignette existingVignette = await _vignetteRepository.GetVignetteById(vignetteId);
+
+                if (existingVignette == null)
+                {
+                    response.Resolution = false;
+                    response.Data = $"Vineta con el id '{vignetteId}'no encontrado ";
+                    return response;
+                }
+
+                bool resolution = await _vignetteRepository.DeleteVignette(vignetteId);
+                response.Resolution = resolution;
+                response.Message = (resolution) ? "Vineta eliminada" : "No se pudo eliminar el registro.";
+                
+                IEnumerable<Vignette> cardVignettes = await _vignetteRepository.GetVignetteByCardId(existingVignette.CardId);
+
+                sumTotalAmount = cardVignettes.Sum(v => v.Amount);
+
+                response.Resolution = true;
+                response.Data = new {
+                    TotalAmount = sumTotalAmount
+                };
+            }
+            catch (Exception ex)
+            {
+                response.Resolution = false;
+                response.Data = ex.Message;
+            }
+
+            return response;
+        }
+
         public void Dispose()
         {
             GC.SuppressFinalize(this);
         }
     }
 }
-
