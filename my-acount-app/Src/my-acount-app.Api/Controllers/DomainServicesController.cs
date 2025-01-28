@@ -105,6 +105,24 @@ namespace MyAccountApp.Api.Controllers
                 return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
             }
         }
+
+        [HttpPut("UpdateVignetteColorTheme")]
+        public async Task<IActionResult> UpdateVignetteColorTheme(Guid vignetteId, string colorTheme)
+        {
+            try
+            {
+                GenericResponse response = await _domainServices.UpdateVignetteColorTheme(vignetteId, colorTheme);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return BadRequest(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+            }
+        }
     }
 }
 

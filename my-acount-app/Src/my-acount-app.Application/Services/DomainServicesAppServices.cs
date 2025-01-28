@@ -311,6 +311,7 @@ namespace MyAccountApp.Application.Services
                 }
 
                 Vignette existingVignette = await _vignetteRepository.GetVignetteById(model.Id);
+
                 if (existingVignette == null)
                 {
                     response.Resolution = false;
@@ -381,6 +382,42 @@ namespace MyAccountApp.Application.Services
                 response.Resolution = false;
                 response.Data = ex.Message;
             }
+
+            return response;
+        }
+
+        public async Task<GenericResponse> UpdateVignetteColorTheme(Guid vignetteId, string colorTheme)
+        {
+            GenericResponse response = new GenericResponse();
+
+            // FluentValidation.Results.ValidationResult validationResult = _updateVignetteValidator.Validate(vignetteId);
+
+            // if (!validationResult.IsValid)
+            // {
+            //     return new GenericResponse
+            //     {
+            //         Resolution = false,
+            //         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
+            //         Message = "Se encontraron errores de validación."
+            //     };
+            // }
+
+            Vignette existingVignette = await _vignetteRepository.GetVignetteById(vignetteId);
+
+            if (existingVignette == null)
+            {
+                response.Resolution = false;
+                response.Data = $"Vineta con el id '{vignetteId}'no encontrado ";
+                return response;
+            }
+
+            existingVignette.Color = colorTheme;
+            await _vignetteRepository.UpdateVignette(existingVignette);
+
+            response.Resolution = true;
+            response.Data = new {
+                UpdatedVignette = existingVignette,
+            };
 
             return response;
         }
