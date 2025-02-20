@@ -4,7 +4,7 @@ namespace MyAccountApp.Core.Enum.Color
 {
     public sealed class TipoColorEnum : SmartEnum<TipoColorEnum>
     {
-        public static readonly TipoColorEnum WHITE = new TipoColorEnum("WHITE", 1);
+        public static readonly TipoColorEnum DEFAULT = new TipoColorEnum("DEFAULT", 1);
         public static readonly TipoColorEnum GREEN = new TipoColorEnum("GREEN", 2);
         public static readonly TipoColorEnum YELLOW = new TipoColorEnum("YELLOW", 3);
         public static readonly TipoColorEnum ORANGE = new TipoColorEnum("ORANGE", 4);
