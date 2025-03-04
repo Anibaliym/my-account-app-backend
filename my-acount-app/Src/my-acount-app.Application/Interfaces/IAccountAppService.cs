@@ -9,6 +9,7 @@ namespace MyAccountApp.Application.Interfaces
         Task<IEnumerable<AccountViewModel>> GetActiveAccountByUserId(Guid userId);
         Task<GenericResponse> CreateAccount(CreateAccountViewModel model);
         Task<GenericResponse> UpdateAccount(UpdateAccountViewModel model);
+        Task<GenericResponse> UpdateAccountOrderItems(List<UpdateAccountViewModel> model);
         Task<GenericResponse> DeleteAccount(Guid id);
     }
 }

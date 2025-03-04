@@ -64,6 +64,24 @@ namespace MyAccountApp.Api.Controllers
             }
         }
 
+        [HttpPut("UpdateAccountOrderItems")]
+        public async Task<IActionResult> UpdateAccountOrderItems(List<UpdateAccountViewModel> model)
+        {
+            try
+            {
+                GenericResponse response = await _accountAppService.UpdateAccountOrderItems(model);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return BadRequest(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+            }
+        }
+
         [HttpDelete("DeleteAccount")]
         public async Task<IActionResult> DeleteAccount(Guid id)
         {

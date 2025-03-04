@@ -21,15 +21,34 @@ namespace MyAccountApp.Infrastructure.Repositories
         public async Task<IEnumerable<Account>> GetActiveAccountByUserId(Guid userId) {
             return await _dbContext.Account.AsNoTracking().Where(account => account.UserId == userId&& account.IsActive == true).ToListAsync();
         }
+        
+        public async Task<int> GetTotalUserAccounts(Guid userId)
+        {
+            return await _dbContext.Account
+                .AsNoTracking()
+                .Where(account => account.UserId == userId)
+                .CountAsync();
+        }
 
         public async Task CreateAccount(Account modelo) {
             await _dbContext.Account.AddAsync(modelo);
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<int> GetNextAccountOrderByUserId(Guid userId)
+        {
+            return await _dbContext.Account
+                .AsNoTracking()
+                .Where(account => account.UserId == userId)
+                .MaxAsync(account => (int?)account.Order) + 1 ?? 1;
+        }
+
         public async Task UpdateAccount(Account model) {
-            _dbContext.Entry(model).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
+            var existingAccount = await _dbContext.Account.FindAsync(model.Id);
+            if (existingAccount != null) {
+                _dbContext.Entry(existingAccount).CurrentValues.SetValues(model);
+                await _dbContext.SaveChangesAsync();
+            }
         }
 
         public async Task<bool> DeleteAccount(Guid id)

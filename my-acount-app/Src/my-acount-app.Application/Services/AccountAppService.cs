@@ -38,30 +38,28 @@ namespace MyAccountApp.Application.Services
         {
             return _mapper.Map<AccountViewModel>(await _accountRepository.GetActiveAccountById(id));
         }
-
         public async Task<IEnumerable<AccountViewModel>> GetActiveAccountByUserId(Guid userId)
         {
             return _mapper.Map<IEnumerable<AccountViewModel>>(await _accountRepository.GetActiveAccountByUserId(userId));
         }
-
         public async Task<GenericResponse> CreateAccount(CreateAccountViewModel model)
         {
             GenericResponse response = new GenericResponse();
 
-            FluentValidation.Results.ValidationResult validationResult = _createAccountValidator.Validate(model);
-
-            if (!validationResult.IsValid)
-            {
-                return new GenericResponse
-                {
-                    Resolution = false,
-                    Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    Message = "Se encontraron errores de validación."
-                };
-            }
-
             try
             {
+                FluentValidation.Results.ValidationResult validationResult = _createAccountValidator.Validate(model);
+
+                if (!validationResult.IsValid)
+                {
+                    return new GenericResponse
+                    {
+                        Resolution = false,
+                        Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
+                        Message = "Se encontraron errores de validación."
+                    };
+                }
+
                 User user = await _userRepository.GetActiveUserById(model.UserId);
 
                 if (user == null)
@@ -71,10 +69,21 @@ namespace MyAccountApp.Application.Services
                     return response;
                 }
 
+                int totalUserAccounts = await _accountRepository.GetTotalUserAccounts(model.UserId); 
+
+                if (totalUserAccounts >= 20){
+                    response.Resolution = false;
+                    response.Message = $"No se pueden crear mas de 20 cuentas por usuario.";
+                    return response;
+                }
+
+                int order = await _accountRepository.GetNextAccountOrderByUserId(model.UserId);
+
                 Account account = _mapper.Map<Account>(model);
                 account.Id = Guid.NewGuid();
                 account.CreationDate = DateTime.UtcNow;
                 account.IsActive = true;
+                account.Order = order;
 
                 await _accountRepository.CreateAccount(account);
                 response.Resolution = true;
@@ -88,7 +97,6 @@ namespace MyAccountApp.Application.Services
 
             return response;
         }
-
         public async Task<GenericResponse> UpdateAccount(UpdateAccountViewModel model)
         {
             GenericResponse response = new GenericResponse();
@@ -118,9 +126,7 @@ namespace MyAccountApp.Application.Services
                 // Mapear solo las propiedades necesarias desde el modelo
                 _mapper.Map(model, existingAccount);
 
-                // Asegúrate de que FechaCreacion está en UTC
                 existingAccount.CreationDate = existingAccount.CreationDate.ToUniversalTime();
-                
 
                 await _accountRepository.UpdateAccount(existingAccount);
                 response.Resolution = true;
@@ -134,7 +140,32 @@ namespace MyAccountApp.Application.Services
 
             return response;
         }
+        public async Task<GenericResponse> UpdateAccountOrderItems(List<UpdateAccountViewModel> model)
+        {
+            try
+            {
+                foreach(UpdateAccountViewModel account in model) {
+                    Account obtainedAccount = await _accountRepository.GetActiveAccountById(account.Id);
 
+                    obtainedAccount.Order = account.Order; 
+                    
+                    await _accountRepository.UpdateAccount(obtainedAccount);
+                }
+                
+                return new GenericResponse
+                {
+                    Resolution = true,
+                    Message = "Se actualizó el orden de las viñetas correctamente ..."
+                };
+            }
+            catch (Exception error)
+            {
+                return new GenericResponse {
+                    Resolution = false,
+                    Message = error.Message
+                };
+            }
+        }
         public async Task<GenericResponse> DeleteAccount(Guid id)
         {
             GenericResponse response = new GenericResponse();

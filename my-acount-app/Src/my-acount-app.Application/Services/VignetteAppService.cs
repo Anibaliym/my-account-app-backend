@@ -30,24 +30,20 @@ namespace MyAccountApp.Application.Services
             _updateVignetteValidator = updateVignetteValidator;
             _mapper = mapper;
         }
-
         public async Task<VignetteViewModel> GetVignetteById(Guid id)
         {
             return _mapper.Map<VignetteViewModel>(await _vignetteRepository.GetVignetteById(id));
         }
-
         public async Task<IEnumerable<VignetteViewModel>> GetVignetteByCardId(Guid cardId)
         {
             return _mapper.Map<IEnumerable<VignetteViewModel>>(await _vignetteRepository.GetVignetteByCardId(cardId));
         }
-
         public async Task<GenericResponse> CreateVignette(VignetteCreateViewModel model)
         {
             GenericResponse response = new GenericResponse();
 
             try
             {
-
                 FluentValidation.Results.ValidationResult validationResult = _createVignetteValidator.Validate(model);
 
                 if (!validationResult.IsValid)
@@ -95,7 +91,6 @@ namespace MyAccountApp.Application.Services
 
             return response;
         }
-
         public async Task<GenericResponse> UpdateVignette(VignetteViewModel model)
         {
             GenericResponse response = new GenericResponse();
@@ -123,9 +118,7 @@ namespace MyAccountApp.Application.Services
                     return response;
                 }
 
-
                 _mapper.Map(model, existingVignette);
-
 
                 await _vignetteRepository.UpdateVignette(existingVignette);
                 response.Resolution = true;
@@ -134,16 +127,11 @@ namespace MyAccountApp.Application.Services
             catch (Exception ex)
             {
                 response.Resolution = false;
-                response.Data = ex.Message;
+                response.Message = ex.Message;
             }
 
             return response;
         }
-
-        private int reculcalateTotalAmountCard() {
-            return 0;
-        }
-
         public async Task<GenericResponse> UpdateVignetteOrderItems(List<UpdateVignetteViewModel> model)
         {
             try
@@ -170,7 +158,6 @@ namespace MyAccountApp.Application.Services
                 };
             }
         }        
-
         public async Task<GenericResponse> DeleteVignette(Guid id)
         {
             GenericResponse response = new GenericResponse();

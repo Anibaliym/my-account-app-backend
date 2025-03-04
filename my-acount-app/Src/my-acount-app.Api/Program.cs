@@ -62,8 +62,6 @@ builder.Services.AddScoped<IValidator<UserSecurityCreateViewModel>, UserSecurity
 
 builder.Services.AddScoped<IValidator<Guid>, IdValidator>();//validador generico
 
-
-
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
