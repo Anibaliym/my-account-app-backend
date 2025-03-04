@@ -15,11 +15,18 @@ namespace MyAccountApp.Infrastructure.Repositories
         }
 
         public async Task<Account?> GetActiveAccountById(Guid id) {
-            return await _dbContext.Account.AsNoTracking().Where(account => account.Id == id && account.IsActive == true).FirstOrDefaultAsync();
+            return await _dbContext.Account
+                .AsNoTracking()
+                .Where(account => account.Id == id && account.IsActive == true)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Account>> GetActiveAccountByUserId(Guid userId) {
-            return await _dbContext.Account.AsNoTracking().Where(account => account.UserId == userId&& account.IsActive == true).ToListAsync();
+            return await _dbContext.Account
+            .AsNoTracking()
+            .Where(account => account.UserId == userId&& account.IsActive == true)
+            .OrderBy(account => account.Order)
+            .ToListAsync();
         }
         
         public async Task<int> GetTotalUserAccounts(Guid userId)
