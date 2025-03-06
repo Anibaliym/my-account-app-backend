@@ -100,6 +100,7 @@ namespace MyAccountApp.Application.Services
         public async Task<GenericResponse> UpdateAccount(UpdateAccountViewModel model)
         {
             GenericResponse response = new GenericResponse();
+            int order = 0; 
 
             FluentValidation.Results.ValidationResult validationResult = _updateAccountValidator.Validate(model);
 
@@ -123,10 +124,13 @@ namespace MyAccountApp.Application.Services
                     return response;
                 }
 
+                order = existingAccount.Order; 
+
                 // Mapear solo las propiedades necesarias desde el modelo
                 _mapper.Map(model, existingAccount);
 
                 existingAccount.CreationDate = existingAccount.CreationDate.ToUniversalTime();
+                existingAccount.Order = order;
 
                 await _accountRepository.UpdateAccount(existingAccount);
                 response.Resolution = true;
