@@ -225,6 +225,42 @@ namespace MyAccountApp.Application.Services
             };
         }
 
+        public async Task<GenericResponse> DeleteSheetWithContents(Guid sheetId)
+        {
+            Sheet sheetFound = await _sheetRepository.GetSheetById(sheetId);
+
+            if(sheetFound == null) {
+                return new GenericResponse {
+                    Resolution = false,
+                    Message = $"La hoja de cálculo con el id '{ sheetId }', no existe."
+                };
+            }
+
+
+            // Se obtienen las "Cartas" relacionadas a la "Hoja de cálculo".
+            IEnumerable<Card> existingCardsBySheet = await _cardRepository.GetCardBySheetId(sheetId);
+
+            foreach(Card card in existingCardsBySheet) {
+                // Se obtienen las "Viñetas" relaciondas a cada "Carta".
+                IEnumerable<Vignette> vignettesFoundByCard = await _vignetteRepository.GetVignetteByCardId(card.Id);
+
+                foreach (Vignette vignette in vignettesFoundByCard){
+                    // Se elimina cada "Viñeta" relacionda a la "Carta".
+                    await _vignetteRepository.DeleteVignette(vignette.Id);  
+                } 
+                
+                // Después de eliminar las "Viñetas relacionadas", Se elimina la "Carta" de turno
+                await _cardRepository.DeleteCard(card.Id);
+            }
+
+            await _sheetRepository.DeleteSheet(sheetId);
+
+            return new GenericResponse {
+                Resolution = true,
+                Message = $"Se ha eliminado la hoja de cálculo con el id '{ sheetId }', con todo su contenido."
+            };
+        }
+
         public async Task<GenericResponse> GetSheetCardsWithVignettes(Guid sheetId)
         {
             int sumTotalAmount = 0;

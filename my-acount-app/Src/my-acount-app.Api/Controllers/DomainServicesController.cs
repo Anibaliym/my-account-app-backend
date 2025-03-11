@@ -141,6 +141,24 @@ namespace MyAccountApp.Api.Controllers
                 return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
             }
         }
+
+        [HttpDelete("DeleteSheetWithContents")]
+        public async Task<IActionResult> DeleteSheetWithContents(Guid sheetId)
+        {
+            try
+            {
+                GenericResponse response = await _domainServices.DeleteSheetWithContents(sheetId);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return BadRequest(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+            }
+        }
     }
 }
 
