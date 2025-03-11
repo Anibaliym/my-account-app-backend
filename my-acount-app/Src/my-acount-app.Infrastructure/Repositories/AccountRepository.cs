@@ -33,7 +33,7 @@ namespace MyAccountApp.Infrastructure.Repositories
         {
             return await _dbContext.Account
                 .AsNoTracking()
-                .Where(account => account.UserId == userId)
+                .Where(account => account.UserId == userId && account.IsActive == true)
                 .CountAsync();
         }
 

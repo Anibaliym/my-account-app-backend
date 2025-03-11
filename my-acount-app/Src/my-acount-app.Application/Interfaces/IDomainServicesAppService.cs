@@ -13,5 +13,6 @@ namespace MyAccountApp.Application.Interfaces
         Task<GenericResponse> UpdateVignetteAndRecalculateTotal(VignetteViewModel model);
         Task<GenericResponse> UpdateVignetteColorTheme(Guid vignetteId, string colorTheme);
         Task<GenericResponse> DeleteVignetteAndRecalculateTotal(Guid vignetteId);
+        Task<GenericResponse> CreateSheetBackup(Guid sheetId);
     }
 }

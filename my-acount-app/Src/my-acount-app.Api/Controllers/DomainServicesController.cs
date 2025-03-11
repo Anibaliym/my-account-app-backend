@@ -123,6 +123,24 @@ namespace MyAccountApp.Api.Controllers
                 return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
             }
         }
+
+        [HttpPost("CreateSheetBackup")]
+        public async Task<IActionResult> CreateSheetBackup(Guid sheetId)
+        {
+            try
+            {
+                GenericResponse response = await _domainServices.CreateSheetBackup(sheetId);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return Unauthorized(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+            }
+        }
     }
 }
 

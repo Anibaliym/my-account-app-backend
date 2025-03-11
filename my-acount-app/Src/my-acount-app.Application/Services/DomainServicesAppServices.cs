@@ -9,6 +9,8 @@ using MyAccountApp.Core.Utils;
 using System.Reflection.Metadata.Ecma335;
 using MyAccountApp.Application.ViewModels.Vignette;
 using AutoMapper;
+using MyAccountApp.Application.ViewModels.Sheet;
+using MyAccountApp.Application.ViewModels.Card;
 
 namespace MyAccountApp.Application.Services
 {
@@ -420,6 +422,85 @@ namespace MyAccountApp.Application.Services
             };
 
             return response;
+        }
+
+
+        public async Task<GenericResponse> CreateSheetBackup(Guid sheetId)
+        {
+            GenericResponse response = new GenericResponse();
+            CreateSheetViewModel viewSheet = new CreateSheetViewModel();
+            CreateCardViewModel viewCard = new CreateCardViewModel();
+            VignetteCreateViewModel viewVignette = new VignetteCreateViewModel(); 
+
+            try
+            {
+                // Se obtienen la información de la hoja de cálculo a a respaldar.
+                Sheet existingSheet = await _sheetRepository.GetSheetById(sheetId);
+
+                // Se obtienen las cartas relacionadas a la hoja de cálculo.
+                IEnumerable<Card> cardsSheet = await _cardRepository.GetCardBySheetId(sheetId);
+
+                int order = await _sheetRepository.GetNextOrderByAccountId(existingSheet.AccountId);
+
+                Sheet sheet = _mapper.Map<Sheet>(viewSheet);
+
+                sheet.Id = Guid.NewGuid();
+                sheet.CreationDate = DateTime.UtcNow;
+                sheet.AccountId = existingSheet.AccountId; 
+                sheet.Order = order;
+                sheet.CurrentAccountBalance = existingSheet.CurrentAccountBalance; 
+                sheet.CashBalance = existingSheet.CashBalance;
+                sheet.Description = $"{ existingSheet.Description } (R)";
+
+                // Se crea la nueva hoja de cálculo como "RESPALDO".
+                await _sheetRepository.CreateSheet(sheet); 
+
+                foreach (Card item in cardsSheet) {
+                    Card existingCard = await _cardRepository.GetCardById(item.Id);
+
+                    Card card = _mapper.Map<Card>(viewCard);
+
+                    card.Id = Guid.NewGuid();
+                    card.SheetId = sheet.Id; 
+                    card.Title = item.Title;
+                    card.Description = item.Description;
+                    card.CreationDate = DateTime.UtcNow;
+                    card.Color = item.Color;
+
+                    await _cardRepository.CreateCard(card); 
+
+                    IEnumerable<Vignette> vignette = await _vignetteRepository.GetVignetteByCardId(item.Id);
+
+                    foreach (Vignette v in vignette) {
+                        Vignette existingVignette = await _vignetteRepository.GetVignetteById(v.Id);
+
+                        Vignette vignetteCreate = _mapper.Map<Vignette>(viewVignette);
+
+                        vignetteCreate.Id = Guid.NewGuid(); 
+                        vignetteCreate.CardId = card.Id;
+                        vignetteCreate.Description = existingVignette.Description;
+                        vignetteCreate.Amount = existingVignette.Amount;
+                        vignetteCreate.Color = existingVignette.Color;
+                        vignetteCreate.Order = existingVignette.Order;
+
+                        await _vignetteRepository.CreateVignette(vignetteCreate);
+                    }
+                }
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = $"Se creó el respaldo de la hoja de cálculo con el id '{ sheetId }' correctamente.",
+                    Data = new {}
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GenericResponse
+                {
+                    Resolution = false,
+                    Message = $"An error occurred: {ex.Message}"
+                };
+            }
         }
 
         public void Dispose()
