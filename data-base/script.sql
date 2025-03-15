@@ -30,6 +30,7 @@ create table Public."Account"
     "Description" varchar(300), 
     "CreationDate" timestamp, 
     "IsActive" boolean, 
+    "Order" integer, 
     constraint pk_Account primary key ("Id"), 
     constraint fk_User foreign key ("UserId") references public."User"("Id")
 );

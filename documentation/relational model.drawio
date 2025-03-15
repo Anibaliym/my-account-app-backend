@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2024-10-19T20:57:19.589Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.18 Chrome/120.0.6099.199 Electron/28.1.2 Safari/537.36" etag="zOKBdcVWeGb2hJHh63VX" version="22.1.18" type="device">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36" version="26.0.16">
   <diagram name="Página-1" id="PNPzHJma1M_xxknpWBnT">
-    <mxGraphModel dx="1674" dy="2005" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="284" dy="1289" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -37,14 +37,14 @@
         <mxCell id="wFJW2fMRg7TKFNwS5shS-2" value="IsActive - Boolean - Identifica si el registro está o no activo." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="b94cVA0k29TKZ7IqqX47-1" vertex="1">
           <mxGeometry y="198" width="413" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="2KZT_MHvSqXdcYYbSj-L-1" value="RegistrationMethod - Text - Identifica si el usuario registro su cuenta por &lt;br&gt;medio de autenticación de google o por la &lt;br&gt;seguridad de la propia aplicación." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="b94cVA0k29TKZ7IqqX47-1">
+        <mxCell id="2KZT_MHvSqXdcYYbSj-L-1" value="RegistrationMethod - Text - Identifica si el usuario registro su cuenta por &lt;br&gt;medio de autenticación de google o por la &lt;br&gt;seguridad de la propia aplicación." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="b94cVA0k29TKZ7IqqX47-1" vertex="1">
           <mxGeometry y="218" width="413" height="62" as="geometry" />
         </mxCell>
         <mxCell id="b94cVA0k29TKZ7IqqX47-48" value="&lt;font style=&quot;font-size: 36px;&quot;&gt;my-account-app&lt;/font&gt;&lt;br&gt;Relational Model" style="text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;" parent="1" vertex="1">
           <mxGeometry x="950" y="-70" width="100" height="40" as="geometry" />
         </mxCell>
         <mxCell id="wFJW2fMRg7TKFNwS5shS-7" value="&lt;b&gt;Account&lt;/b&gt;" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#00CC00;" parent="1" vertex="1">
-          <mxGeometry x="520" y="440" width="410" height="188" as="geometry" />
+          <mxGeometry x="520" y="430" width="410" height="208" as="geometry" />
         </mxCell>
         <mxCell id="wFJW2fMRg7TKFNwS5shS-8" value="Refleja todos los datos relacionados a la o las cuentas &lt;br&gt;relacionadas a un usuario" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="wFJW2fMRg7TKFNwS5shS-7" vertex="1">
           <mxGeometry y="30" width="410" height="30" as="geometry" />
@@ -70,13 +70,16 @@
         <mxCell id="wFJW2fMRg7TKFNwS5shS-17" value="IsActive - Boolean - Identifica si el registro está o no activo." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="wFJW2fMRg7TKFNwS5shS-7" vertex="1">
           <mxGeometry y="168" width="410" height="20" as="geometry" />
         </mxCell>
+        <mxCell id="Es5h6QebZLCCKpckEVE--1" value="Order - Número Entero - Identifica el orden de la posición de la cuenta." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="wFJW2fMRg7TKFNwS5shS-7">
+          <mxGeometry y="188" width="410" height="20" as="geometry" />
+        </mxCell>
         <mxCell id="wFJW2fMRg7TKFNwS5shS-18" value="" style="endArrow=classic;html=1;rounded=0;entryX=-0.001;entryY=0.606;entryDx=0;entryDy=0;entryPerimeter=0;exitX=-0.005;exitY=0.456;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="b94cVA0k29TKZ7IqqX47-5" target="wFJW2fMRg7TKFNwS5shS-12" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="820" y="240" as="sourcePoint" />
             <mxPoint x="520" y="560" as="targetPoint" />
             <Array as="points">
               <mxPoint x="480" y="227" />
-              <mxPoint x="480" y="560" />
+              <mxPoint x="480" y="550" />
             </Array>
           </mxGeometry>
         </mxCell>
@@ -115,7 +118,7 @@
             <mxPoint x="560" y="580" as="sourcePoint" />
             <mxPoint x="610" y="530" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="460" y="538" />
+              <mxPoint x="460" y="528" />
               <mxPoint x="460" y="780" />
             </Array>
           </mxGeometry>
@@ -147,7 +150,7 @@
         <mxCell id="wFJW2fMRg7TKFNwS5shS-38" value="CreationDate - Fecha - Identifica la fecha de creación del registro." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="wFJW2fMRg7TKFNwS5shS-30" vertex="1">
           <mxGeometry y="168" width="410" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="wFJW2fMRg7TKFNwS5shS-39" value="Color - Texto 50 - Idenifica el color oporcionado al titulo." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="wFJW2fMRg7TKFNwS5shS-30" vertex="1">
+        <mxCell id="wFJW2fMRg7TKFNwS5shS-39" value="Color - Texto 50 - Identifica el color proporcionado al titulo." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="wFJW2fMRg7TKFNwS5shS-30" vertex="1">
           <mxGeometry y="188" width="410" height="20" as="geometry" />
         </mxCell>
         <mxCell id="wFJW2fMRg7TKFNwS5shS-40" value="" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=-0.002;entryY=0.526;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="wFJW2fMRg7TKFNwS5shS-23" target="wFJW2fMRg7TKFNwS5shS-35" edge="1">
@@ -187,7 +190,7 @@
         <mxCell id="wFJW2fMRg7TKFNwS5shS-53" value="Color - Texto 50 - Idenifica el color oporcionado a la viñeta.." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="wFJW2fMRg7TKFNwS5shS-41" vertex="1">
           <mxGeometry y="168" width="453" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="wFJW2fMRg7TKFNwS5shS-50" value="Order - Número Entero - Idenifica el orden de la posición de la viñeta en la carta." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="wFJW2fMRg7TKFNwS5shS-41" vertex="1">
+        <mxCell id="wFJW2fMRg7TKFNwS5shS-50" value="Order - Número Entero - Identifica el orden de la posición de la viñeta en la carta." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="wFJW2fMRg7TKFNwS5shS-41" vertex="1">
           <mxGeometry y="188" width="453" height="20" as="geometry" />
         </mxCell>
         <mxCell id="wFJW2fMRg7TKFNwS5shS-54" value="" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=-0.002;entryY=0.538;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="wFJW2fMRg7TKFNwS5shS-34" target="wFJW2fMRg7TKFNwS5shS-46" edge="1">
@@ -200,34 +203,34 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="2KZT_MHvSqXdcYYbSj-L-2" value="&lt;b&gt;UserSecurity&lt;/b&gt;" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#00CC00;" vertex="1" parent="1">
+        <mxCell id="2KZT_MHvSqXdcYYbSj-L-2" value="&lt;b&gt;UserSecurity&lt;/b&gt;" style="swimlane;fontStyle=0;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;html=1;fillColor=#00CC00;" parent="1" vertex="1">
           <mxGeometry x="1700" y="120" width="500" height="178" as="geometry" />
         </mxCell>
-        <mxCell id="2KZT_MHvSqXdcYYbSj-L-3" value="Refleja la información sensible de acceso del usuario." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="2KZT_MHvSqXdcYYbSj-L-2">
+        <mxCell id="2KZT_MHvSqXdcYYbSj-L-3" value="Refleja la información sensible de acceso del usuario." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="2KZT_MHvSqXdcYYbSj-L-2" vertex="1">
           <mxGeometry y="30" width="500" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="2KZT_MHvSqXdcYYbSj-L-4" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" vertex="1" parent="2KZT_MHvSqXdcYYbSj-L-2">
+        <mxCell id="2KZT_MHvSqXdcYYbSj-L-4" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" parent="2KZT_MHvSqXdcYYbSj-L-2" vertex="1">
           <mxGeometry y="50" width="500" height="8" as="geometry" />
         </mxCell>
-        <mxCell id="2KZT_MHvSqXdcYYbSj-L-5" value="&lt;b&gt;Atributos&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="2KZT_MHvSqXdcYYbSj-L-2">
+        <mxCell id="2KZT_MHvSqXdcYYbSj-L-5" value="&lt;b&gt;Atributos&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="2KZT_MHvSqXdcYYbSj-L-2" vertex="1">
           <mxGeometry y="58" width="500" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="2KZT_MHvSqXdcYYbSj-L-6" value="&lt;b&gt;PK&lt;/b&gt; - &lt;b&gt;Id&lt;/b&gt; - Guid&amp;nbsp;- Identificador primerio." style="text;html=1;strokeColor=none;fillColor=#FFFF99;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="2KZT_MHvSqXdcYYbSj-L-2">
+        <mxCell id="2KZT_MHvSqXdcYYbSj-L-6" value="&lt;b&gt;PK&lt;/b&gt; - &lt;b&gt;Id&lt;/b&gt; - Guid&amp;nbsp;- Identificador primerio." style="text;html=1;strokeColor=none;fillColor=#FFFF99;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="2KZT_MHvSqXdcYYbSj-L-2" vertex="1">
           <mxGeometry y="78" width="500" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="2KZT_MHvSqXdcYYbSj-L-7" value="&lt;b&gt;FK&lt;/b&gt; - &lt;b&gt;UserId&lt;/b&gt; - Guid - 100 - Relación directa con tabla &lt;b&gt;&quot;User&quot;.&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=#CCCCFF;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="2KZT_MHvSqXdcYYbSj-L-2">
+        <mxCell id="2KZT_MHvSqXdcYYbSj-L-7" value="&lt;b&gt;FK&lt;/b&gt; - &lt;b&gt;UserId&lt;/b&gt; - Guid - 100 - Relación directa con tabla &lt;b&gt;&quot;User&quot;.&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=#CCCCFF;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="2KZT_MHvSqXdcYYbSj-L-2" vertex="1">
           <mxGeometry y="98" width="500" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="2KZT_MHvSqXdcYYbSj-L-8" value="PasswordHash - Text 255 - Contraseña &lt;b&gt;&quot;Encriptada&quot;&lt;/b&gt;." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="2KZT_MHvSqXdcYYbSj-L-2">
+        <mxCell id="2KZT_MHvSqXdcYYbSj-L-8" value="PasswordHash - Text 255 - Contraseña &lt;b&gt;&quot;Encriptada&quot;&lt;/b&gt;." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="2KZT_MHvSqXdcYYbSj-L-2" vertex="1">
           <mxGeometry y="118" width="500" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="2KZT_MHvSqXdcYYbSj-L-9" value="PasswordSalt - Texto 255 -&amp;nbsp;Almacena el salt usado para generar el hash de la contraseña." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="2KZT_MHvSqXdcYYbSj-L-2">
+        <mxCell id="2KZT_MHvSqXdcYYbSj-L-9" value="PasswordSalt - Texto 255 -&amp;nbsp;Almacena el salt usado para generar el hash de la contraseña." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="2KZT_MHvSqXdcYYbSj-L-2" vertex="1">
           <mxGeometry y="138" width="500" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="2KZT_MHvSqXdcYYbSj-L-10" value="LastPasswordChangeDate - Fecha - Fecha de la última modificación de contraseña." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="2KZT_MHvSqXdcYYbSj-L-2">
+        <mxCell id="2KZT_MHvSqXdcYYbSj-L-10" value="LastPasswordChangeDate - Fecha - Fecha de la última modificación de contraseña." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" parent="2KZT_MHvSqXdcYYbSj-L-2" vertex="1">
           <mxGeometry y="158" width="500" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="2KZT_MHvSqXdcYYbSj-L-11" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="b94cVA0k29TKZ7IqqX47-5" target="2KZT_MHvSqXdcYYbSj-L-7">
+        <mxCell id="2KZT_MHvSqXdcYYbSj-L-11" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="b94cVA0k29TKZ7IqqX47-5" target="2KZT_MHvSqXdcYYbSj-L-7" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="1390" y="320" as="sourcePoint" />
             <mxPoint x="1440" y="270" as="targetPoint" />
