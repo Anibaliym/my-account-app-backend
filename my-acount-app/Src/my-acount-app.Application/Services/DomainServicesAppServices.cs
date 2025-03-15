@@ -283,7 +283,6 @@ namespace MyAccountApp.Application.Services
                     foreach (var vignette in vignettes) {
                         // sumTotalAmount = vignette != null ? sumTotalAmount + vignette.Amount : sumTotalAmount;
                         sumTotalAmount = sumTotalAmount + vignette.Amount;
-
                     }
 
                     // Mapear la card con sus vignettes
@@ -294,6 +293,7 @@ namespace MyAccountApp.Application.Services
                         Description = card.Description,
                         CreationDate = card.CreationDate,
                         TotalCardAmount = sumTotalAmount,
+                        Order = card.Order,
                         Vignettes = vignettes.Select(v => new VignetteDTO
                         {
                             Id = v.Id,
