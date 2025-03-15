@@ -9,7 +9,7 @@ namespace MyAccountApp.Application.Validations.Card
             ValidateId(card => card.Id); 
             ValidateSheetId(card => card.SheetId); 
             ValidateTitle(card => card.Title);
-            ValidateColor(card => card.Color);
+            ValidateOrder(card => card.Order);
         }
     }
 }

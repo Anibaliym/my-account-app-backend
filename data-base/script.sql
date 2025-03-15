@@ -55,7 +55,7 @@ create table Public."Card"
     "Title" varchar(100), 
     "Description" varchar(300), 
     "CreationDate" timestamp, 
-    "Color" varchar(50), 
+    "Order" integer, 
     constraint pk_Card primary key ("Id"), 
     constraint fk_Sheet foreign key ("SheetId") references public."Sheet"("Id")
 );

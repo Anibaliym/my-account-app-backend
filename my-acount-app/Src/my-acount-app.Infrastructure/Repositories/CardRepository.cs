@@ -26,6 +26,14 @@ namespace MyAccountApp.Infrastructure.Repositories
             return await _dbContext.Card.AsNoTracking().Where(card => card.SheetId == sheetId).ToListAsync();
         }
 
+        public async Task<int> GetNextOrderBySheetId(Guid sheetId)
+        {
+            return await _dbContext.Card
+                .AsNoTracking()
+                .Where(card => card.SheetId == sheetId)
+                .MaxAsync(card => (int?)card.Order) + 1 ?? 1;
+        }
+
         public async Task CreateCard(Card model)
         {
             await _dbContext.Card.AddAsync(model);

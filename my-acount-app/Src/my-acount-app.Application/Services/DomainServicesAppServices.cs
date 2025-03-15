@@ -293,7 +293,6 @@ namespace MyAccountApp.Application.Services
                         Title = card.Title,
                         Description = card.Description,
                         CreationDate = card.CreationDate,
-                        Color = card.Color,
                         TotalCardAmount = sumTotalAmount,
                         Vignettes = vignettes.Select(v => new VignetteDTO
                         {
@@ -501,7 +500,6 @@ namespace MyAccountApp.Application.Services
                     card.Title = item.Title;
                     card.Description = item.Description;
                     card.CreationDate = DateTime.UtcNow;
-                    card.Color = item.Color;
 
                     await _cardRepository.CreateCard(card); 
 

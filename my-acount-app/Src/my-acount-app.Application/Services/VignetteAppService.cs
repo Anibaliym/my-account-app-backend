@@ -147,7 +147,7 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = true,
-                    Message = "Se actualizó el orden de las viñetas correctamente ..."
+                    Message = "Se actualizó el orden de las viñetas correctamente"
                 };
             }
             catch (Exception error)

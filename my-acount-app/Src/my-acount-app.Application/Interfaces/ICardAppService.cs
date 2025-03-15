@@ -9,6 +9,7 @@ namespace MyAccountApp.Application.Interfaces
         Task<IEnumerable<CardViewModel>> GetCardBySheetId(Guid sheetId); 
         Task<GenericResponse> CreateCard(CreateCardViewModel model);
         Task<GenericResponse> UpdateCard(UpdateCardViewModel model);
+        Task<GenericResponse> UpdateCardOrderItems(List<UpdateCardViewModel> model);
         Task<GenericResponse> DeleteCard(Guid id);
     }
 }

@@ -163,7 +163,7 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = true,
-                    Message = "Se actualizó el orden de las hojas de calculo correctamente ..."
+                    Message = "Se actualizó el orden de las hojas de calculo correctamente."
                 };
             }
             catch (Exception error)

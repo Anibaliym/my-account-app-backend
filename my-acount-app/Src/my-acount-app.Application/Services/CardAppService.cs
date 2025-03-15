@@ -67,9 +67,12 @@ namespace MyAccountApp.Application.Services
                     return response;
                 }
 
+                int order = await _cardRepository.GetNextOrderBySheetId(model.SheetId);
+                
                 Card card = _mapper.Map<Card>(model);
                 card.Id = Guid.NewGuid();
                 card.CreationDate = DateTime.UtcNow;
+                card.Order = order;
 
                 await _cardRepository.CreateCard(card);
                 response.Resolution = true;
@@ -137,6 +140,34 @@ namespace MyAccountApp.Application.Services
 
             return response;
         }
+
+        public async Task<GenericResponse> UpdateCardOrderItems(List<UpdateCardViewModel> model)
+        {
+            try
+            {
+                foreach(UpdateCardViewModel card in model) {
+                    Card obtainedCard = await _cardRepository.GetCardById(card.Id);
+
+                    obtainedCard.Order = card.Order; 
+                    obtainedCard.CreationDate = obtainedCard.CreationDate.ToUniversalTime();
+                    
+                    await _cardRepository.UpdateCard(obtainedCard);
+                }
+                
+                return new GenericResponse
+                {
+                    Resolution = true,
+                    Message = "Se actualizó el orden de las cartas correctamente."
+                };
+            }
+            catch (Exception error)
+            {
+                return new GenericResponse {
+                    Resolution = false,
+                    Message = error.Message
+                };
+            }
+        }        
 
         public async Task<GenericResponse> DeleteCard(Guid id)
         {
