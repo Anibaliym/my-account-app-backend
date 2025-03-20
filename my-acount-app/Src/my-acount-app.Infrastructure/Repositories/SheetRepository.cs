@@ -50,6 +50,14 @@ namespace MyAccountApp.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<int> GetTotalSheetsAccount(Guid accountId)
+        {
+            return await _dbContext.Sheet
+                .AsNoTracking()
+                .Where(sheet => sheet.AccountId == accountId)
+                .CountAsync();
+        }
+
         public async Task<bool> DeleteSheet(Guid id)
         {
             try

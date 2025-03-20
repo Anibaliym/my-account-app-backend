@@ -71,9 +71,9 @@ namespace MyAccountApp.Application.Services
 
                 int totalUserAccounts = await _accountRepository.GetTotalUserAccounts(model.UserId); 
 
-                if (totalUserAccounts >= 20){
+                if (totalUserAccounts >= 15){
                     response.Resolution = false;
-                    response.Message = $"No se pueden crear mas de 20 cuentas por usuario.";
+                    response.Message = $"No se pueden crear mas de 15 cuentas por usuario.";
                     return response;
                 }
 

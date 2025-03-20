@@ -7,6 +7,7 @@ namespace MyAccountApp.Core.Interfaces
         Task<Sheet> GetSheetById(Guid id);
         Task<Sheet> GetSheetAccountByOrder(int order, Guid accountId);
         Task<int> GetNextOrderByAccountId(Guid accountId); 
+        Task<int> GetTotalSheetsAccount(Guid accountId); 
         Task<IEnumerable<Sheet>> GetSheetByAccountId(Guid acoountId); 
         Task CreateSheet(Sheet model);
         Task UpdateSheet(Sheet model);

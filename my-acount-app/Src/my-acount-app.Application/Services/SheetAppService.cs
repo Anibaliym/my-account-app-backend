@@ -72,6 +72,14 @@ namespace MyAccountApp.Application.Services
                     return response;
                 }
 
+                int totalSheetsAccount = await _sheetRepository.GetTotalSheetsAccount(model.AccountId); 
+
+                if (totalSheetsAccount >= 15){
+                    response.Resolution = false;
+                    response.Message = $"No se pueden crear mas de 15 hojas de calculo por cuenta.";
+                    return response;
+                }
+
                 //Se obtiene el orden de la hoja a crear
                 int order = await _sheetRepository.GetNextOrderByAccountId(model.AccountId);
 
