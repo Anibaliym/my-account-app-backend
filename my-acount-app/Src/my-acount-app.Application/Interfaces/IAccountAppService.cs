@@ -5,8 +5,8 @@ namespace MyAccountApp.Application.Interfaces
 {
     public interface IAccountAppService : IDisposable
     {
-        Task<AccountViewModel> GetActiveAccountById(Guid id);
-        Task<IEnumerable<AccountViewModel>> GetActiveAccountByUserId(Guid userId);
+        Task<AccountViewModel> GetAccountById(Guid id);
+        Task<IEnumerable<AccountViewModel>> GetAccountByUserId(Guid userId);
         Task<GenericResponse> CreateAccount(CreateAccountViewModel model);
         Task<GenericResponse> UpdateAccount(UpdateAccountViewModel model);
         Task<GenericResponse> UpdateAccountOrderItems(List<UpdateAccountViewModel> model);

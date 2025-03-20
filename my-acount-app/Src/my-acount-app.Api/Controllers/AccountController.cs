@@ -16,16 +16,16 @@ namespace MyAccountApp.Api.Controllers
             _accountAppService = accountAppService;
         }
 
-        [HttpGet("GetActiveAccountById/{id:guid}")]
-        public async Task<AccountViewModel> GetActiveAccountById(Guid id)
+        [HttpGet("GetAccountById/{id:guid}")]
+        public async Task<AccountViewModel> GetAccountById(Guid id)
         {
-            return await _accountAppService.GetActiveAccountById(id);
+            return await _accountAppService.GetAccountById(id);
         }
 
-        [HttpGet("GetActiveAccountByUserId/{userId:guid}")]
-        public async Task<IEnumerable<AccountViewModel>> GetActiveAccountByUserId(Guid userId)
+        [HttpGet("GetAccountByUserId/{userId:guid}")]
+        public async Task<IEnumerable<AccountViewModel>> GetAccountByUserId(Guid userId)
         {
-            return await _accountAppService.GetActiveAccountByUserId(userId);
+            return await _accountAppService.GetAccountByUserId(userId);
         }
 
         [HttpPost("CreateAccount")]

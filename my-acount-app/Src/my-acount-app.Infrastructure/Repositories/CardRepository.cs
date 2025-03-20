@@ -77,6 +77,5 @@ namespace MyAccountApp.Infrastructure.Repositories
                 return false;
             }
         }
-
     }
 }

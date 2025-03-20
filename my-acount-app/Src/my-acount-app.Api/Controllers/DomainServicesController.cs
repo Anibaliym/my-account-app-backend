@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyAccountApp.Application;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.User;
@@ -58,6 +59,24 @@ namespace MyAccountApp.Api.Controllers
             try
             {
                 GenericResponse response = await _domainServices.DeleteCardWithVignettes(cardId);
+
+                if (response.Resolution)
+                    return Ok(response);
+                else
+                    return BadRequest(response);
+            }
+            catch (Exception error)
+            {
+                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+            }
+        }
+
+        [HttpDelete("DeleteUserAccount")]
+        public async Task<IActionResult> DeleteUserAccount(DeleteUserRequest request)
+        {
+            try
+            {
+                GenericResponse response = await _domainServices.DeleteUserAccount(request);
 
                 if (response.Resolution)
                     return Ok(response);

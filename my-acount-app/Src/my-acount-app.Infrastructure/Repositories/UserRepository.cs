@@ -15,25 +15,19 @@ namespace MyAccountApp.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<User?> GetActiveUserById(Guid id)
+        public async Task<User?> GetUserById(Guid id)
         {
-            return await _dbContext.User.AsNoTracking().Where(user => user.Id == id && user.IsActive).FirstOrDefaultAsync();
+            return await _dbContext.User.AsNoTracking().Where(user => user.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<User?> GetActiveUserByEmail(string email)
+        public async Task<User?> GetUserByEmail(string email)
         {
-            return await _dbContext.User.AsNoTracking().Where(user => user.Email == email && user.IsActive).FirstOrDefaultAsync();
+            return await _dbContext.User.AsNoTracking().Where(user => user.Email == email).FirstOrDefaultAsync();
         }
 
-
-        public async Task<List<User>> GetAllActiveUsers()
+        public async Task<List<User>> GetAllUsers()
         {
-            return await _dbContext.User.Where(user => user.IsActive == true).ToListAsync();
-        }
-
-        public async Task<List<User>> GetAllInactiveUsers()
-        {
-            return await _dbContext.User.Where(user => user.IsActive == false).ToListAsync();
+            return await _dbContext.User.ToListAsync();
         }
 
         public async Task CreateUser(User user)
@@ -52,12 +46,11 @@ namespace MyAccountApp.Infrastructure.Repositories
         {
             try
             {
-
                 User user = await _dbContext.User.FindAsync(id);
 
-                if (user != null && user.IsActive == true)
+                if (user != null)
                 {
-                    user.IsActive = false;
+                    _dbContext.User.Remove(user);
                     await _dbContext.SaveChangesAsync();
                 }
 

@@ -14,17 +14,17 @@ namespace MyAccountApp.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<Account?> GetActiveAccountById(Guid id) {
+        public async Task<Account?> GetAccountById(Guid id) {
             return await _dbContext.Account
                 .AsNoTracking()
-                .Where(account => account.Id == id && account.IsActive == true)
+                .Where(account => account.Id == id)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<Account>> GetActiveAccountByUserId(Guid userId) {
+        public async Task<IEnumerable<Account>> GetAccountByUserId(Guid userId) {
             return await _dbContext.Account
             .AsNoTracking()
-            .Where(account => account.UserId == userId&& account.IsActive == true)
+            .Where(account => account.UserId == userId)
             .OrderBy(account => account.Order)
             .ToListAsync();
         }
@@ -33,7 +33,7 @@ namespace MyAccountApp.Infrastructure.Repositories
         {
             return await _dbContext.Account
                 .AsNoTracking()
-                .Where(account => account.UserId == userId && account.IsActive == true)
+                .Where(account => account.UserId == userId)
                 .CountAsync();
         }
 
@@ -60,12 +60,13 @@ namespace MyAccountApp.Infrastructure.Repositories
 
         public async Task<bool> DeleteAccount(Guid id)
         {
-            try {
+            try 
+            {
                 Account? account = await _dbContext.Account.FindAsync(id);
 
-                if (account != null && account.IsActive == true)
+                if (account != null)
                 {
-                    account.IsActive = false;
+                    _dbContext.Account.Remove(account);
                     await _dbContext.SaveChangesAsync();
                 }
 

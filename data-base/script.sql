@@ -8,7 +8,6 @@ create table Public."User"
     "CreationDate" timestamp, 
     "UserType" varchar(30), 
     "Email" varchar(100), 
-    "IsActive" boolean, 
     "RegistrationMethod" varchar(50), 
     constraint pk_User primary key ("Id")
 ); 
@@ -29,7 +28,6 @@ create table Public."Account"
     "UserId" uuid not null, 
     "Description" varchar(300), 
     "CreationDate" timestamp, 
-    "IsActive" boolean, 
     "Order" integer, 
     constraint pk_Account primary key ("Id"), 
     constraint fk_User foreign key ("UserId") references public."User"("Id")

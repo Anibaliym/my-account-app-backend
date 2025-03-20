@@ -49,7 +49,7 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> Login(string email, string password)
         {
-            User userFound = await _userRepository.GetActiveUserByEmail(email.ToUpper());
+            User userFound = await _userRepository.GetUserByEmail(email.ToUpper());
             LoginResponseViewModel responseModel = new LoginResponseViewModel(); 
             
             if (userFound == null)
@@ -101,7 +101,7 @@ namespace MyAccountApp.Application.Services
             responseModel.Accounts = new List<AccountDto>();
 
             // Se obtienen todas las cuentas con sus respectivas hojas de cálculo del usuario. 
-            IEnumerable<Account> userAccounts = await _accountRepository.GetActiveAccountByUserId(userFound.Id);
+            IEnumerable<Account> userAccounts = await _accountRepository.GetAccountByUserId(userFound.Id);
 
             foreach (Account account in userAccounts)
             {
@@ -129,11 +129,78 @@ namespace MyAccountApp.Application.Services
                 Message = "Inicio de sesión exitoso."
             };
         }
+        
+        public async Task<GenericResponse> DeleteUserAccount(DeleteUserRequest request)
+        {
+            LoginResponseViewModel responseModel = new LoginResponseViewModel();
+
+            User userFound = await _userRepository.GetUserById(request.UserId); 
+            UserSecurity userSecurityFound = await _userSecurityRepository.GetUserSecurityByUserId(request.UserId);
+
+            if(userFound == null) {
+                return new GenericResponse
+                {
+                    Resolution = false,
+                    Errors = new[] { $"No se encontraron usuarios con el id '{ request.UserId }'." },
+                    Message = "Se encontraron errores de validación."
+                };
+            }
+
+            //Se valida la contraseña del usuario.
+            bool isPasswordValid = PasswordUtils.VerifyPasswordHash(request.Password, Convert.FromBase64String(userSecurityFound.PasswordHash), Convert.FromBase64String(userSecurityFound.PasswordSalt));
+
+            if(!isPasswordValid) {
+                return new GenericResponse
+                {
+                    Resolution = false,
+                    Errors = new[] { "La contraseña ingresada, es incorrecta." },
+                    Message = "Se encontraron errores de validación."
+                };
+            }
+
+            
+            //Se eliminan todos los movimientos de la cuenta de usuario
+            IEnumerable<Account> accountsFound = await _accountRepository.GetAccountByUserId(request.UserId); 
+
+            foreach (Account account in accountsFound)
+            {
+                IEnumerable<Sheet> sheetsFound = await _sheetRepository.GetSheetByAccountId( account.Id ); 
+
+                foreach (Sheet sheet in sheetsFound)
+                {
+                    IEnumerable<Card> cardsFound = await _cardRepository.GetCardBySheetId( sheet.Id );
+
+                    foreach (Card card in cardsFound)
+                    {
+                        IEnumerable<Vignette> vignettesFound = await _vignetteRepository.GetVignetteByCardId( card.Id );
+
+                        foreach (Vignette vignette in vignettesFound)
+                        {
+                            await _vignetteRepository.DeleteVignette(vignette.Id); 
+                        }
+
+                        await _cardRepository.DeleteCard(card.Id);
+                    }
+
+                    await _sheetRepository.DeleteSheet(sheet.Id);
+                }
+
+                await _accountRepository.DeleteAccount(account.Id);
+            }
+
+            await _userSecurityRepository.DeleteUserSecurity(request.UserId);
+            await _userRepository.DeleteUser(request.UserId); 
+
+            return new GenericResponse {
+                Resolution = true,
+                Message = $"El usuario con el correo { userFound.Email }, ha sido eliminado del sistema."
+            };
+        }
 
         public async Task<GenericResponse> GetSheetsAccount(Guid accountId)
         {
             IEnumerable<Sheet> sheets; 
-            Account account = await _accountRepository.GetActiveAccountById(accountId);
+            Account account = await _accountRepository.GetAccountById(accountId);
 
             if(account != null){
                 sheets = await _sheetRepository.GetSheetByAccountId(accountId);
@@ -164,7 +231,7 @@ namespace MyAccountApp.Application.Services
 
             responseModel.Accounts = new List<AccountDto>();
 
-            IEnumerable<Account> userAccounts = await _accountRepository.GetActiveAccountByUserId(userId);
+            IEnumerable<Account> userAccounts = await _accountRepository.GetAccountByUserId(userId);
 
             foreach (Account account in userAccounts)
             {
@@ -384,7 +451,6 @@ namespace MyAccountApp.Application.Services
             return response;
         }
 
-
         public async Task<GenericResponse> DeleteVignetteAndRecalculateTotal(Guid vignetteId)
         {
             GenericResponse response = new GenericResponse();
@@ -427,18 +493,6 @@ namespace MyAccountApp.Application.Services
         {
             GenericResponse response = new GenericResponse();
 
-            // FluentValidation.Results.ValidationResult validationResult = _updateVignetteValidator.Validate(vignetteId);
-
-            // if (!validationResult.IsValid)
-            // {
-            //     return new GenericResponse
-            //     {
-            //         Resolution = false,
-            //         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-            //         Message = "Se encontraron errores de validación."
-            //     };
-            // }
-
             Vignette existingVignette = await _vignetteRepository.GetVignetteById(vignetteId);
 
             if (existingVignette == null)
@@ -458,7 +512,6 @@ namespace MyAccountApp.Application.Services
 
             return response;
         }
-
 
         public async Task<GenericResponse> CreateSheetBackup(Guid sheetId)
         {
@@ -536,7 +589,6 @@ namespace MyAccountApp.Application.Services
                 };
             }
         }
-
         public void Dispose()
         {
             GC.SuppressFinalize(this);

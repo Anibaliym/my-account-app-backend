@@ -37,19 +37,19 @@ namespace MyAccountApp.Application.Services
             _createUserSecurityValidator = createUserSecurityValidator;
         }
 
-        public async Task<UserViewModel> GetActiveUserById(Guid id)
+        public async Task<UserViewModel> GetUserById(Guid id)
         {
-            return _mapper.Map<UserViewModel>(await _userRepository.GetActiveUserById(id));
+            return _mapper.Map<UserViewModel>(await _userRepository.GetUserById(id));
         }
 
-        public async Task<UserViewModel> GetActiveUserByEmail(string email)
+        public async Task<UserViewModel> GetUserByEmail(string email)
         {
-            return _mapper.Map<UserViewModel>(await _userRepository.GetActiveUserByEmail(email));
+            return _mapper.Map<UserViewModel>(await _userRepository.GetUserByEmail(email));
         }
 
-        public async Task<IEnumerable<UserViewModel>> GetAllActiveUsers()
+        public async Task<IEnumerable<UserViewModel>> GetAllUsers()
         {
-            return _mapper.Map<IEnumerable<UserViewModel>>(await _userRepository.GetAllActiveUsers());
+            return _mapper.Map<IEnumerable<UserViewModel>>(await _userRepository.GetAllUsers());
         }
 
         public async Task<GenericResponse> RegisterUser(UserCreateViewModel model)
@@ -86,7 +86,7 @@ namespace MyAccountApp.Application.Services
 
             try
             {
-                User userExistsByEmail = await _userRepository.GetActiveUserByEmail(model.Email.ToUpper());
+                User userExistsByEmail = await _userRepository.GetUserByEmail(model.Email.ToUpper());
 
                 if (userExistsByEmail != null)
                 {
@@ -98,7 +98,6 @@ namespace MyAccountApp.Application.Services
 
                 user.Id = Guid.NewGuid();
                 user.CreationDate = DateTime.UtcNow;
-                user.IsActive = true;
                 user.FirstName = user.FirstName.ToUpper();
                 user.LastName = user.LastName.ToUpper();
                 user.Email = user.Email.ToUpper();
@@ -152,7 +151,7 @@ namespace MyAccountApp.Application.Services
 
             try
             {
-                User existingUser = await _userRepository.GetActiveUserById(model.Id);
+                User existingUser = await _userRepository.GetUserById(model.Id);
                 
                 if (existingUser == null) {
                     response.Resolution = false;
@@ -185,7 +184,7 @@ namespace MyAccountApp.Application.Services
 
             try
             {
-                User existingUser = await _userRepository.GetActiveUserById(id);
+                User existingUser = await _userRepository.GetUserById(id);
 
                 if (existingUser == null)
                 {

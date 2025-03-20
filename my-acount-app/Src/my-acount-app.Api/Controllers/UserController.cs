@@ -17,16 +17,16 @@ namespace MyAccountApp.Api.Controllers
             _userAppService = userAppService;
         }
 
-        [HttpGet("GetActiveUserById/{id:guid}")]
-        public async Task<UserViewModel> GetActiveUserById(Guid id)
+        [HttpGet("GetUserById/{id:guid}")]
+        public async Task<UserViewModel> GetUserById(Guid id)
         {
-            return await _userAppService.GetActiveUserById(id);
+            return await _userAppService.GetUserById(id);
         }
 
-        [HttpGet("GetAllActiveUsers")]
-        public async Task<IEnumerable<UserViewModel>> GetAllActiveUsers()
+        [HttpGet("GetAllUsers")]
+        public async Task<IEnumerable<UserViewModel>> GetAllUsers()
         {
-            return await _userAppService.GetAllActiveUsers();
+            return await _userAppService.GetAllUsers();
         }
 
         [HttpPost("RegisterUser")]
@@ -37,7 +37,7 @@ namespace MyAccountApp.Api.Controllers
                 GenericResponse response = await _userAppService.RegisterUser(modelo);
 
                 if (response.Resolution)
-                    return CreatedAtAction(nameof(GetActiveUserById), new { id = ((User)response.Data).Id }, response);
+                    return CreatedAtAction(nameof(GetUserById), new { id = ((User)response.Data).Id }, response);
                 else
                     return BadRequest(response);
             }

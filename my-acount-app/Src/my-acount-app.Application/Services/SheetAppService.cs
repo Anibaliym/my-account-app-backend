@@ -63,7 +63,7 @@ namespace MyAccountApp.Application.Services
 
             try
             {
-                Account cuentaExistente = await _accountRepository.GetActiveAccountById(model.AccountId);
+                Account cuentaExistente = await _accountRepository.GetAccountById(model.AccountId);
                 
                 if (cuentaExistente == null)
                 {
@@ -121,7 +121,7 @@ namespace MyAccountApp.Application.Services
 
             try
             {
-                Account existingAccount = await _accountRepository.GetActiveAccountById(model.AccountId);
+                Account existingAccount = await _accountRepository.GetAccountById(model.AccountId);
 
                 if (existingAccount == null)
                 {

@@ -10,6 +10,7 @@ namespace MyAccountApp.Application.Interfaces
         Task<GenericResponse> GetSheetCardsWithVignettes(Guid sheetId);
         Task<GenericResponse> GetUserAccountsWithSheets(Guid userId);
         Task<GenericResponse> DeleteCardWithVignettes(Guid cardId);
+        Task<GenericResponse> DeleteUserAccount(DeleteUserRequest request);
         Task<GenericResponse> DeleteSheetWithContents(Guid sheetId);
         Task<GenericResponse> UpdateVignetteAndRecalculateTotal(VignetteViewModel model);
         Task<GenericResponse> UpdateVignetteColorTheme(Guid vignetteId, string colorTheme);

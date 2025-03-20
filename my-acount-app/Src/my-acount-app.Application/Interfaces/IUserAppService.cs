@@ -5,9 +5,9 @@ namespace MyAccountApp.Application.Interfaces
 {
     public interface IUserAppService : IDisposable
     {
-        Task<UserViewModel> GetActiveUserById(Guid id);
-        Task<UserViewModel> GetActiveUserByEmail(string email);
-        Task<IEnumerable<UserViewModel>> GetAllActiveUsers();
+        Task<UserViewModel> GetUserById(Guid id);
+        Task<UserViewModel> GetUserByEmail(string email);
+        Task<IEnumerable<UserViewModel>> GetAllUsers();
         Task<GenericResponse> RegisterUser(UserCreateViewModel model);
         Task<GenericResponse> UpdateUser(UserUpdateViewModel model);
         Task<GenericResponse> DeleteUser(Guid id);

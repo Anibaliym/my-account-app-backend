@@ -34,13 +34,13 @@ namespace MyAccountApp.Application.Services
             _createAccountValidator = createAccountValidator;
             _updateAccountValidator = updateAccountValidator;
         }
-        public async Task<AccountViewModel> GetActiveAccountById(Guid id)
+        public async Task<AccountViewModel> GetAccountById(Guid id)
         {
-            return _mapper.Map<AccountViewModel>(await _accountRepository.GetActiveAccountById(id));
+            return _mapper.Map<AccountViewModel>(await _accountRepository.GetAccountById(id));
         }
-        public async Task<IEnumerable<AccountViewModel>> GetActiveAccountByUserId(Guid userId)
+        public async Task<IEnumerable<AccountViewModel>> GetAccountByUserId(Guid userId)
         {
-            return _mapper.Map<IEnumerable<AccountViewModel>>(await _accountRepository.GetActiveAccountByUserId(userId));
+            return _mapper.Map<IEnumerable<AccountViewModel>>(await _accountRepository.GetAccountByUserId(userId));
         }
         public async Task<GenericResponse> CreateAccount(CreateAccountViewModel model)
         {
@@ -60,7 +60,7 @@ namespace MyAccountApp.Application.Services
                     };
                 }
 
-                User user = await _userRepository.GetActiveUserById(model.UserId);
+                User user = await _userRepository.GetUserById(model.UserId);
 
                 if (user == null)
                 {
@@ -82,7 +82,6 @@ namespace MyAccountApp.Application.Services
                 Account account = _mapper.Map<Account>(model);
                 account.Id = Guid.NewGuid();
                 account.CreationDate = DateTime.UtcNow;
-                account.IsActive = true;
                 account.Order = order;
 
                 await _accountRepository.CreateAccount(account);
@@ -116,7 +115,7 @@ namespace MyAccountApp.Application.Services
 
             try
             {
-                Account existingAccount = await _accountRepository.GetActiveAccountById(model.Id);
+                Account existingAccount = await _accountRepository.GetAccountById(model.Id);
 
                 if (existingAccount == null) {
                     response.Resolution = false;
@@ -149,7 +148,7 @@ namespace MyAccountApp.Application.Services
             try
             {
                 foreach(UpdateAccountViewModel account in model) {
-                    Account obtainedAccount = await _accountRepository.GetActiveAccountById(account.Id);
+                    Account obtainedAccount = await _accountRepository.GetAccountById(account.Id);
 
                     obtainedAccount.Order = account.Order; 
                     
@@ -177,7 +176,7 @@ namespace MyAccountApp.Application.Services
 
             try
             {
-                Account existingAccount = await _accountRepository.GetActiveAccountById(id);
+                Account existingAccount = await _accountRepository.GetAccountById(id);
                 IEnumerable<Sheet> sheetsAccount = await _sheetRepository.GetSheetByAccountId(id); 
 
 
