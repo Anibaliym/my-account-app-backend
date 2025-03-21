@@ -7,6 +7,7 @@ namespace MyAccountApp.Core.Interfaces
         Task<Card> GetCardById(Guid id);
         Task<IEnumerable<Card>> GetCardBySheetId(Guid sheetId);
         Task<int> GetNextOrderBySheetId(Guid sheetId);
+        Task<int> GetTotalCardsSheet(Guid sheetId);
         Task CreateCard(Card model);
         Task UpdateCard(Card model);
         Task<bool> DeleteCard(Guid id);

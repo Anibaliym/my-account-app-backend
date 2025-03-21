@@ -34,6 +34,14 @@ namespace MyAccountApp.Infrastructure.Repositories
                 .MaxAsync(card => (int?)card.Order) + 1 ?? 1;
         }
 
+        public async Task<int> GetTotalCardsSheet(Guid sheetId)
+        {
+            return await _dbContext.Card
+                .AsNoTracking()
+                .Where(card => card.SheetId == sheetId)
+                .CountAsync();
+        }
+
         public async Task CreateCard(Card model)
         {
             await _dbContext.Card.AddAsync(model);

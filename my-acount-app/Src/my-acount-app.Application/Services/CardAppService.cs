@@ -67,6 +67,14 @@ namespace MyAccountApp.Application.Services
                     return response;
                 }
 
+                int totalCardsSheet = await _cardRepository.GetTotalCardsSheet(model.SheetId); 
+
+                if (totalCardsSheet >= 10){
+                    response.Resolution = false;
+                    response.Message = $"No se pueden crear mas de 10 cartas en una sola 'Hoja de calculo'.";
+                    return response;
+                }
+
                 int order = await _cardRepository.GetNextOrderBySheetId(model.SheetId);
                 
                 Card card = _mapper.Map<Card>(model);
