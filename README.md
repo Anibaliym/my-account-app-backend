@@ -51,6 +51,9 @@ El proyecto hace uso de varias librerías externas para facilitar el desarrollo 
 
 ### Instrucciones para Iniciar el Proyecto
 1. Clona el repositorio.
+   ```bash
+   git clone https://github.com/Anibaliym/my-account-app-backend
+
 2. **Ejecuta el script SQL** (`script.sql`) proporcionado para crear la base de datos y las tablas en PostgreSQL que está en la ruta "my-account-app-backend\data-base\script.sql":
 3. Ejecuta el proyecto.
 
