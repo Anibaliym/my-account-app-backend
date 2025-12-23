@@ -9,6 +9,7 @@ namespace MyAccountApp.Infrastructure.Context
 
         public DbSet<User> User { get; set; }
         public DbSet<UserSecurity> UserSecurity { get; set; }
+        public DbSet<UserAccessLog> UserAccessLog { get; set; }
         public DbSet<Account> Account { get; set; }
         public DbSet<Sheet> Sheet { get; set; }
         public DbSet<Card> Card { get; set; }
@@ -20,6 +21,7 @@ namespace MyAccountApp.Infrastructure.Context
 
             modelBuilder.Entity<User>(entity => { entity.HasKey(e => e.Id); });
             modelBuilder.Entity<UserSecurity>(entity => { entity.HasKey(e => e.Id); });
+            modelBuilder.Entity<UserAccessLog>(entity => { entity.HasKey(e => e.Id); });
             modelBuilder.Entity<Account>(entity => { entity.HasKey(e => e.Id); });
             modelBuilder.Entity<Sheet>(entity => { entity.HasKey(e => e.Id); });
             modelBuilder.Entity<Card>(entity => { entity.HasKey(e => e.Id); });

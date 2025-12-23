@@ -6,11 +6,12 @@ using MyAccountApp.Core.Entities;
 using MyAccountApp.Core.Enum.User;
 using MyAccountApp.Core.Interfaces;
 using MyAccountApp.Core.Utils;
-using System.Reflection.Metadata.Ecma335;
 using MyAccountApp.Application.ViewModels.Vignette;
 using AutoMapper;
 using MyAccountApp.Application.ViewModels.Sheet;
 using MyAccountApp.Application.ViewModels.Card;
+using Microsoft.AspNetCore.Http;
+using MyAccountApp.Core.Enum.UserAccessLog;
 
 namespace MyAccountApp.Application.Services
 {
@@ -18,6 +19,7 @@ namespace MyAccountApp.Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IUserSecurityRepository _userSecurityRepository;
+        private readonly IUserAccessLogRepository _userAccessLog; 
         private readonly IAccountRepository _accountRepository;
         private readonly ISheetRepository _sheetRepository;
         private readonly ICardRepository _cardRepository;
@@ -28,6 +30,7 @@ namespace MyAccountApp.Application.Services
         public DomainServicesAppServices (
             IUserRepository userRepository,
             IAccountRepository accountRepository,
+            IUserAccessLogRepository userAccessLogRepository, 
             ISheetRepository sheetRepository, 
             IUserSecurityRepository userSecurityRepository,
             ICardRepository cardRepository, 
@@ -39,6 +42,7 @@ namespace MyAccountApp.Application.Services
         {
             _userRepository = userRepository;
             _accountRepository = accountRepository;
+            _userAccessLog = userAccessLogRepository; 
             _sheetRepository = sheetRepository;
             _userSecurityRepository = userSecurityRepository; 
             _cardRepository = cardRepository;
@@ -47,13 +51,27 @@ namespace MyAccountApp.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<GenericResponse> Login(string email, string password)
+        public async Task<GenericResponse> Login(string email, string password, string ip, string userAgent)
         {
             User userFound = await _userRepository.GetUserByEmail(email.ToUpper());
             LoginResponseViewModel responseModel = new LoginResponseViewModel(); 
             
+            UserAccessLog userAccessLogModel = new UserAccessLog{
+                Id = Guid.NewGuid(), 
+                OccurredAt = DateTime.UtcNow,
+                IpAddress = ip,
+                UserAgent = userAgent,
+                Success = false, 
+                AuthProvider = UserRegistrationMethodEnum.MANUAL_AUTH.ToString()
+            };
+            
             if (userFound == null)
             {
+                userAccessLogModel.EventType = UserAccessLogEventType.LOGIN_FAILED.ToString();
+                userAccessLogModel.FailureReason = UserAccessLogFailureReason.USER_NOT_FOUND.ToString(); 
+
+                _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
+
                 return new GenericResponse
                 {
                     Resolution = false,
@@ -62,8 +80,14 @@ namespace MyAccountApp.Application.Services
                 };
             }
 
+            // Se válida que si se registro por "Google autenticathor" entonces, no se loguee con credenciales.
             if (userFound.RegistrationMethod == UserRegistrationMethodEnum.GOOGLE_AUTH.Name)
             {
+                userAccessLogModel.EventType = UserAccessLogEventType.LOGIN_FAILED.ToString();
+                userAccessLogModel.FailureReason = UserAccessLogFailureReason.TOKEN_INVALID.ToString();
+
+                _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
+
                 return new GenericResponse
                 {
                     Resolution = false,
@@ -77,10 +101,14 @@ namespace MyAccountApp.Application.Services
 
             if (userSecurityFound == null)
             {
-                return new GenericResponse
-                {
+                userAccessLogModel.EventType = UserAccessLogEventType.LOGIN_FAILED.ToString();
+                userAccessLogModel.FailureReason = UserAccessLogFailureReason.USER_NOT_FOUND.ToString(); 
+
+                _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
+
+                return new GenericResponse {
                     Resolution = false,
-                    Errors = new[] { "Usuario o contraseña incorrectos." },
+                    Errors = new[] { "Credenciales no coinciden." },
                     Message = "Se encontraron errores de validación."
                 };
             }
@@ -89,10 +117,15 @@ namespace MyAccountApp.Application.Services
 
             if (!isPasswordValid)
             {
-                return new GenericResponse
-                {
+                userAccessLogModel.UserId = userFound.Id; 
+                userAccessLogModel.EventType = UserAccessLogEventType.LOGIN_FAILED.ToString();
+                userAccessLogModel.FailureReason = UserAccessLogFailureReason.INVALID_PASSWORD.ToString();
+
+                _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
+
+                return new GenericResponse {
                     Resolution = false,
-                    Errors = new[] { "Usuario o contraseña incorrectos." },
+                    Errors = new[] { "La contraseña ingresada, no corresponde al usuario." },
                     Message = "Se encontraron errores de validación."
                 };
             }
@@ -110,7 +143,7 @@ namespace MyAccountApp.Application.Services
                     Sheets = new List<SheetDto>() 
                 };
 
-                // Obtenemos todas las hojas asociadas a la cuenta
+                // Se obtienen todas las hojas asociadas a la cuenta
                 IEnumerable<Sheet> sheets = await _sheetRepository.GetSheetByAccountId(account.Id);
 
                 // Se agregan las hojas a la cuenta
@@ -120,6 +153,17 @@ namespace MyAccountApp.Application.Services
                 // Se agrega la cuenta con sus hojas al responseModel
                 responseModel.Accounts.Add(accountDto);
             }
+
+            //Usuario logueado exitosamente.
+            userAccessLogModel.UserId = userFound.Id; 
+            userAccessLogModel.UserAgent = userAgent; 
+            userAccessLogModel.EventType = UserAccessLogEventType.LOGIN_SUCCESS.ToString();
+            userAccessLogModel.FailureReason = UserAccessLogFailureReason.ACCOUNT_ALOWED.ToString();
+            userAccessLogModel.Success = true; 
+
+            _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
+
+            responseModel.AllSuccessUserAccessLog = await _userAccessLog.GetAllSuccessUserAccessLogByUserId(userFound.Id);
 
             // Si todo es correcto, devolver el usuario encontrado con las cuentas y hojas
             return new GenericResponse
@@ -150,8 +194,7 @@ namespace MyAccountApp.Application.Services
             bool isPasswordValid = PasswordUtils.VerifyPasswordHash(request.Password, Convert.FromBase64String(userSecurityFound.PasswordHash), Convert.FromBase64String(userSecurityFound.PasswordSalt));
 
             if(!isPasswordValid) {
-                return new GenericResponse
-                {
+                return new GenericResponse {
                     Resolution = false,
                     Errors = new[] { "La contraseña ingresada, es incorrecta." },
                     Message = "Se encontraron errores de validación."

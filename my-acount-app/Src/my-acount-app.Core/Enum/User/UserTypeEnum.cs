@@ -10,4 +10,3 @@ namespace MyAccountApp.Core.Enum.User
         private UserTypeEnum(string name, int value) : base(name, value) { }
     }
 }
-

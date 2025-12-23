@@ -35,6 +35,7 @@ builder.Services.AddScoped<ISheetRepository, SheetRepository>();
 builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<IVignetteRepository, VignetteRepository>();
 builder.Services.AddScoped<IUserSecurityRepository, UserSecurityRepository>();
+builder.Services.AddScoped<IUserAccessLogRepository, UserAccessLogRepository>();
 
 // Registrar servicios de aplicación
 builder.Services.AddScoped<IUserAppService, UserAppService>();

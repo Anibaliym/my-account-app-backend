@@ -6,6 +6,7 @@ namespace MyAccountApp.Application.Services
     {
         public User? User { get; set; }
         public List<AccountDto>? Accounts { get; set; }
+        public IEnumerable<UserAccessLog>? AllSuccessUserAccessLog { get; set; }
     }
 
     public class AccountDto
@@ -17,6 +18,6 @@ namespace MyAccountApp.Application.Services
     public class SheetDto
     {
         public Sheet? Sheet { get; set; }
-    }    
+    }
 }
 

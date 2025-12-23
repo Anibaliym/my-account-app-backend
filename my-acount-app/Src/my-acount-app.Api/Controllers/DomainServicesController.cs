@@ -22,7 +22,11 @@ namespace MyAccountApp.Api.Controllers
         {
             try
             {
-                GenericResponse response = await _domainServices.Login(loginModel.Email, loginModel.Password);
+                string? ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+                
+                string? userAgent = Request.Headers["User-Agent"].ToString();
+
+                GenericResponse response = await _domainServices.Login(loginModel.Email, loginModel.Password, ip, userAgent);
 
                 if (response.Resolution)
                     return Ok(response);

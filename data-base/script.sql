@@ -22,6 +22,20 @@ create table Public."UserSecurity"
     constraint fk_UserSecurity_User foreign key ("UserId") references Public."User"("Id") on delete cascade
 );
 
+create table public."UserAccessLog"
+(
+  "Id" uuid not null default gen_random_uuid(),
+  "UserId" uuid null,
+  "OccurredAt" timestamptz not null default now(),  -- La fecha y hora exacta en que ocurrió el evento (login, logout, fallo, etc.).
+  "EventType" varchar(40) not null,                 -- LOGIN_SUCCESS, LOGIN_FAILED, LOGOUT, TOKEN_REFRESHED, SESSION_EXPIRED
+  "Success" boolean not null,
+  "FailureReason" varchar(120) null,                -- INVALID_PASSWORD, USER_NOT_FOUND, ACCOUNT_LOCKED, TOO_MANY_ATTEMPTS, SESSION_EXPIRED, TOKEN_EXPIRED, TOKEN_INVALID
+  "IpAddress" text null,
+  "UserAgent" text null,                            -- Cadena que envía el navegador o app, por ejemplo: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+  "AuthProvider" varchar(50) null,                  -- Google, Apple, Manual
+  constraint "FK_UserAccessLog_User" foreign key ("UserId") references public."User"("Id") on delete set null
+);
+
 create table Public."Account"
 (
     "Id" uuid not null,
