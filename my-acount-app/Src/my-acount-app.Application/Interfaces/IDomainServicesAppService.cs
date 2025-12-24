@@ -9,6 +9,7 @@ namespace MyAccountApp.Application.Interfaces
         Task<GenericResponse> GetSheetsAccount(Guid accountId);
         Task<GenericResponse> GetSheetCardsWithVignettes(Guid sheetId);
         Task<GenericResponse> GetUserAccountsWithSheets(Guid userId);
+        Task<GenericResponse> GetAllSuccessUserAccessLogByUserId(Guid userId);
         Task<GenericResponse> DeleteCardWithVignettes(Guid cardId);
         Task<GenericResponse> DeleteUserAccount(DeleteUserRequest request);
         Task<GenericResponse> DeleteSheetWithContents(Guid sheetId);

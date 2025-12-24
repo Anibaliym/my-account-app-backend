@@ -70,7 +70,7 @@ namespace MyAccountApp.Application.Services
                 userAccessLogModel.EventType = UserAccessLogEventType.LOGIN_FAILED.ToString();
                 userAccessLogModel.FailureReason = UserAccessLogFailureReason.USER_NOT_FOUND.ToString(); 
 
-                _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
+                await _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
 
                 return new GenericResponse
                 {
@@ -86,7 +86,7 @@ namespace MyAccountApp.Application.Services
                 userAccessLogModel.EventType = UserAccessLogEventType.LOGIN_FAILED.ToString();
                 userAccessLogModel.FailureReason = UserAccessLogFailureReason.TOKEN_INVALID.ToString();
 
-                _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
+                await _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
 
                 return new GenericResponse
                 {
@@ -104,7 +104,7 @@ namespace MyAccountApp.Application.Services
                 userAccessLogModel.EventType = UserAccessLogEventType.LOGIN_FAILED.ToString();
                 userAccessLogModel.FailureReason = UserAccessLogFailureReason.USER_NOT_FOUND.ToString(); 
 
-                _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
+                await _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
 
                 return new GenericResponse {
                     Resolution = false,
@@ -121,7 +121,7 @@ namespace MyAccountApp.Application.Services
                 userAccessLogModel.EventType = UserAccessLogEventType.LOGIN_FAILED.ToString();
                 userAccessLogModel.FailureReason = UserAccessLogFailureReason.INVALID_PASSWORD.ToString();
 
-                _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
+                await _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
 
                 return new GenericResponse {
                     Resolution = false,
@@ -161,9 +161,7 @@ namespace MyAccountApp.Application.Services
             userAccessLogModel.FailureReason = UserAccessLogFailureReason.ACCOUNT_ALOWED.ToString();
             userAccessLogModel.Success = true; 
 
-            _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
-
-            responseModel.AllSuccessUserAccessLog = await _userAccessLog.GetAllSuccessUserAccessLogByUserId(userFound.Id);
+            await _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
 
             // Si todo es correcto, devolver el usuario encontrado con las cuentas y hojas
             return new GenericResponse
@@ -171,6 +169,16 @@ namespace MyAccountApp.Application.Services
                 Resolution = true,
                 Data = responseModel, 
                 Message = "Inicio de sesión exitoso."
+            };
+        }
+
+        //ayanez
+        public async Task<GenericResponse> GetAllSuccessUserAccessLogByUserId(Guid userId)
+        {
+            return new GenericResponse 
+            {
+                Resolution = true,
+                Data = await _userAccessLog.GetAllSuccessUserAccessLogByUserId(userId), 
             };
         }
         

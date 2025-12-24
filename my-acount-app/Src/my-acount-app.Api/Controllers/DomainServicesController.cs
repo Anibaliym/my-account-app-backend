@@ -57,6 +57,12 @@ namespace MyAccountApp.Api.Controllers
             return await _domainServices.GetSheetCardsWithVignettes(sheetId);
         }
 
+        [HttpGet("GetAllSuccessUserAccessLogByUserId/{userId:guid}")]
+        public async Task<GenericResponse> GetAllSuccessUserAccessLogByUserId(Guid userId)
+        {
+            return await _domainServices.GetAllSuccessUserAccessLogByUserId(userId);
+        }
+
         [HttpDelete("DeleteCardWithVignettes/{cardId:guid}")]
         public async Task<IActionResult> DeleteCardWithVignettes(Guid cardId)
         {
