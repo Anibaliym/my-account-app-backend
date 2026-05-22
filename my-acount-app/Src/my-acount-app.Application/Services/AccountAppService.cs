@@ -56,7 +56,7 @@ namespace MyAccountApp.Application.Services
                     {
                         Resolution = false,
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "Se encontraron errores de validación."
+                        Message = "One or more validation errors were found."
                     };
                 }
 
@@ -65,7 +65,7 @@ namespace MyAccountApp.Application.Services
                 if (user == null)
                 {
                     response.Resolution = false;
-                    response.Message = $"Usuario con el id {model.UserId}, no existe.";
+                    response.Message = $"The user with id '{model.UserId}' was not found.";
                     return response;
                 }
 
@@ -73,7 +73,7 @@ namespace MyAccountApp.Application.Services
 
                 if (totalUserAccounts >= 15){
                     response.Resolution = false;
-                    response.Message = $"No se pueden crear mas de 15 cuentas por usuario.";
+                    response.Message = "The maximum number of accounts allowed per user is 15.";
                     return response;
                 }
 
@@ -109,7 +109,7 @@ namespace MyAccountApp.Application.Services
                 {
                     Resolution = false,
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    Message = "Se encontraron errores de validación."
+                    Message = "The request contains validation errors."
                 };
             }
 
@@ -119,7 +119,7 @@ namespace MyAccountApp.Application.Services
 
                 if (existingAccount == null) {
                     response.Resolution = false;
-                    response.Message = $"La cuenta con el id '{model.Id}', no existe.";
+                    response.Message = $"No account was found with id '{model.Id}'.";
                     return response;
                 }
 
@@ -158,7 +158,7 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = true,
-                    Message = "Se actualizó el orden de las viñetas correctamente."
+                    Message = "The vignette order has been updated successfully."
                 };
             }
             catch (Exception error)
@@ -182,7 +182,7 @@ namespace MyAccountApp.Application.Services
 
                 if(sheetsAccount.Count() > 0) { 
                     response.Resolution = false;
-                    response.Message = $"No se puede eliminar la cuenta, por que tiene hojas de cálculo asociadas. Primero debe eliminar las hojas de cálculo.";
+                    response.Message = "The account cannot be deleted while it has associated sheets. Please remove the sheets first.";
                     return response;
                 }
 
@@ -195,7 +195,7 @@ namespace MyAccountApp.Application.Services
 
                 bool resolution = await _accountRepository.DeleteAccount(id);
                 response.Resolution = resolution;
-                response.Message = (resolution) ? "Cuenta eliminada" : "No se pudo eliminar el registro.";
+                response.Message = resolution ? "The account was deleted successfully." : "Failed to delete the record.";
             }
             catch (Exception ex)
             {

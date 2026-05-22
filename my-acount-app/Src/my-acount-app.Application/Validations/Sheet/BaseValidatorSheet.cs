@@ -8,30 +8,32 @@ namespace MyAccountApp.Application.Validations.Sheet
         protected void ValidateId(Expression<Func<T, Guid>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'Id' no puede estar vacío.")
-                .NotEqual(Guid.Empty).WithMessage("El campo 'Id' no es válido.");
+                .NotEmpty().WithMessage("The 'Id' field is required.")
+                .NotEqual(Guid.Empty).WithMessage("The 'Id' field is invalid.");
         }
 
         protected void ValidateAccountId(Expression<Func<T, Guid>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'AccountId' no puede estar vacío.")
-                .NotEqual(Guid.Empty).WithMessage("El campo 'AccountId' no es válido.");
+                .NotEmpty().WithMessage("The 'AccountId' field is required.")
+                .NotEqual(Guid.Empty).WithMessage("The 'AccountId' field is invalid.");
         }
 
         protected void ValidateDescription(Expression<Func<T, string>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'Description' no puede estar vacío.")
-                .MinimumLength(3).WithMessage("El campo 'Description' debe tener al menos 3 caracteres.")
-                .MaximumLength(300).WithMessage("El campo 'Description' no debe exceder los 300 caracteres.");
+                .NotEmpty().WithMessage("The 'Description' field is required.")
+                .MinimumLength(3).WithMessage("The 'Description' field must contain at least 3 characters.")
+                .MaximumLength(300).WithMessage("The 'Description' field must not exceed 300 characters.");
         }
 
         protected void ValidateOrder(Expression<Func<T, int>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El 'Order', no puede estar vacío.") 
-                .LessThanOrEqualTo(200).WithMessage("El 'Order', no puede exceder el límite permitido (200)."); 
+                .GreaterThanOrEqualTo(0)
+                    .WithMessage("The 'Order' field must be greater than or equal to 0.")
+                .LessThanOrEqualTo(200)
+                    .WithMessage("The 'Order' field must not exceed the allowed limit (200).");
         }
     }
 }

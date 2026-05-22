@@ -9,41 +9,45 @@ namespace MyAccountApp.Application.Validations.Vignette
         protected void ValidateId(Expression<Func<T, Guid>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'Id' no puede estar vacío.")
-                .NotEqual(Guid.Empty).WithMessage("El campo 'Id' no es válido.");
+                .NotEmpty().WithMessage("The 'Id' field is required.")
+                .NotEqual(Guid.Empty).WithMessage("The 'Id' field is invalid.");
         }
 
         protected void ValidateCardId(Expression<Func<T, Guid>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'CardId' no puede estar vacío.")
-                .NotEqual(Guid.Empty).WithMessage("El campo 'CardId' no es válido.");
+                .NotEmpty().WithMessage("The 'CardId' field is required.")
+                .NotEqual(Guid.Empty).WithMessage("The 'CardId' field is invalid.");
         }
 
         protected void ValidateColor(Expression<Func<T, string>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'Color' no puede estar vacío.")
-                .Must(BeAValidColorType).WithMessage($"El 'Color' debe estar entre los valores permitidos ({GetAllowedColorTypes()}).")
-                .MaximumLength(50).WithMessage("El campo 'Color' no debe exceder los 50 caracteres.");
+                .NotEmpty().WithMessage("The 'Color' field is required.")
+                .Must(BeAValidColorType)
+                    .WithMessage($"The 'Color' field must contain one of the allowed values ({GetAllowedColorTypes()}).")
+                .MaximumLength(50)
+                    .WithMessage("The 'Color' field must not exceed 50 characters.");
         }
 
         protected void ValidateOrder(Expression<Func<T, int>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El 'Order', no puede estar vacío.") // Que no sea vacío (aunque un int no puede ser nulo)
-                .LessThanOrEqualTo(1000).WithMessage("El 'Order', no puede exceder el límite permitido (1000)."); // Valor máximo
+                .GreaterThanOrEqualTo(0)
+                    .WithMessage("The 'Order' field must be greater than or equal to 0.")
+                .LessThanOrEqualTo(1000)
+                    .WithMessage("The 'Order' field must not exceed the allowed limit (1000).");
         }
 
         private bool BeAValidColorType(string value)
         {
-            // Se verifica si el valor coincide con alguno de los nombres de los enums
-            return TipoColorEnum.List.Select(u => u.Name).Contains(value);
+            return TipoColorEnum.List
+                .Select(u => u.Name)
+                .Contains(value);
         }
 
         private static string GetAllowedColorTypes()
         {
-            // se obtienen todos los nombres de los enums y únelos en una cadena separada por comas
             IEnumerable<string> colorTypes = TipoColorEnum.List.Select(u => u.Name);
             return string.Join(", ", colorTypes);
         }

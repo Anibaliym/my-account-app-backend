@@ -24,21 +24,13 @@ namespace MyAccountApp.Infrastructure.Repositories
             return await _dbContext.UserAccessLog.AsNoTracking().Where(userAccessLog => userAccessLog.UserId == userId).ToListAsync();   
         }
 
-        // public async Task<IEnumerable<UserAccessLog>> GetAllSuccessUserAccessLogByUserId(Guid userId)
-        // {
-        //     return await _dbContext.UserAccessLog.AsNoTracking()
-        //         .Where(userAccessLog => userAccessLog.UserId == userId && userAccessLog.Success == true)
-        //         .OrderBy(userAccessLog => userAccessLog.OccurredAt)
-        //         .ToListAsync();   
-        // }
-
         public async Task<IEnumerable<UserAccessLog>> GetAllSuccessUserAccessLogByUserId(Guid userId)
         {
             return await _dbContext.UserAccessLog
                 .AsNoTracking()
                 .Where(log => log.UserId == userId && log.Success)
                 .OrderByDescending(log => log.OccurredAt)
-                .Take(5)
+                .Take(20)
                 .ToListAsync();
         }
 

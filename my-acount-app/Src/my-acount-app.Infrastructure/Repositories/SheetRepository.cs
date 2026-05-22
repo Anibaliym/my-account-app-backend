@@ -75,10 +75,7 @@ namespace MyAccountApp.Infrastructure.Repositories
             {
                 // Verifica si el error está relacionado con restricciones de integridad referencial (Foreign Key)
                 if (dbEx.InnerException is PostgresException pgEx && pgEx.SqlState == "23503") // Código de error para violación de clave foránea
-                {
-                    Console.WriteLine("No se puede eliminar el registro porque está siendo referenciado por otra tabla.");
                     return false;
-                }
 
                 // Si la excepción no está relacionada con claves foráneas, la volvemos a lanzar
                 throw;

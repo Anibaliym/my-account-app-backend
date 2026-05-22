@@ -8,9 +8,11 @@ namespace MyAccountApp.Application.Validations.UserSecurity
         protected void ValidatePassword(Expression<Func<T, string>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'Password' no puede estar vacío.")
-                .MinimumLength(5).WithMessage("El campo 'Password' debe tener al menos 5 caracteres.")
-                .MaximumLength(20).WithMessage("El campo 'Password' no debe exceder los 20 caracteres.");
-        }
+                .NotEmpty()
+                    .WithMessage("The 'Password' field is required.")
+                .MinimumLength(5)
+                    .WithMessage("The 'Password' field must contain at least 5 characters.")
+                .MaximumLength(20)
+                    .WithMessage("The 'Password' field must not exceed 20 characters.");        }
     }
 }

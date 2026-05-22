@@ -9,69 +9,71 @@ namespace MyAccountApp.Application.Validations.User
         protected void ValidateId(Expression<Func<T, Guid>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'Id' no puede estar vacío.")
-                .NotEqual(Guid.Empty).WithMessage("El campo 'Id' no es válido.");
+                .NotEmpty().WithMessage("The 'Id' field is required.")
+                .NotEqual(Guid.Empty).WithMessage("The 'Id' field is invalid.");
         }
 
         protected void ValidateFirstName(Expression<Func<T, string>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'FirstName' no puede estar vacío.")
-                .MinimumLength(3).WithMessage("El campo 'FirstName' debe tener al menos 3 caracteres.")
-                .MaximumLength(100).WithMessage("El campo 'FirstName' no debe exceder los 100 caracteres.");
+                .NotEmpty().WithMessage("The 'FirstName' field is required.")
+                .MinimumLength(3).WithMessage("The 'FirstName' field must contain at least 3 characters.")
+                .MaximumLength(100).WithMessage("The 'FirstName' field must not exceed 100 characters.");
         }
 
         protected void ValidateLastName(Expression<Func<T, string>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'LastName' no puede estar vacío.")
-                .MinimumLength(3).WithMessage("El campo 'LastName' debe tener al menos 3 caracteres.")
-                .MaximumLength(100).WithMessage("El campo 'LastName' no debe exceder los 100 caracteres.");
+                .NotEmpty().WithMessage("The 'LastName' field is required.")
+                .MinimumLength(3).WithMessage("The 'LastName' field must contain at least 3 characters.")
+                .MaximumLength(100).WithMessage("The 'LastName' field must not exceed 100 characters.");
         }
 
         protected void ValidateEmail(Expression<Func<T, string>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'Email' no puede estar vacío.")
-                .EmailAddress().WithMessage("El campo 'Email' debe tener un formato correcto.");
+                .NotEmpty().WithMessage("The 'Email' field is required.")
+                .EmailAddress().WithMessage("The 'Email' field must contain a valid email address.");
         }
 
         protected void ValidateUserType(Expression<Func<T, string>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'UserType' no puede estar vacío.")
-                .Must(BeAValidUserType).WithMessage($"El 'UserType' debe estar entre los valores permitidos ({GetAllowedUserTypes()}).");
+                .NotEmpty().WithMessage("The 'UserType' field is required.")
+                .Must(BeAValidUserType)
+                .WithMessage($"The 'UserType' field must contain one of the allowed values ({GetAllowedUserTypes()}).");
         }
 
         protected void ValidateUserRegistrationMethod(Expression<Func<T, string>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'RegistrationMethod' no puede estar vacío.")
-                .Must(BeAValidUserRegistrationMethodType).WithMessage($"El 'RegistrationMethod' debe estar entre los valores permitidos ({GetAllUserRegistrationMethodTypes()}).");
+                .NotEmpty().WithMessage("The 'RegistrationMethod' field is required.")
+                .Must(BeAValidUserRegistrationMethodType)
+                .WithMessage($"The 'RegistrationMethod' field must contain one of the allowed values ({GetAllUserRegistrationMethodTypes()}).");
         }
 
         private bool BeAValidUserRegistrationMethodType(string value)
         {
-            // Verifica si el valor coincide con alguno de los nombres de los enums
-            return UserRegistrationMethodEnum.List.Select(u => u.Name).Contains(value);
+            return UserRegistrationMethodEnum.List
+                .Select(u => u.Name)
+                .Contains(value);
         }
 
         private static string GetAllUserRegistrationMethodTypes()
         {
-            // se obtienen todos los nombres de los enums y únelos en una cadena separada por comas
             IEnumerable<string> userTypes = UserRegistrationMethodEnum.List.Select(u => u.Name);
             return string.Join(", ", userTypes);
         }
 
         private bool BeAValidUserType(string value)
         {
-            // Verifica si el valor coincide con alguno de los nombres de los enums
-            return UserTypeEnum.List.Select(u => u.Name).Contains(value);
+            return UserTypeEnum.List
+                .Select(u => u.Name)
+                .Contains(value);
         }
 
         private static string GetAllowedUserTypes()
         {
-            // se obtienen todos los nombres de los enums y únelos en una cadena separada por comas
             IEnumerable<string> userTypes = UserTypeEnum.List.Select(u => u.Name);
             return string.Join(", ", userTypes);
         }

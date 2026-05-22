@@ -75,8 +75,8 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = false,
-                    Errors = new[] { "Usuario o contraseña incorrectos." },
-                    Message = "Se encontraron errores de validación."
+                    Errors = new[] { "Invalid email or password." },
+                    Message = "Authentication failed."
                 };
             }
 
@@ -91,8 +91,8 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = false,
-                    Errors = new[] { $"El usuario con el correo '{ email }', se ha registrado con la autenticación de google y no con la autenticación propia del sistema." },
-                    Message = "Se encontraron errores de validación."
+                    Errors = new[] { $"The account associated with '{email}' was registered using Google Sign-In. Please sign in with Google." }, 
+                    Message = "Authentication failed."
                 };
             }
 
@@ -108,8 +108,8 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = false,
-                    Errors = new[] { "Credenciales no coinciden." },
-                    Message = "Se encontraron errores de validación."
+                    Errors = new[] { "Invalid credentials." },
+                    Message = "Authentication failed."
                 };
             }
 
@@ -125,8 +125,8 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = false,
-                    Errors = new[] { "La contraseña ingresada, no corresponde al usuario." },
-                    Message = "Se encontraron errores de validación."
+                    Errors = new[] { "Incorrect password." },
+                    Message = "Authentication failed."
                 };
             }
             
@@ -168,11 +168,10 @@ namespace MyAccountApp.Application.Services
             {
                 Resolution = true,
                 Data = responseModel, 
-                Message = "Inicio de sesión exitoso."
+                Message = "You have signed in successfully."
             };
         }
 
-        //ayanez
         public async Task<GenericResponse> GetAllSuccessUserAccessLogByUserId(Guid userId)
         {
             return new GenericResponse 
@@ -193,8 +192,8 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = false,
-                    Errors = new[] { $"No se encontraron usuarios con el id '{ request.UserId }'." },
-                    Message = "Se encontraron errores de validación."
+                    Errors = new[] { $"The user with id '{request.UserId}' was not found." },
+                    Message = "The request contains validation errors."
                 };
             }
 
@@ -204,12 +203,11 @@ namespace MyAccountApp.Application.Services
             if(!isPasswordValid) {
                 return new GenericResponse {
                     Resolution = false,
-                    Errors = new[] { "La contraseña ingresada, es incorrecta." },
-                    Message = "Se encontraron errores de validación."
+                    Errors = new[] { "Incorrect password." },
+                    Message = "Authentication failed."
                 };
             }
 
-            
             //Se eliminan todos los movimientos de la cuenta de usuario
             IEnumerable<Account> accountsFound = await _accountRepository.GetAccountByUserId(request.UserId); 
 
@@ -244,7 +242,7 @@ namespace MyAccountApp.Application.Services
 
             return new GenericResponse {
                 Resolution = true,
-                Message = $"El usuario con el correo { userFound.Email }, ha sido eliminado del sistema."
+                Message = $"The user account associated with '{userFound.Email}' has been deleted successfully."
             };
         }
 
@@ -271,7 +269,7 @@ namespace MyAccountApp.Application.Services
             else {
                 return new GenericResponse {
                     Resolution = false,
-                    Message = $"La cuenta con el id '{ accountId }', no existe."
+                    Message = $"No account was found with id '{accountId}'."
                 }; 
             }
         }
@@ -308,7 +306,7 @@ namespace MyAccountApp.Application.Services
             {
                 Resolution = true,
                 Data = responseModel,
-                Message = "Inicio de sesión exitoso."
+                Message = "You have signed in successfully."
             };
         }
 
@@ -322,7 +320,7 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = false,
-                    Message = $"La carta con el id '{ cardId }', no existe."
+                    Message = $"No card was found with id '{cardId}'."
                 };
             }
 
@@ -339,7 +337,7 @@ namespace MyAccountApp.Application.Services
             return new GenericResponse {
                 Resolution = true,
                 Data = responseModel,
-                Message = "Se elimina la carta con todas sus viñetas"
+                Message = "The card has been deleted along with all its associated vignettes."
             };
         }
 
@@ -350,7 +348,7 @@ namespace MyAccountApp.Application.Services
             if(sheetFound == null) {
                 return new GenericResponse {
                     Resolution = false,
-                    Message = $"La hoja de cálculo con el id '{ sheetId }', no existe."
+                    Message = $"No sheet was found with id '{sheetId}'."
                 };
             }
 
@@ -375,7 +373,7 @@ namespace MyAccountApp.Application.Services
 
             return new GenericResponse {
                 Resolution = true,
-                Message = $"Se ha eliminado la hoja de cálculo con el id '{ sheetId }', con todo su contenido."
+                Message = $"The sheet with id '{sheetId}' and all its associated content have been deleted successfully."
             };
         }
 
@@ -461,7 +459,7 @@ namespace MyAccountApp.Application.Services
                     {
                         Resolution = false,
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "Se encontraron errores de validación."
+                        Message = "The request contains validation errors."
                     };
                 }
 
@@ -470,7 +468,7 @@ namespace MyAccountApp.Application.Services
                 if (existingVignette == null)
                 {
                     response.Resolution = false;
-                    response.Data = $"Vineta con el id '{model.Id}' no encontrada.";
+                    response.Data = $"No vignette was found with id '{model.Id}'.";
                     return response;
                 }
 
@@ -514,13 +512,13 @@ namespace MyAccountApp.Application.Services
                 if (existingVignette == null)
                 {
                     response.Resolution = false;
-                    response.Data = $"Vineta con el id '{vignetteId}'no encontrado ";
+                    response.Data = $"No vignette was found with id '{vignetteId}'.";
                     return response;
                 }
 
                 bool resolution = await _vignetteRepository.DeleteVignette(vignetteId);
                 response.Resolution = resolution;
-                response.Message = (resolution) ? "Vineta eliminada" : "No se pudo eliminar el registro.";
+                response.Message = resolution ? "Vignette deleted successfully." : "Failed to delete the record.";
                 
                 IEnumerable<Vignette> cardVignettes = await _vignetteRepository.GetVignetteByCardId(existingVignette.CardId);
 
@@ -549,7 +547,7 @@ namespace MyAccountApp.Application.Services
             if (existingVignette == null)
             {
                 response.Resolution = false;
-                response.Data = $"Vineta con el id '{vignetteId}'no encontrado ";
+                response.Data = $"No vignette was found with id '{vignetteId}'.";
                 return response;
             }
 
@@ -627,7 +625,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = $"Se creó el respaldo de la hoja de cálculo con el id '{ sheetId }' correctamente.",
+                    Message = $"The sheet backup was created successfully.",
                     Data = new {}
                 };
             }

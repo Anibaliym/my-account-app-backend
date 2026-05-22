@@ -66,7 +66,7 @@ namespace MyAccountApp.Application.Services
                 {
                     Resolution = false,
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    Message = "Se encontraron errores de validación."
+                    Message = "The request contains validation errors."
                 };
             }
 
@@ -79,7 +79,7 @@ namespace MyAccountApp.Application.Services
                     {
                         Resolution = false,
                         Errors = validationUserSecurityResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "Se encontraron errores de validación."
+                        Message = "The request contains validation errors."
                     };
                 }
             }
@@ -91,8 +91,8 @@ namespace MyAccountApp.Application.Services
                 if (userExistsByEmail != null)
                 {
                     response.Resolution = false;
-                    response.Errors = [$"El usuario con el correo '{model.Email.ToUpper()}', ya existe."];
-                    response.Message = "Se encontraron errores de validación."; 
+                    response.Errors = [$"The email '{model.Email.ToUpper()}' is already registered."];
+                    response.Message = "The request contains validation errors.";
                     return response;
                 }
 
@@ -145,7 +145,7 @@ namespace MyAccountApp.Application.Services
                 {
                     Resolution = false,
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    Message = "Se encontraron errores de validación."
+                    Message = "The request contains validation errors."
                 };
             }
 
@@ -155,7 +155,7 @@ namespace MyAccountApp.Application.Services
                 
                 if (existingUser == null) {
                     response.Resolution = false;
-                    response.Message = $"Usuario con el id '{model.Id }', no existe.";
+                    response.Message = $"No user was found with id '{model.Id}'.";
                     return response;
                 }
 
@@ -189,19 +189,19 @@ namespace MyAccountApp.Application.Services
                 if (existingUser == null)
                 {
                     response.Resolution = false;
-                    response.Message = "Se encontraron errores de validación.";
-                    response.Errors = [$"El usuario con el id {id}, no existe"];
+                    response.Message = "The request contains validation errors.";
+                    response.Errors = [$"No user was found with id '{id}'."];
                     return response;
                 }
 
                 bool resolution = await _userRepository.DeleteUser(id);
                 response.Resolution = resolution;
-                response.Message = (resolution) ? "Usuario eliminado" : "No se pudo eliminar el registro.";
+                response.Message = resolution ? "User deleted successfully." : "Failed to delete the record.";
             }
             catch (Exception ex)
             {
                 response.Resolution = false;
-                response.Message = "Se encontraron errores de validación";
+                response.Message = "The request contains validation errors.";
                 response.Errors = [ex.Message]; 
             }
             return response;

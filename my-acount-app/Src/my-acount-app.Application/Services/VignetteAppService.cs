@@ -52,7 +52,7 @@ namespace MyAccountApp.Application.Services
                     {
                         Resolution = false,
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "Se encontraron errores de validación."
+                        Message = "The request contains validation errors."
                     };
                 }
 
@@ -61,7 +61,7 @@ namespace MyAccountApp.Application.Services
 
                 if (existingCard == null){
                     response.Resolution = false;
-                    response.Message = $"La carta con el id '{model.CardId}', no existe.";
+                    response.Message = $"No card was found with id '{model.CardId}'.";
                     return response;
                 }
 
@@ -69,7 +69,7 @@ namespace MyAccountApp.Application.Services
 
                 if (totalVignettesCard >= 20){
                     response.Resolution = false;
-                    response.Message = $"No se pueden crear mas de 20 viñetas en una sola carta.";
+                    response.Message = "A maximum of 20 vignettes is allowed per card.";
                     return response;
                 }
 
@@ -105,7 +105,7 @@ namespace MyAccountApp.Application.Services
                     {
                         Resolution = false,
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "Se encontraron errores de validación."
+                        Message = "The request contains validation errors."
                     };
                 }
 
@@ -114,7 +114,7 @@ namespace MyAccountApp.Application.Services
                 if (existingVignette == null)
                 {
                     response.Resolution = false;
-                    response.Data = $"Vineta con el id '{ model.Id }'no encontrado ";
+                    response.Data = $"No vignette was found with id '{model.Id}'.";
                     return response;
                 }
 
@@ -147,7 +147,7 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = true,
-                    Message = "Se actualizó el orden de las viñetas correctamente"
+                    Message = "The vignette order was updated successfully."
                 };
             }
             catch (Exception error)
@@ -169,14 +169,13 @@ namespace MyAccountApp.Application.Services
                 if (existingVignette == null)
                 {
                     response.Resolution = false;
-                    response.Data = $"Vineta con el id '{id}'no encontrado ";
+                    response.Data = $"No vignette was found with id '{id}'.";
                     return response;
                 }
 
                 bool resolution = await _vignetteRepository.DeleteVignette(id);
                 response.Resolution = resolution;
-                response.Message = (resolution) ? "Vineta eliminada" : "No se pudo eliminar el registro.";
-
+                response.Message = resolution ? "Vignette deleted successfully." : "Failed to delete the record.";
             }
             catch (Exception ex)
             {

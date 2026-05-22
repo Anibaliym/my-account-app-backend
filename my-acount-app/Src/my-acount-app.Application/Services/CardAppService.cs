@@ -54,7 +54,7 @@ namespace MyAccountApp.Application.Services
                     {
                         Resolution = false,
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "Se encontraron errores de validación."
+                        Message = "The request contains validation errors."
                     };
                 }
 
@@ -63,7 +63,7 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null)
                 {
                     response.Resolution = false;
-                    response.Data = $"No existe una 'Hoja' con el id '{model.SheetId}'";
+                    response.Data = $"The sheet with id '{model.SheetId}' was not found.";
                     return response;
                 }
 
@@ -71,7 +71,7 @@ namespace MyAccountApp.Application.Services
 
                 if (totalCardsSheet >= 10){
                     response.Resolution = false;
-                    response.Message = $"No se pueden crear mas de 10 cartas en una sola 'Hoja de calculo'.";
+                    response.Message = "A maximum of 10 cards is allowed per sheet.";
                     return response;
                 }
 
@@ -108,7 +108,7 @@ namespace MyAccountApp.Application.Services
                     return new GenericResponse {
                         Resolution = false,
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "Se encontraron errores de validación."
+                        Message = "The request contains validation errors."
                     };
                 }
 
@@ -117,7 +117,7 @@ namespace MyAccountApp.Application.Services
                 if (existingCard == null)
                 {
                     response.Resolution = false;
-                    response.Data = "Carta no encontrada";
+                    response.Data = "Card not found";
                     return response;
                 }
 
@@ -126,7 +126,7 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null)
                 {
                     response.Resolution = false;
-                    response.Data = $"No existe una 'Hoja' con el id '{ model.SheetId }'";
+                    response.Data = $"No sheet was found with id '{model.SheetId}'.";
                     return response;
                 }
 
@@ -165,7 +165,7 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = true,
-                    Message = "Se actualizó el orden de las cartas correctamente."
+                    Message = "The card order has been updated successfully."
                 };
             }
             catch (Exception error)
@@ -188,13 +188,13 @@ namespace MyAccountApp.Application.Services
                 if (existingCard == null)
                 {
                     response.Resolution = false;
-                    response.Data = "Carta no encontrada";
+                    response.Data = "Card not found.";
                     return response;
                 }
 
                 bool resolution = await _cardRepository.DeleteCard(id);
                 response.Resolution = resolution;
-                response.Message = (resolution) ? "Carta eliminada" : "No se pudo eliminar el registro.";
+                response.Message = resolution ? "Card deleted successfully." : "Failed to delete the record.";                
             }
             catch (Exception ex)
             {

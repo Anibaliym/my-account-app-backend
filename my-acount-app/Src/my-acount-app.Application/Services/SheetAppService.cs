@@ -57,7 +57,7 @@ namespace MyAccountApp.Application.Services
                 {
                     Resolution = false,
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    Message = "Se encontraron errores de validación."
+                    Message = "The request contains validation errors."
                 };
             }
 
@@ -68,7 +68,7 @@ namespace MyAccountApp.Application.Services
                 if (cuentaExistente == null)
                 {
                     response.Resolution = false;
-                    response.Message = $"La cuenta con el id '{model.AccountId}', no existe.";
+                    response.Message = $"No account was found with id '{model.AccountId}'.";
                     return response;
                 }
 
@@ -76,7 +76,7 @@ namespace MyAccountApp.Application.Services
 
                 if (totalSheetsAccount >= 15){
                     response.Resolution = false;
-                    response.Message = $"No se pueden crear mas de 15 hojas de calculo por cuenta.";
+                    response.Message = "A maximum of 15 sheets is allowed per account.";
                     return response;
                 }
 
@@ -115,7 +115,7 @@ namespace MyAccountApp.Application.Services
                 {
                     Resolution = false,
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    Message = "Se encontraron errores de validación."
+                    Message = "The request contains validation errors."
                 };
             }
 
@@ -126,7 +126,7 @@ namespace MyAccountApp.Application.Services
                 if (existingAccount == null)
                 {
                     response.Resolution = false;
-                    response.Message = $"La cuenta con el id '{model.AccountId}', no existe.";
+                    response.Message = $"No account was found with id '{model.AccountId}'.";
                     return response;
                 }
 
@@ -135,7 +135,7 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null)
                 {
                     response.Resolution = false;
-                    response.Data = "Hoja no encontrada";
+                    response.Data = "The requested sheet was not found.";
                     return response;
                 }
 
@@ -171,7 +171,7 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = true,
-                    Message = "Se actualizó el orden de las hojas de calculo correctamente."
+                    Message = "The sheet order was updated successfully."
                 };
             }
             catch (Exception error)
@@ -196,7 +196,7 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null)
                 {
                     response.Resolution = false;
-                    response.Message = "Hoja no encontrada.";
+                    response.Message = "The requested sheet was not found.";
                     return response;
                 }
 
@@ -208,7 +208,7 @@ namespace MyAccountApp.Application.Services
                 await _sheetRepository.UpdateSheet(existingSheet);
 
                 response.Resolution = true;
-                response.Message = "CashBalance actualizado correctamente.";
+                response.Message = "CashBalance updated successfully.";
                 response.Data = existingSheet;
             }
             catch (Exception ex)
@@ -231,7 +231,7 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null)
                 {
                     response.Resolution = false;
-                    response.Message = "Hoja no encontrada.";
+                    response.Message = "The requested sheet was not found.";
                     return response;
                 }
 
@@ -241,7 +241,7 @@ namespace MyAccountApp.Application.Services
                 await _sheetRepository.UpdateSheet(existingSheet);
 
                 response.Resolution = true;
-                response.Message = "CurrentAccountBalance actualizado correctamente.";
+                response.Message = "CurrentAccountBalance updated successfully.";
                 response.Data = existingSheet;
             }
             catch (Exception ex)
@@ -264,13 +264,13 @@ namespace MyAccountApp.Application.Services
                 if (hojaExistente == null)
                 {
                     response.Resolution = false;
-                    response.Data = "Hoja no encontrada";
+                    response.Data = "Sheet not found.";
                     return response;
                 }
 
                 bool resolution = await _sheetRepository.DeleteSheet(id);
                 response.Resolution = resolution;
-                response.Message = (resolution) ? "Hoja eliminada" : "No se pudo eliminar el registro.";
+                response.Message = resolution ? "Sheet deleted successfully." : "Failed to delete the record.";
             }
             catch (Exception ex)
             {

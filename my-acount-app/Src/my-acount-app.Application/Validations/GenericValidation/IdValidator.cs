@@ -7,8 +7,8 @@ namespace MyAccountApp.Application.Validations.GenericValidation
         public IdValidator()
         {
             RuleFor(id => id)
-                .NotEmpty().WithMessage("El campo 'Id' no puede estar vacío.")
-                .NotEqual(Guid.Empty).WithMessage("El campo 'Id' no es válido.");
+                .NotEmpty().WithMessage("The 'Id' field is required.")
+                .NotEqual(Guid.Empty).WithMessage("The 'Id' field is invalid.");        
         }
     }
 }

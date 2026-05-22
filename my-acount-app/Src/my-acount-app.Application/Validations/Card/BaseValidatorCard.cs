@@ -9,29 +9,31 @@ namespace MyAccountApp.Application.Validations.Card
         protected void ValidateId(Expression<Func<T, Guid>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'Id' no puede estar vacío.")
-                .NotEqual(Guid.Empty).WithMessage("El campo 'Id' no es válido.");
+                .NotEmpty().WithMessage("The 'Id' field is required.")
+                .NotEqual(Guid.Empty).WithMessage("The 'Id' field is invalid.");
         }
 
         protected void ValidateSheetId(Expression<Func<T, Guid>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'SheetId' no puede estar vacío.")
-                .NotEqual(Guid.Empty).WithMessage("El campo 'SheetId' no es válido.");
+                .NotEmpty().WithMessage("The 'SheetId' field is required.")
+                .NotEqual(Guid.Empty).WithMessage("The 'SheetId' field is invalid.");
         }
 
         protected void ValidateTitle(Expression<Func<T, string>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El campo 'Title' no puede estar vacío.")
-                .MaximumLength(100).WithMessage("El campo 'Title' no debe exceder los 100 caracteres.");
+                .NotEmpty().WithMessage("The 'Title' field is required.")
+                .MaximumLength(100).WithMessage("The 'Title' field must not exceed 100 characters.");
         }
 
         protected void ValidateOrder(Expression<Func<T, int>> expression)
         {
             RuleFor(expression)
-                .NotEmpty().WithMessage("El 'Order', no puede estar vacío.") 
-                .LessThanOrEqualTo(200).WithMessage("El 'Order', no puede exceder el límite permitido (200)."); 
-        }
+                .GreaterThanOrEqualTo(0)
+                    .WithMessage("The 'Order' field must be greater than or equal to 0.")
+                .LessThanOrEqualTo(200)
+                    .WithMessage("The 'Order' field must not exceed the allowed limit (200).");
+        }        
     }
 }
