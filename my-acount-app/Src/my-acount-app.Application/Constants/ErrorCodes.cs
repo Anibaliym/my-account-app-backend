@@ -26,9 +26,17 @@ namespace MyAccountApp.Application.Constants
         public static class Account
         {
             public const string LimitReached = "ACCOUNT_LIMIT_REACHED";
-
             public const string HasAssociatedSheets = "ACCOUNT_HAS_ASSOCIATED_SHEETS";            
         }
 
+        public static class Card
+        {
+            public const string LimitReached = "CARD_LIMIT_REACHED";
+        }
+
+        public static class Sheet
+        {
+            public const string LimitReached = "SHEET_LIMIT_REACHED";
+        }
     }
 }

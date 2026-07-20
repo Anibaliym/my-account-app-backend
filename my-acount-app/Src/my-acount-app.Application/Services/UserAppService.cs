@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.User;
@@ -54,19 +55,17 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> RegisterUser(UserCreateViewModel model)
         {
-            GenericResponse response = new GenericResponse();
             UserSecurity userSecurity = new UserSecurity(); 
             User user = _mapper.Map<User>(model);
 
             FluentValidation.Results.ValidationResult validationResult = _createUserValidator.Validate(model);
 
-            if (!validationResult.IsValid)
-            {
-                return new GenericResponse
-                {
+            if (!validationResult.IsValid) {
+                return new GenericResponse {
                     Resolution = false,
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    Message = "The request contains validation errors."
+                    ErrorCode = ErrorCodes.Common.ValidationFailed,
+                    Message = ResponseMessages.Common.ValidationFailed, 
                 };
             }
 
@@ -88,12 +87,13 @@ namespace MyAccountApp.Application.Services
             {
                 User userExistsByEmail = await _userRepository.GetUserByEmail(model.Email.ToUpper());
 
-                if (userExistsByEmail != null)
-                {
-                    response.Resolution = false;
-                    response.Errors = [$"The email '{model.Email.ToUpper()}' is already registered."];
-                    response.Message = "The request contains validation errors.";
-                    return response;
+                if (userExistsByEmail != null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
+                        Errors = [ $"The email '{model.Email.ToUpper()}' is already registered."] ,
+                        Message = ResponseMessages.Common.ValidationFailed,
+                    }; 
                 }
 
                 user.Id = Guid.NewGuid();
@@ -103,15 +103,12 @@ namespace MyAccountApp.Application.Services
                 user.Email = user.Email.ToUpper();
 
                 await _userRepository.CreateUser(user);
-                response.Resolution = true;
-                response.Data = user;
 
                 //Crea la seguridad del usuario en el caso que el usuario haya elegido la autenticación propia del sistema.
-                if (response.Resolution == true && model.RegistrationMethod == UserRegistrationMethodEnum.MANUAL_AUTH.Name)
+                if (model.RegistrationMethod == UserRegistrationMethodEnum.MANUAL_AUTH.Name)
                 {
                     byte[] passwordHash, passwordSalt;
                     PasswordUtils.CreatePasswordHash(model.UserSecurity.Password, out passwordHash, out passwordSalt);
-
 
                     userSecurity.Id = Guid.NewGuid();
                     userSecurity.UserId = user.Id;
@@ -121,31 +118,34 @@ namespace MyAccountApp.Application.Services
                     userSecurity.LastPasswordChangeDate = DateTime.UtcNow;
 
                     await _userSecurityRepository.CreateUserSecurity(userSecurity); 
-
                 }
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Common.Created, 
+                    Data = user,
+                }; 
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Message = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                    ErrorCode = ErrorCodes.Common.UnexpectedError
+                }; 
             }
-
-            return response;
         }
 
         public async Task<GenericResponse> UpdateUser(UserUpdateViewModel model)
         {
-            GenericResponse response = new GenericResponse();
-
             FluentValidation.Results.ValidationResult validationResult = _updateUserValidator.Validate(model);
 
-            if (!validationResult.IsValid)
-            {
-                return new GenericResponse
-                {
+            if (!validationResult.IsValid) {
+                return new GenericResponse {
                     Resolution = false,
+                    ErrorCode = ErrorCodes.Common.ValidationFailed, 
+                    Message = ResponseMessages.Common.ValidationFailed, 
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    Message = "The request contains validation errors."
                 };
             }
 
@@ -154,9 +154,11 @@ namespace MyAccountApp.Application.Services
                 User existingUser = await _userRepository.GetUserById(model.Id);
                 
                 if (existingUser == null) {
-                    response.Resolution = false;
-                    response.Message = $"No user was found with id '{model.Id}'.";
-                    return response;
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                        Message = ResponseMessages.User.NotFound(model.Id), 
+                    };
                 }
 
                 // Mapear solo las propiedades necesarias desde el modelo
@@ -166,45 +168,57 @@ namespace MyAccountApp.Application.Services
                 existingUser.CreationDate = existingUser.CreationDate.ToUniversalTime();
 
                 await _userRepository.UpdateUser(existingUser);
-                response.Resolution = true;
-                response.Data = existingUser;
+
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Common.Updated, 
+                    Data = existingUser,
+                };
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Message = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                    ErrorCode = ErrorCodes.Common.UnexpectedError
+                }; 
             }
-
-            return response;
         }
 
         public async Task<GenericResponse> DeleteUser(Guid id)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
                 User existingUser = await _userRepository.GetUserById(id);
 
                 if (existingUser == null)
                 {
-                    response.Resolution = false;
-                    response.Message = "The request contains validation errors.";
-                    response.Errors = [$"No user was found with id '{id}'."];
-                    return response;
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
+                        Message = ResponseMessages.Common.ValidationFailed,
+                        Errors = [ ResponseMessages.User.NotFound(id) ],
+                    };
                 }
 
                 bool resolution = await _userRepository.DeleteUser(id);
-                response.Resolution = resolution;
-                response.Message = resolution ? "User deleted successfully." : "Failed to delete the record.";
+
+
+                return new GenericResponse {
+                    Resolution = resolution,
+                    ErrorCode = resolution ? null : ErrorCodes.Common.OperationFailed,
+                    Message = resolution ? ResponseMessages.Common.Deleted : ResponseMessages.Common.OperationFailed,
+                }; 
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Message = "The request contains validation errors.";
-                response.Errors = [ex.Message]; 
+                return new GenericResponse {
+                    Resolution = false,
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                    ErrorCode = ErrorCodes.Common.UnexpectedError
+                }; 
             }
-            return response;
         }
 
         public void Dispose()

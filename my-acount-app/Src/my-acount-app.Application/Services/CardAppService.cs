@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.Card;
@@ -15,7 +16,7 @@ namespace MyAccountApp.Application.Services
         private readonly IValidator<CreateCardViewModel> _createCardValidator;
         private readonly IValidator<UpdateCardViewModel> _updateCardValidator;
         private readonly IMapper _mapper;
-
+        private const int MaximumCardsPerSheet = 10;
         public CardAppService(
             IMapper mapper, 
             ICardRepository cardRepository,
@@ -42,40 +43,45 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> CreateCard(CreateCardViewModel model)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
                 FluentValidation.Results.ValidationResult validationResult = _createCardValidator.Validate(model);
+                
+                Guid sheetId = model.SheetId; 
 
                 if (!validationResult.IsValid)
                 {
-                    return new GenericResponse
-                    {
+                    return new GenericResponse {
                         Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "The request contains validation errors."
+                        Message = ResponseMessages.Common.ValidationFailed
                     };
                 }
 
-                Sheet existingSheet = await _sheetRepository.GetSheetById(model.SheetId);
+                Sheet existingSheet = await _sheetRepository.GetSheetById(sheetId);
 
-                if (existingSheet == null)
-                {
-                    response.Resolution = false;
-                    response.Data = $"The sheet with id '{model.SheetId}' was not found.";
-                    return response;
+                if (existingSheet == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                        Message = ResponseMessages.Common.ResourceNotFound,
+                        Errors = [ResponseMessages.Sheet.NotFound(sheetId)]
+                    };
                 }
 
-                int totalCardsSheet = await _cardRepository.GetTotalCardsSheet(model.SheetId); 
+                int totalCardsSheet = await _cardRepository.GetTotalCardsSheet(sheetId); 
 
-                if (totalCardsSheet >= 10){
-                    response.Resolution = false;
-                    response.Message = "A maximum of 10 cards is allowed per sheet.";
-                    return response;
+                if (totalCardsSheet >= MaximumCardsPerSheet){
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Card.LimitReached,
+                        Message = ResponseMessages.Common.OperationFailed,
+                        Errors = [ResponseMessages.Card.LimitReached]
+                    };                   
                 }
 
-                int order = await _cardRepository.GetNextOrderBySheetId(model.SheetId);
+                int order = await _cardRepository.GetNextOrderBySheetId(sheetId);
                 
                 Card card = _mapper.Map<Card>(model);
                 card.Id = Guid.NewGuid();
@@ -83,51 +89,58 @@ namespace MyAccountApp.Application.Services
                 card.Order = order;
 
                 await _cardRepository.CreateCard(card);
-                response.Resolution = true;
-                response.Data = card;
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Common.Created,
+                    Data = _mapper.Map<CardViewModel>(card)
+                };                   
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Data = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                };                
             }
-
-            return response;
         }
 
         public async Task<GenericResponse> UpdateCard(UpdateCardViewModel model)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
                 FluentValidation.Results.ValidationResult validationResult = _updateCardValidator.Validate(model);
 
-                if (!validationResult.IsValid)
-                {
+                if (!validationResult.IsValid) {
                     return new GenericResponse {
                         Resolution = false,
-                        Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "The request contains validation errors."
+                        ErrorCode = ErrorCodes.Common.ValidationFailed,
+                        Message = ResponseMessages.Common.ValidationFailed,
+                        Errors = validationResult.Errors.Select(error => error.ErrorMessage).ToArray()
                     };
                 }
 
                 Card existingCard = await _cardRepository.GetCardById(model.Id);
                 
-                if (existingCard == null)
-                {
-                    response.Resolution = false;
-                    response.Data = "Card not found";
-                    return response;
+                if (existingCard == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                        Message = ResponseMessages.Common.ResourceNotFound,
+                        Errors = [ResponseMessages.Card.NotFound(model.Id)]
+                    };
                 }
 
                 Sheet existingSheet = await _sheetRepository.GetSheetById(model.SheetId);
 
-                if (existingSheet == null)
-                {
-                    response.Resolution = false;
-                    response.Data = $"No sheet was found with id '{model.SheetId}'.";
-                    return response;
+                if (existingSheet == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                        Message = ResponseMessages.Common.ResourceNotFound,
+                        Errors = [ResponseMessages.Sheet.NotFound(model.SheetId)]
+                    };
                 }
 
                 // Mapear solo las propiedades necesarias desde el modelo
@@ -137,71 +150,102 @@ namespace MyAccountApp.Application.Services
                 existingCard.CreationDate = existingCard.CreationDate.ToUniversalTime();
 
                 await _cardRepository.UpdateCard(existingCard);
-                response.Resolution = true;
-                response.Data = existingCard;
+
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Common.Updated, 
+                    Data = _mapper.Map<CardViewModel>(existingCard),
+                }; 
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Data = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError,
+                    Message = ResponseMessages.Common.UnexpectedError,
+                };
             }
-
-            return response;
         }
 
         public async Task<GenericResponse> UpdateCardOrderItems(List<UpdateCardViewModel> model)
         {
             try
             {
-                foreach(UpdateCardViewModel card in model) {
-                    Card obtainedCard = await _cardRepository.GetCardById(card.Id);
+                foreach(UpdateCardViewModel card in model) 
+                {
+                    Guid cardId = card.Id; 
+
+                    Card? obtainedCard = await _cardRepository.GetCardById(cardId);
+
+                    if (obtainedCard == null) {
+                        return new GenericResponse {
+                            Resolution = false,
+                            ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                            Message = ResponseMessages.Common.ResourceNotFound,
+                            Errors = [ResponseMessages.Card.NotFound(cardId)]
+                        };
+                    }
 
                     obtainedCard.Order = card.Order; 
-                    obtainedCard.CreationDate = obtainedCard.CreationDate.ToUniversalTime();
                     
                     await _cardRepository.UpdateCard(obtainedCard);
                 }
                 
-                return new GenericResponse
-                {
+                return new GenericResponse {
                     Resolution = true,
-                    Message = "The card order has been updated successfully."
+                    Message = ResponseMessages.Common.Updated, 
                 };
             }
             catch (Exception error)
             {
                 return new GenericResponse {
                     Resolution = false,
-                    Message = error.Message
+                    ErrorCode = ErrorCodes.Common.UnexpectedError,
+                    Message = ResponseMessages.Common.UnexpectedError,
                 };
             }
         }        
 
         public async Task<GenericResponse> DeleteCard(Guid id)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
                 Card existingCard = await _cardRepository.GetCardById(id);
                 
                 if (existingCard == null)
                 {
-                    response.Resolution = false;
-                    response.Data = "Card not found.";
-                    return response;
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                        Message = ResponseMessages.Common.ResourceNotFound,
+                        Errors = [ResponseMessages.Card.NotFound(id)], 
+                    };
                 }
 
                 bool resolution = await _cardRepository.DeleteCard(id);
-                response.Resolution = resolution;
-                response.Message = resolution ? "Card deleted successfully." : "Failed to delete the record.";                
+
+                if (!resolution) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.OperationFailed,
+                        Message = ResponseMessages.Common.OperationFailed
+                    };
+                }
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Common.Deleted
+                };            
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Data = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError,
+                    Message = ResponseMessages.Common.UnexpectedError,                    
+                };
             }
-            return response;
         }
 
         public void Dispose()

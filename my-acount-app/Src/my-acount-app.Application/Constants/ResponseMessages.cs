@@ -47,6 +47,7 @@ namespace MyAccountApp.Application.Constants
         {
             public static string NotFound(Guid cardId) => $"No card was found with id '{cardId}'."; 
             public static string Deleted => $"The card has been deleted along with all its associated vignettes."; 
+             public const string LimitReached = "A maximum of 10 cards is allowed per sheet.";
         }
 
         public static class Sheet
@@ -54,6 +55,7 @@ namespace MyAccountApp.Application.Constants
             public static string NotFound(Guid sheetId) => $"No sheet was found with id '{sheetId}'."; 
             public static string Deleted(Guid sheetId) => $"The sheet with id '{sheetId}' and all its associated content have been deleted successfully."; 
             public const string BackupCreated = "The sheet backup was created successfully.";
+            public const string LimitReached = "A maximum of 15 cards is allowed per sheet.";
         }
 
        public static class Vignette
@@ -63,6 +65,7 @@ namespace MyAccountApp.Application.Constants
             public static string DeletedFail(Guid vignetteId) => $"The vignette with id '{ vignetteId }' been deleted successfully."; 
             public const string Updated = "The vignette was updated successfully.";
             public const string ColorUpdated = "The vignette color theme was updated successfully.";
+            public const string LimitReached = "A maximum of 20 vignettes is allowed per card.";
         }        
     }
 }
