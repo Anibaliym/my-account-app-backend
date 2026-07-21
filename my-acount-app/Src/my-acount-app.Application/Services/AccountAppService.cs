@@ -50,11 +50,8 @@ namespace MyAccountApp.Application.Services
 
             try
             {
-
-                if (!validationResult.IsValid)
-                {
-                    return new GenericResponse
-                    {
+                if (!validationResult.IsValid) {
+                    return new GenericResponse {
                         Resolution = false,
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
                         ErrorCode = ErrorCodes.Common.ValidationFailed,
@@ -67,7 +64,7 @@ namespace MyAccountApp.Application.Services
                 if (user == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                        ErrorCode = ErrorCodes.User.NotFound,
                         Message = ResponseMessages.User.NotFound(model.UserId),
                         Errors = [ ResponseMessages.User.NotFound(model.UserId) ],
                     };
@@ -116,9 +113,9 @@ namespace MyAccountApp.Application.Services
             if (!validationResult.IsValid) {
                 return new GenericResponse {
                     Resolution = false,
-                    Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
                     ErrorCode = ErrorCodes.Common.ValidationFailed,                     
-                    Message = ResponseMessages.Common.ValidationFailed
+                    Message = ResponseMessages.Common.ValidationFailed,
+                    Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
                 };
             }
 
@@ -129,7 +126,7 @@ namespace MyAccountApp.Application.Services
                 if (existingAccount == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                        ErrorCode = ErrorCodes.Account.NotFound,
                         Message = ResponseMessages.Account.NotFound(model.Id),
                         Errors = [ ResponseMessages.Account.NotFound(model.Id) ]
                     }; 
@@ -174,8 +171,8 @@ namespace MyAccountApp.Application.Services
                     if (obtainedAccount == null) {
                         return new GenericResponse {
                             Resolution = false,
-                            ErrorCode = ErrorCodes.Common.ResourceNotFound,
-                            Message = ResponseMessages.Common.ResourceNotFound,
+                            ErrorCode = ErrorCodes.Account.NotFound,
+                            Message = ResponseMessages.Account.NotFound(accountModel.Id),
                             Errors = [ ResponseMessages.Account.NotFound(accountModel.Id) ]
                         };
                     }
@@ -190,7 +187,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Updated
+                    Message = ResponseMessages.Account.AccountOrderUpdated, 
                 };
             }
             catch (Exception)
@@ -212,8 +209,8 @@ namespace MyAccountApp.Application.Services
                 if (existingAccount == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
-                        Message = ResponseMessages.Common.ResourceNotFound,
+                        ErrorCode = ErrorCodes.Account.NotFound,
+                        Message = ResponseMessages.Account.NotFound(accountId),
                         Errors = [ResponseMessages.Account.NotFound(accountId)]
                     };
                 }

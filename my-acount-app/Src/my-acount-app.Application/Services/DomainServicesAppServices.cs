@@ -74,7 +74,7 @@ namespace MyAccountApp.Application.Services
                     Resolution = false,
                     ErrorCode = ErrorCodes.Authentication.InvalidCredentials,
                     Errors = [ResponseMessages.Authentication.InvalidCredentials],
-                    Message = ResponseMessages.Authentication.Failed
+                    Message = ResponseMessages.Authentication.InvalidCredentials
                 };
             }
 
@@ -91,7 +91,7 @@ namespace MyAccountApp.Application.Services
                     Resolution = false,
                     ErrorCode = ErrorCodes.Authentication.GoogleSignInRequired,
                     Errors = [ ResponseMessages.Authentication.GoogleSignInRequired(email) ],
-                    Message = ResponseMessages.Authentication.Failed
+                    Message = ResponseMessages.Authentication.GoogleSignInRequired(email)
                 };                
             }
 
@@ -193,7 +193,7 @@ namespace MyAccountApp.Application.Services
             {
                 return new GenericResponse {
                     Resolution = false,
-                    ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                    ErrorCode = ErrorCodes.User.NotFound,
                     Message = ResponseMessages.User.NotFound(userId),
                     Errors = [ ResponseMessages.User.NotFound(userId) ]
                 };
@@ -207,7 +207,7 @@ namespace MyAccountApp.Application.Services
                 {
                     Resolution = false,
                     ErrorCode = ErrorCodes.Authentication.InvalidCredentials,
-                    Message = ResponseMessages.Authentication.Failed,
+                    Message = ResponseMessages.Authentication.InvalidCredentials,
                     Errors = [ ResponseMessages.Authentication.InvalidCredentials ]
                 };                
             }
@@ -246,7 +246,7 @@ namespace MyAccountApp.Application.Services
 
             return new GenericResponse {
                 Resolution = true,
-                Message = ResponseMessages.Account.DeletedAccount(userFound.Email),
+                Message = ResponseMessages.User.Deleted(userFound.Email)
             };
         }
 
@@ -274,7 +274,7 @@ namespace MyAccountApp.Application.Services
             else {
                 return new GenericResponse {
                     Resolution = false,
-                    ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                    ErrorCode = ErrorCodes.Account.NotFound, 
                     Message = ResponseMessages.Account.NotFound(accountId)
                 }; 
             }
@@ -322,7 +322,7 @@ namespace MyAccountApp.Application.Services
             if(cardFound == null) {
                 return new GenericResponse {
                     Resolution = false,
-                    ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                    ErrorCode = ErrorCodes.Card.NotFound, 
                     Message = ResponseMessages.Card.NotFound(cardId), 
                     Errors = [ ResponseMessages.Card.NotFound(cardId) ]
                 };
@@ -360,7 +360,7 @@ namespace MyAccountApp.Application.Services
             if(sheetFound == null) {
                 return new GenericResponse {
                     Resolution = false,
-                    ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                    ErrorCode = ErrorCodes.Sheet.NotFound, 
                     Message = ResponseMessages.Sheet.NotFound(sheetId)
                 };
             }
@@ -476,7 +476,7 @@ namespace MyAccountApp.Application.Services
                 if (existingVignette == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                        ErrorCode = ErrorCodes.Vignette.NotFound,
                         Message = ResponseMessages.Vignette.NotFound(vignetteId),
                         Errors = [ResponseMessages.Vignette.NotFound(vignetteId)],
                     };
@@ -515,7 +515,7 @@ namespace MyAccountApp.Application.Services
                 if (existingVignette == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                        ErrorCode = ErrorCodes.Vignette.NotFound, 
                         Message = ResponseMessages.Vignette.NotFound(vignetteId), 
                         Errors = [ResponseMessages.Vignette.NotFound(vignetteId)], 
                     }; 
@@ -560,8 +560,8 @@ namespace MyAccountApp.Application.Services
                 if (existingVignette == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
-                        Message = ResponseMessages.Common.ResourceNotFound,
+                        ErrorCode = ErrorCodes.Vignette.NotFound,
+                        Message = ResponseMessages.Vignette.NotFound(vignetteId),
                         Errors = [ ResponseMessages.Vignette.NotFound(vignetteId)]
                     };
                 }
@@ -601,8 +601,8 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
-                        Message = ResponseMessages.Common.ResourceNotFound,
+                        ErrorCode = ErrorCodes.Sheet.NotFound,
+                        Message = ResponseMessages.Sheet.NotFound(sheetId),
                         Errors = [ ResponseMessages.Sheet.NotFound(sheetId) ]
                     };
                 }                

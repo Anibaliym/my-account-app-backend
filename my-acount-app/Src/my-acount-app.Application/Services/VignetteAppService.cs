@@ -47,6 +47,7 @@ namespace MyAccountApp.Application.Services
                 if (!validationResult.IsValid) {
                     return new GenericResponse {
                         Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
                         Message = ResponseMessages.Common.ValidationFailed, 
                     };
@@ -58,7 +59,7 @@ namespace MyAccountApp.Application.Services
                 if (existingCard == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                        ErrorCode = ErrorCodes.Card.NotFound, 
                         Message = ResponseMessages.Card.NotFound(model.CardId),
                         Errors = [ResponseMessages.Card.NotFound(model.CardId)],
                     };
@@ -70,7 +71,7 @@ namespace MyAccountApp.Application.Services
 
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
+                        ErrorCode = ErrorCodes.Vignette.LimitReached, 
                         Message = ResponseMessages.Vignette.LimitReached,
                         Errors = [ ResponseMessages.Vignette.LimitReached ]
                     }; 
@@ -86,7 +87,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Created, 
+                    Message = ResponseMessages.Vignette.Created, 
                     Data = vignette,
                 }; 
             }
@@ -120,7 +121,7 @@ namespace MyAccountApp.Application.Services
                 {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                        ErrorCode = ErrorCodes.Vignette.NotFound, 
                         Message = ResponseMessages.Vignette.NotFound(model.Id), 
                         Errors = [ ResponseMessages.Vignette.NotFound(model.Id) ], 
                     }; 
@@ -132,7 +133,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Updated, 
+                    Message = ResponseMessages.Vignette.Updated, 
                     Data = existingVignette,
                 }; 
             }
@@ -152,6 +153,15 @@ namespace MyAccountApp.Application.Services
                 foreach(UpdateVignetteViewModel vignette in model) {
                     Vignette obtainedVignette = await _vignetteRepository.GetVignetteById(vignette.Id);
 
+                    if (obtainedVignette == null) {
+                        return new GenericResponse {
+                            Resolution = false,
+                            ErrorCode = ErrorCodes.Vignette.NotFound,
+                            Message = ResponseMessages.Vignette.NotFound(vignette.Id),
+                            Errors = [ResponseMessages.Vignette.NotFound(vignette.Id)]
+                        };
+                    }                    
+
                     obtainedVignette.Order = vignette.Order; 
                     
                     await _vignetteRepository.UpdateVignette(obtainedVignette);
@@ -159,7 +169,7 @@ namespace MyAccountApp.Application.Services
                 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Updated
+                    Message = ResponseMessages.Vignette.OrderUpdated
                 };
             }
             catch (Exception error)
@@ -181,7 +191,7 @@ namespace MyAccountApp.Application.Services
                 {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                        ErrorCode = ErrorCodes.Vignette.NotFound, 
                         Message = ResponseMessages.Vignette.NotFound(id), 
                         Errors = [ ResponseMessages.Vignette.NotFound(id) ], 
                     }; 
@@ -192,7 +202,7 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse {
                     Resolution = resolution,
                     ErrorCode = resolution ? null : ErrorCodes.Common.OperationFailed, 
-                    Message = resolution ? ResponseMessages.Common.Deleted : ResponseMessages.Common.OperationFailed, 
+                    Message = resolution ? ResponseMessages.Vignette.Deleted(id) : ResponseMessages.Common.OperationFailed
                 }; 
             }
             catch (Exception ex)

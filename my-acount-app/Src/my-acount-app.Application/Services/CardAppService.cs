@@ -60,8 +60,8 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
-                        Message = ResponseMessages.Common.ResourceNotFound,
+                        ErrorCode = ErrorCodes.Sheet.NotFound,
+                        Message = ResponseMessages.Sheet.NotFound(sheetId),
                         Errors = [ResponseMessages.Sheet.NotFound(sheetId)]
                     };
                 }
@@ -72,7 +72,7 @@ namespace MyAccountApp.Application.Services
                     return new GenericResponse {
                         Resolution = false,
                         ErrorCode = ErrorCodes.Card.LimitReached,
-                        Message = ResponseMessages.Common.OperationFailed,
+                        Message = ResponseMessages.Card.LimitReached,
                         Errors = [ResponseMessages.Card.LimitReached]
                     };                   
                 }
@@ -88,7 +88,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Created,
+                    Message = ResponseMessages.Card.Created,
                     Data = _mapper.Map<CardViewModel>(card)
                 };                   
             }
@@ -123,7 +123,7 @@ namespace MyAccountApp.Application.Services
                 if (existingCard == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                        ErrorCode = ErrorCodes.Card.NotFound,
                         Message = ResponseMessages.Common.ResourceNotFound,
                         Errors = [ResponseMessages.Card.NotFound(model.Id)]
                     };
@@ -134,7 +134,7 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                        ErrorCode = ErrorCodes.Sheet.NotFound,
                         Message = ResponseMessages.Common.ResourceNotFound,
                         Errors = [ResponseMessages.Sheet.NotFound(model.SheetId)]
                     };
@@ -151,7 +151,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Updated, 
+                    Message = ResponseMessages.Card.Updated, 
                     Data = _mapper.Map<CardViewModel>(existingCard),
                 }; 
             }
@@ -178,8 +178,8 @@ namespace MyAccountApp.Application.Services
                     if (obtainedCard == null) {
                         return new GenericResponse {
                             Resolution = false,
-                            ErrorCode = ErrorCodes.Common.ResourceNotFound,
-                            Message = ResponseMessages.Common.ResourceNotFound,
+                            ErrorCode = ErrorCodes.Card.NotFound,
+                            Message = ResponseMessages.Card.NotFound(cardId),
                             Errors = [ResponseMessages.Card.NotFound(cardId)]
                         };
                     }
@@ -191,7 +191,7 @@ namespace MyAccountApp.Application.Services
                 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Updated, 
+                    Message = ResponseMessages.Card.OrderUpdated, 
                 };
             }
             catch (Exception error)
@@ -214,8 +214,8 @@ namespace MyAccountApp.Application.Services
                 {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
-                        Message = ResponseMessages.Common.ResourceNotFound,
+                        ErrorCode = ErrorCodes.Card.NotFound, 
+                        Message = ResponseMessages.Card.NotFound(id),
                         Errors = [ResponseMessages.Card.NotFound(id)], 
                     };
                 }
@@ -233,7 +233,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Deleted
+                    Message = ResponseMessages.Card.Deleted
                 };            
             }
             catch (Exception ex)

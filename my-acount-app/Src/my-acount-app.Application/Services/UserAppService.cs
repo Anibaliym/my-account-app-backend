@@ -90,9 +90,9 @@ namespace MyAccountApp.Application.Services
                 if (userExistsByEmail != null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
-                        Errors = [ $"The email '{model.Email.ToUpper()}' is already registered."] ,
+                        ErrorCode = ErrorCodes.User.EmailAlreadyExists,
                         Message = ResponseMessages.Common.UnexpectedException,
+                        Errors = [ $"The email '{model.Email.ToUpper()}' is already registered."] ,
                     }; 
                 }
 
@@ -156,7 +156,7 @@ namespace MyAccountApp.Application.Services
                 if (existingUser == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                        ErrorCode = ErrorCodes.User.NotFound, 
                         Message = ResponseMessages.User.NotFound(model.Id), 
                         Errors = [ResponseMessages.User.NotFound(model.Id)], 
                     };
@@ -172,7 +172,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Updated, 
+                    Message = ResponseMessages.User.Updated, 
                     Data = existingUser,
                 };
             }
@@ -192,13 +192,12 @@ namespace MyAccountApp.Application.Services
             {
                 User existingUser = await _userRepository.GetUserById(id);
 
-                if (existingUser == null)
-                {
+                if (existingUser == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
-                        Message = ResponseMessages.Common.ValidationFailed,
-                        Errors = [ ResponseMessages.User.NotFound(id) ],
+                        ErrorCode = ErrorCodes.User.NotFound,
+                        Message = ResponseMessages.User.NotFound(id),
+                        Errors = [ResponseMessages.User.NotFound(id)],
                     };
                 }
 
@@ -207,8 +206,8 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse {
                     Resolution = resolution,
                     ErrorCode = resolution ? null : ErrorCodes.Common.OperationFailed,
-                    Message = resolution ? ResponseMessages.Common.Deleted : ResponseMessages.Common.OperationFailed,
-                }; 
+                    Message = resolution ? ResponseMessages.User.Deleted(existingUser.Email) : ResponseMessages.Common.OperationFailed,
+                };
             }
             catch (Exception ex)
             {

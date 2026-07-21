@@ -68,7 +68,7 @@ namespace MyAccountApp.Application.Services
                 if (existingAccount == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                        ErrorCode = ErrorCodes.Account.NotFound, 
                         Message = ResponseMessages.Account.NotFound(model.AccountId),
                         Errors = [ResponseMessages.Account.NotFound(model.AccountId)],
                     }; 
@@ -99,7 +99,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Created, 
+                    Message = ResponseMessages.Sheet.Created, 
                     Data = sheet,
                 }; 
             }
@@ -134,7 +134,7 @@ namespace MyAccountApp.Application.Services
                 {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                        ErrorCode = ErrorCodes.Account.NotFound, 
                         Message = ResponseMessages.Account.NotFound(model.AccountId),
                     };  
                 }
@@ -144,7 +144,7 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                        ErrorCode = ErrorCodes.Sheet.NotFound, 
                         Message = ResponseMessages.Sheet.NotFound(model.Id),
                         Errors = [ResponseMessages.Sheet.NotFound(model.Id)],
                     }; 
@@ -158,7 +158,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Updated, 
+                    Message = ResponseMessages.Sheet.Updated, 
                     Data = existingSheet,
                 }; 
             }
@@ -182,8 +182,8 @@ namespace MyAccountApp.Application.Services
                     if (obtainedSheet == null) {
                         return new GenericResponse {
                             Resolution = false,
-                            ErrorCode = ErrorCodes.Common.ResourceNotFound,
-                            Message = ResponseMessages.Common.ResourceNotFound,
+                            ErrorCode = ErrorCodes.Sheet.NotFound,
+                            Message = ResponseMessages.Sheet.NotFound(sheet.Id),
                             Errors = [ ResponseMessages.Sheet.NotFound(sheet.Id) ]
                         };
                     }
@@ -196,7 +196,7 @@ namespace MyAccountApp.Application.Services
                 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Updated, 
+                    Message = ResponseMessages.Sheet.OrderUpdated, 
                 };
             }
             catch (Exception error)
@@ -219,8 +219,9 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
-                        Message = ResponseMessages.Common.ResourceNotFound, 
+                        ErrorCode = ErrorCodes.Sheet.NotFound, 
+                        Message = ResponseMessages.Sheet.NotFound(sheetId), 
+                        Errors = [ResponseMessages.Sheet.NotFound(sheetId)], 
                     };
                 }
 
@@ -233,7 +234,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Updated, 
+                    Message = ResponseMessages.Sheet.CashBalanceUpdated, 
                     Data = existingSheet, 
                 };
             }
@@ -256,9 +257,9 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null) {
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
-                        Message = ResponseMessages.Common.ResourceNotFound, 
-                        Errors = [ResponseMessages.Common.ResourceNotFound], 
+                        ErrorCode = ErrorCodes.Sheet.NotFound, 
+                        Message = ResponseMessages.Sheet.NotFound(sheetId), 
+                        Errors = [ResponseMessages.Sheet.NotFound(sheetId)], 
                     };
                 }
 
@@ -269,7 +270,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Updated,
+                    Message = ResponseMessages.Sheet.CurrentAccountBalanceUpdated,
                     Data = existingSheet 
                 };
             }
@@ -292,8 +293,8 @@ namespace MyAccountApp.Application.Services
                 if (existingSheet == null){
                     return new GenericResponse {
                         Resolution = false,
-                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
-                        Message = ResponseMessages.Common.ResourceNotFound, 
+                        ErrorCode = ErrorCodes.Sheet.NotFound, 
+                        Message = ResponseMessages.Sheet.NotFound(id), 
                         Errors = [ResponseMessages.Sheet.NotFound(id)]
                     };
                 }
@@ -311,7 +312,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse  {
                     Resolution = true,
-                    Message = ResponseMessages.Common.Deleted
+                    Message = ResponseMessages.Sheet.Deleted(id)
                 };
             }
             catch (Exception ex)
