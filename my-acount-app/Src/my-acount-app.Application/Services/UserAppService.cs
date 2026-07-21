@@ -22,11 +22,11 @@ namespace MyAccountApp.Application.Services
         private readonly IMapper _mapper;
 
         public UserAppService(
-            IMapper mapper,
-            IUserRepository userRepository,
-            IUserSecurityRepository userSecurityRepository,
+            IMapper mapper, 
+            IUserRepository userRepository, 
+            IUserSecurityRepository userSecurityRepository, 
             IValidator<UserCreateViewModel> createUserValidator, 
-            IValidator<UserUpdateViewModel> updateUserValidator,
+            IValidator<UserUpdateViewModel> updateUserValidator, 
             IValidator<UserSecurityCreateViewModel> createUserSecurityValidator
         )
         {
@@ -58,7 +58,7 @@ namespace MyAccountApp.Application.Services
             UserSecurity userSecurity = new UserSecurity(); 
             User user = _mapper.Map<User>(model);
 
-            FluentValidation.Results.ValidationResult validationResult = _createUserValidator.Validate(model);
+            FluentValidation.Results.ValidationResult validationResult = await _createUserValidator.ValidateAsync(model);
 
             if (!validationResult.IsValid) {
                 return new GenericResponse {
@@ -69,16 +69,16 @@ namespace MyAccountApp.Application.Services
                 };
             }
 
-            FluentValidation.Results.ValidationResult validationUserSecurityResult = _createUserSecurityValidator.Validate(model.UserSecurity);
+            FluentValidation.Results.ValidationResult validationUserSecurityResult = await _createUserSecurityValidator.ValidateAsync(model.UserSecurity);
 
             if (!validationUserSecurityResult.IsValid)
             {
                 if (model.RegistrationMethod == UserRegistrationMethodEnum.MANUAL_AUTH.Name) { 
-                    return new GenericResponse
-                    {
+                    return new GenericResponse {
                         Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
                         Errors = validationUserSecurityResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "The request contains validation errors."
+                        Message = ResponseMessages.Common.ValidationFailed, 
                     };
                 }
             }
@@ -92,7 +92,7 @@ namespace MyAccountApp.Application.Services
                         Resolution = false,
                         ErrorCode = ErrorCodes.Common.ValidationFailed, 
                         Errors = [ $"The email '{model.Email.ToUpper()}' is already registered."] ,
-                        Message = ResponseMessages.Common.ValidationFailed,
+                        Message = ResponseMessages.Common.UnexpectedException,
                     }; 
                 }
 
@@ -138,7 +138,7 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> UpdateUser(UserUpdateViewModel model)
         {
-            FluentValidation.Results.ValidationResult validationResult = _updateUserValidator.Validate(model);
+            FluentValidation.Results.ValidationResult validationResult = await _updateUserValidator.ValidateAsync(model);
 
             if (!validationResult.IsValid) {
                 return new GenericResponse {
@@ -158,6 +158,7 @@ namespace MyAccountApp.Application.Services
                         Resolution = false,
                         ErrorCode = ErrorCodes.Common.ResourceNotFound, 
                         Message = ResponseMessages.User.NotFound(model.Id), 
+                        Errors = [ResponseMessages.User.NotFound(model.Id)], 
                     };
                 }
 
@@ -168,7 +169,6 @@ namespace MyAccountApp.Application.Services
                 existingUser.CreationDate = existingUser.CreationDate.ToUniversalTime();
 
                 await _userRepository.UpdateUser(existingUser);
-
 
                 return new GenericResponse {
                     Resolution = true,
@@ -203,7 +203,6 @@ namespace MyAccountApp.Application.Services
                 }
 
                 bool resolution = await _userRepository.DeleteUser(id);
-
 
                 return new GenericResponse {
                     Resolution = resolution,

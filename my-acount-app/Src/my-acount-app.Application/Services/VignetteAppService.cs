@@ -17,10 +17,9 @@ namespace MyAccountApp.Application.Services
         private readonly IValidator<VignetteViewModel> _updateVignetteValidator;
         private readonly IMapper _mapper;
 
-        public VignetteAppService(
-            IVignetteRepository vignetteRepository,
-            ICardRepository cardRepository,
-            IMapper mapper,
+        public VignetteAppService(IVignetteRepository vignetteRepository, 
+            ICardRepository cardRepository, 
+            IMapper mapper, 
             IValidator<VignetteCreateViewModel> createVignetteValidator, 
             IValidator<VignetteViewModel> updateVignetteValidator
         )
@@ -43,15 +42,13 @@ namespace MyAccountApp.Application.Services
         {
             try
             {
-                FluentValidation.Results.ValidationResult validationResult = _createVignetteValidator.Validate(model);
+                FluentValidation.Results.ValidationResult validationResult = await _createVignetteValidator.ValidateAsync(model);
 
-                if (!validationResult.IsValid)
-                {
-                    return new GenericResponse
-                    {
+                if (!validationResult.IsValid) {
+                    return new GenericResponse {
                         Resolution = false,
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "The request contains validation errors."
+                        Message = ResponseMessages.Common.ValidationFailed, 
                     };
                 }
 
@@ -63,6 +60,7 @@ namespace MyAccountApp.Application.Services
                         Resolution = false,
                         ErrorCode = ErrorCodes.Common.ResourceNotFound, 
                         Message = ResponseMessages.Card.NotFound(model.CardId),
+                        Errors = [ResponseMessages.Card.NotFound(model.CardId)],
                     };
                 }
 
@@ -105,15 +103,14 @@ namespace MyAccountApp.Application.Services
         {
             try
             {
-                FluentValidation.Results.ValidationResult validationResult = _updateVignetteValidator.Validate(model);
+                FluentValidation.Results.ValidationResult validationResult = await _updateVignetteValidator.ValidateAsync(model);
 
-                if (!validationResult.IsValid)
-                {
-                    return new GenericResponse
-                    {
+                if (!validationResult.IsValid) {
+                    return new GenericResponse {
                         Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "The request contains validation errors."
+                        Message = ResponseMessages.Common.ValidationFailed
                     };
                 }
 
@@ -188,7 +185,6 @@ namespace MyAccountApp.Application.Services
                         Message = ResponseMessages.Vignette.NotFound(id), 
                         Errors = [ ResponseMessages.Vignette.NotFound(id) ], 
                     }; 
-
                 }
 
                 bool resolution = await _vignetteRepository.DeleteVignette(id);

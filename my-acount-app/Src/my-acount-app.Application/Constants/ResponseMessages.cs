@@ -10,6 +10,7 @@ namespace MyAccountApp.Application.Constants
             public const string Deleted = "Resource deleted successfully.";
             public const string ValidationFailed = "The request contains validation errors.";
             public const string UnexpectedError = "An unexpected error occurred.";
+            public const string UnexpectedException = "An unexpected exception occurred.";
             public const string ResourceNotFound = "The requested resource was not found.";
             public const string OperationFailed = "The operation is failed.";
         }

@@ -16,10 +16,9 @@ namespace MyAccountApp.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IValidator<CreateAccountViewModel> _createAccountValidator;
         private readonly IValidator<UpdateAccountViewModel> _updateAccountValidator;
-
         private readonly IMapper _mapper;
 
-        public AccountAppService(
+        public AccountAppService( 
             IMapper mapper, 
             IAccountRepository accountRepository,
             IUserRepository userRepository,
@@ -35,22 +34,22 @@ namespace MyAccountApp.Application.Services
             _createAccountValidator = createAccountValidator;
             _updateAccountValidator = updateAccountValidator;
         }
+        
         public async Task<AccountViewModel> GetAccountById(Guid accountId)
         {
             return _mapper.Map<AccountViewModel>(await _accountRepository.GetAccountById(accountId));
         }
+        
         public async Task<IEnumerable<AccountViewModel>> GetAccountByUserId(Guid userId)
         {
             return _mapper.Map<IEnumerable<AccountViewModel>>(await _accountRepository.GetAccountByUserId(userId));
         }
         public async Task<GenericResponse> CreateAccount(CreateAccountViewModel model)
         {
-            GenericResponse response = new GenericResponse();
-            Guid userId = model.UserId; 
+            FluentValidation.Results.ValidationResult validationResult = await _createAccountValidator.ValidateAsync(model);
 
             try
             {
-                FluentValidation.Results.ValidationResult validationResult = _createAccountValidator.Validate(model);
 
                 if (!validationResult.IsValid)
                 {
@@ -63,40 +62,42 @@ namespace MyAccountApp.Application.Services
                     };
                 }
 
-                User user = await _userRepository.GetUserById(userId);
+                User? user = await _userRepository.GetUserById(model.UserId);
 
-                if (user == null)
-                {
-                    response.Resolution = false;
-                    response.ErrorCode = ErrorCodes.Common.ResourceNotFound; 
-                    response.Message = ResponseMessages.User.NotFound(userId); 
-
-                    return response;
+                if (user == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                        Message = ResponseMessages.User.NotFound(model.UserId),
+                        Errors = [ ResponseMessages.User.NotFound(model.UserId) ],
+                    };
                 }
 
-                int totalUserAccounts = await _accountRepository.GetTotalUserAccounts(userId); 
+                int totalUserAccounts = await _accountRepository.GetTotalUserAccounts(model.UserId); 
 
                 if (totalUserAccounts >= 15) {
                     return new GenericResponse {
                         Resolution = false,
                         ErrorCode = ErrorCodes.Account.LimitReached,
-                        Message = ResponseMessages.Account.LimitReached
+                        Message = ResponseMessages.Account.LimitReached, 
+                        Errors = [ ResponseMessages.Account.LimitReached ]
                     };
                 }
 
-                int order = await _accountRepository.GetNextAccountOrderByUserId(userId);
+                int order = await _accountRepository.GetNextAccountOrderByUserId(model.UserId);
 
                 Account account = _mapper.Map<Account>(model);
                 account.Id = Guid.NewGuid();
                 account.CreationDate = DateTime.UtcNow;
                 account.Order = order;
 
-                //ayanez
                 await _accountRepository.CreateAccount(account);
 
-                response.Resolution = true;
-                response.Message = ResponseMessages.Account.Created; 
-                response.Data = account;
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Account.Created, 
+                    Data = account,
+                };
             }
             catch (Exception)
             {
@@ -106,37 +107,32 @@ namespace MyAccountApp.Application.Services
                     Message = ResponseMessages.Common.UnexpectedError
                 };
             }
-
-            return response;
         }
         public async Task<GenericResponse> UpdateAccount(UpdateAccountViewModel model)
         {
-            GenericResponse response = new GenericResponse();
-            Guid accountId = model.Id; 
-            int order = 0; 
+            int order;
+            FluentValidation.Results.ValidationResult validationResult = await _updateAccountValidator.ValidateAsync(model);
 
-            FluentValidation.Results.ValidationResult validationResult = _updateAccountValidator.Validate(model);
-
-            if (!validationResult.IsValid)
-            {
-                return new GenericResponse
-                {
+            if (!validationResult.IsValid) {
+                return new GenericResponse {
                     Resolution = false,
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    ErrorCode = ErrorCodes.Common.ValidationFailed, 
+                    ErrorCode = ErrorCodes.Common.ValidationFailed,                     
                     Message = ResponseMessages.Common.ValidationFailed
                 };
             }
 
             try
             {
-                Account existingAccount = await _accountRepository.GetAccountById(accountId);
+                Account? existingAccount = await _accountRepository.GetAccountById(model.Id);
 
                 if (existingAccount == null) {
-                    response.Resolution = false;
-                    response.ErrorCode = ErrorCodes.Common.ResourceNotFound; 
-                    response.Message = ResponseMessages.Account.NotFound(accountId); 
-                    return response;
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                        Message = ResponseMessages.Account.NotFound(model.Id),
+                        Errors = [ ResponseMessages.Account.NotFound(model.Id) ]
+                    }; 
                 }
 
                 order = existingAccount.Order; 
@@ -149,11 +145,13 @@ namespace MyAccountApp.Application.Services
 
                 await _accountRepository.UpdateAccount(existingAccount);
 
-                response.Resolution = true;
-                response.Message = ResponseMessages.Account.Updated; 
-                response.Data = existingAccount;
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Account.Updated,
+                    Data = existingAccount,
+                };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return new GenericResponse {
                     Resolution = false,
@@ -161,8 +159,6 @@ namespace MyAccountApp.Application.Services
                     Message = ResponseMessages.Common.UnexpectedError
                 };
             }
-
-            return response;
         }
         
         public async Task<GenericResponse> UpdateAccountOrderItems(List<UpdateAccountViewModel> model)
@@ -173,7 +169,7 @@ namespace MyAccountApp.Application.Services
 
                 foreach (UpdateAccountViewModel accountModel in model)
                 {
-                    Account obtainedAccount = await _accountRepository.GetAccountById(accountModel.Id);
+                    Account? obtainedAccount = await _accountRepository.GetAccountById(accountModel.Id);
 
                     if (obtainedAccount == null) {
                         return new GenericResponse {
@@ -188,12 +184,13 @@ namespace MyAccountApp.Application.Services
                     accountsToUpdate.Add(obtainedAccount);
                 }
 
-                foreach (Account account in accountsToUpdate)
+                foreach (Account account in accountsToUpdate) {
                     await _accountRepository.UpdateAccount(account);
+                }
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = ResponseMessages.Account.AccountOrderUpdated
+                    Message = ResponseMessages.Common.Updated
                 };
             }
             catch (Exception)
@@ -210,7 +207,7 @@ namespace MyAccountApp.Application.Services
         {
             try
             {
-                Account existingAccount = await _accountRepository.GetAccountById(accountId);
+                Account? existingAccount = await _accountRepository.GetAccountById(accountId);
 
                 if (existingAccount == null) {
                     return new GenericResponse {
@@ -227,7 +224,8 @@ namespace MyAccountApp.Application.Services
                     return new GenericResponse {
                         Resolution = false,
                         ErrorCode = ErrorCodes.Account.HasAssociatedSheets,
-                        Message = ResponseMessages.Account.HasAssociatedSheets
+                        Message = ResponseMessages.Account.HasAssociatedSheets,
+                        Errors = [ ResponseMessages.Account.HasAssociatedSheets ]
                     };
                 }
 
@@ -237,7 +235,8 @@ namespace MyAccountApp.Application.Services
                     return new GenericResponse {
                         Resolution = false,
                         ErrorCode = ErrorCodes.Common.OperationFailed,
-                        Message = ResponseMessages.Common.OperationFailed
+                        Message = ResponseMessages.Common.OperationFailed, 
+                        Errors = [ ResponseMessages.Common.OperationFailed ]
                     };
                 }
 

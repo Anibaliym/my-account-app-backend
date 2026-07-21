@@ -17,11 +17,11 @@ namespace MyAccountApp.Application.Services
         private readonly IValidator<UpdateSheetViewModel> _updateSheetValidator;
         private readonly IMapper _mapper;
         private const int MaximumSheetsPerAccount = 15;
-        public SheetAppService(
-            IMapper mapper,
-            ISheetRepository sheetRepository,
+
+        public SheetAppService(IMapper mapper, 
+            ISheetRepository sheetRepository, 
             IAccountRepository accountRepository, 
-            IValidator<CreateSheetViewModel> createSheetValidator,
+            IValidator<CreateSheetViewModel> createSheetValidator, 
             IValidator<UpdateSheetViewModel> updateSheetValidator
         )
         {
@@ -31,6 +31,7 @@ namespace MyAccountApp.Application.Services
             _createSheetValidator = createSheetValidator;
             _updateSheetValidator = updateSheetValidator; 
         }
+
         public async Task<SheetViewModel> GetSheetById(Guid id)
         {
             return _mapper.Map<SheetViewModel>(await _sheetRepository.GetSheetById(id));
@@ -48,7 +49,7 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> CreateSheet(CreateSheetViewModel model)
         {
-            FluentValidation.Results.ValidationResult validationResult = _createSheetValidator.Validate(model);
+            FluentValidation.Results.ValidationResult validationResult = await _createSheetValidator.ValidateAsync(model);
 
             if (!validationResult.IsValid)
             {
@@ -65,11 +66,11 @@ namespace MyAccountApp.Application.Services
                 Account existingAccount = await _accountRepository.GetAccountById(model.AccountId);
                 
                 if (existingAccount == null) {
-
                     return new GenericResponse {
                         Resolution = false,
                         ErrorCode = ErrorCodes.Common.ResourceNotFound, 
-                        Message = ResponseMessages.Account.NotFound(model.AccountId)
+                        Message = ResponseMessages.Account.NotFound(model.AccountId),
+                        Errors = [ResponseMessages.Account.NotFound(model.AccountId)],
                     }; 
                 }
 
@@ -80,6 +81,7 @@ namespace MyAccountApp.Application.Services
                         Resolution = false,
                         ErrorCode = ErrorCodes.Sheet.LimitReached,
                         Message = ResponseMessages.Sheet.LimitReached,
+                        Errors = [ResponseMessages.Sheet.LimitReached],
                     }; 
                 }
 
@@ -113,7 +115,7 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> UpdateSheet(UpdateSheetViewModel model)
         {
-            FluentValidation.Results.ValidationResult validationResult = _updateSheetValidator.Validate(model);
+            FluentValidation.Results.ValidationResult validationResult = await _updateSheetValidator.ValidateAsync(model);
 
             if (!validationResult.IsValid) {
                 return new GenericResponse {
@@ -144,6 +146,7 @@ namespace MyAccountApp.Application.Services
                         Resolution = false,
                         ErrorCode = ErrorCodes.Common.ResourceNotFound, 
                         Message = ResponseMessages.Sheet.NotFound(model.Id),
+                        Errors = [ResponseMessages.Sheet.NotFound(model.Id)],
                     }; 
                 }
 
@@ -250,12 +253,12 @@ namespace MyAccountApp.Application.Services
             {
                 Sheet existingSheet = await _sheetRepository.GetSheetById(sheetId);
 
-                if (existingSheet == null)
-                {
+                if (existingSheet == null) {
                     return new GenericResponse {
                         Resolution = false,
                         ErrorCode = ErrorCodes.Common.ResourceNotFound, 
                         Message = ResponseMessages.Common.ResourceNotFound, 
+                        Errors = [ResponseMessages.Common.ResourceNotFound], 
                     };
                 }
 
@@ -301,7 +304,8 @@ namespace MyAccountApp.Application.Services
                     return new GenericResponse {
                         Resolution = false,
                         ErrorCode = ErrorCodes.Common.OperationFailed,
-                        Message = ResponseMessages.Common.OperationFailed
+                        Message = ResponseMessages.Common.OperationFailed, 
+                        Errors = [ResponseMessages.Common.OperationFailed], 
                     };
                 }
 

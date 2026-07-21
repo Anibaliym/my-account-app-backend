@@ -17,13 +17,8 @@ namespace MyAccountApp.Application.Services
         private readonly IValidator<UpdateCardViewModel> _updateCardValidator;
         private readonly IMapper _mapper;
         private const int MaximumCardsPerSheet = 10;
-        public CardAppService(
-            IMapper mapper, 
-            ICardRepository cardRepository,
-            ISheetRepository sheetRepository,
-            IValidator<UpdateCardViewModel> updateCardValidator,
-            IValidator<CreateCardViewModel> createCardValidator
-        )
+
+        public CardAppService(IMapper mapper, ICardRepository cardRepository,ISheetRepository sheetRepository,IValidator<UpdateCardViewModel> updateCardValidator,IValidator<CreateCardViewModel> createCardValidator)
         {
             _mapper = mapper;
             _cardRepository = cardRepository;
@@ -31,6 +26,7 @@ namespace MyAccountApp.Application.Services
             _updateCardValidator = updateCardValidator;
             _createCardValidator = createCardValidator;
         }
+        
         public async Task<CardViewModel> GetCardById(Guid id)
         {
             return _mapper.Map<CardViewModel>(await _cardRepository.GetCardById(id));
@@ -43,10 +39,10 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> CreateCard(CreateCardViewModel model)
         {
+            FluentValidation.Results.ValidationResult validationResult = await _createCardValidator.ValidateAsync(model);
+
             try
             {
-                FluentValidation.Results.ValidationResult validationResult = _createCardValidator.Validate(model);
-                
                 Guid sheetId = model.SheetId; 
 
                 if (!validationResult.IsValid)
@@ -108,9 +104,10 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> UpdateCard(UpdateCardViewModel model)
         {
+            FluentValidation.Results.ValidationResult validationResult = await _updateCardValidator.ValidateAsync(model);
+            
             try
             {
-                FluentValidation.Results.ValidationResult validationResult = _updateCardValidator.Validate(model);
 
                 if (!validationResult.IsValid) {
                     return new GenericResponse {
@@ -229,7 +226,8 @@ namespace MyAccountApp.Application.Services
                     return new GenericResponse {
                         Resolution = false,
                         ErrorCode = ErrorCodes.Common.OperationFailed,
-                        Message = ResponseMessages.Common.OperationFailed
+                        Message = ResponseMessages.Common.OperationFailed, 
+                        Errors = [ ResponseMessages.Common.OperationFailed ]
                     };
                 }
 

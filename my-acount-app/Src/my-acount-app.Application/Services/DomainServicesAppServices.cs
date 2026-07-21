@@ -27,16 +27,15 @@ namespace MyAccountApp.Application.Services
         private readonly IMapper _mapper;
 
         public DomainServicesAppServices (
-            IUserRepository userRepository,
-            IAccountRepository accountRepository,
+            IUserRepository userRepository, 
+            IAccountRepository accountRepository, 
             IUserAccessLogRepository userAccessLogRepository, 
             ISheetRepository sheetRepository, 
-            IUserSecurityRepository userSecurityRepository,
+            IUserSecurityRepository userSecurityRepository, 
             ICardRepository cardRepository, 
             IVignetteRepository vignetteRepository, 
-            IValidator<VignetteViewModel> updateVignetteValidator,
-            IMapper mapper
-        )
+            IValidator<VignetteViewModel> updateVignetteValidator, 
+            IMapper mapper)
         {
             _userRepository = userRepository;
             _accountRepository = accountRepository;
@@ -196,6 +195,7 @@ namespace MyAccountApp.Application.Services
                     Resolution = false,
                     ErrorCode = ErrorCodes.Common.ResourceNotFound,
                     Message = ResponseMessages.User.NotFound(userId),
+                    Errors = [ ResponseMessages.User.NotFound(userId) ]
                 };
             }
 
@@ -261,6 +261,7 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse {
                     Resolution = true,
                     Message = ResponseMessages.Common.Success, 
+                    Errors = [ ResponseMessages.Common.Success ], 
                     Data = new { 
                         Account = new {
                             name = account.Description,
@@ -322,7 +323,8 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse {
                     Resolution = false,
                     ErrorCode = ErrorCodes.Common.ResourceNotFound, 
-                    Message = ResponseMessages.Card.NotFound(cardId)
+                    Message = ResponseMessages.Card.NotFound(cardId), 
+                    Errors = [ ResponseMessages.Card.NotFound(cardId) ]
                 };
             }
 
@@ -334,15 +336,14 @@ namespace MyAccountApp.Application.Services
             
 
             //se elimina la carta
- 
             bool deleted = await _cardRepository.DeleteCard(cardId);
 
             if (!deleted) {
-
                 return new GenericResponse {
                     Resolution = false,
                     ErrorCode = ErrorCodes.Common.OperationFailed,
-                    Message = ResponseMessages.Common.OperationFailed
+                    Message = ResponseMessages.Common.OperationFailed,
+                    Errors = [ ResponseMessages.Common.OperationFailed ],
                 };
             }
 
@@ -371,9 +372,8 @@ namespace MyAccountApp.Application.Services
                 // Se obtienen las "Viñetas" relaciondas a cada "Carta".
                 IEnumerable<Vignette> vignettesFoundByCard = await _vignetteRepository.GetVignetteByCardId(card.Id);
 
-                foreach (Vignette vignette in vignettesFoundByCard){
-                    // Se elimina cada "Viñeta" relacionda a la "Carta".
-                    await _vignetteRepository.DeleteVignette(vignette.Id);  
+                foreach (Vignette vignette in vignettesFoundByCard) {
+                    await _vignetteRepository.DeleteVignette(vignette.Id);  // Se elimina cada "Viñeta" relacionda a la "Carta".
                 } 
                 
                 // Después de eliminar las "Viñetas relacionadas", Se elimina la "Carta" de turno
@@ -407,8 +407,7 @@ namespace MyAccountApp.Application.Services
                     IEnumerable<Vignette> vignettes = await _vignetteRepository.GetVignetteByCardId(card.Id);
 
                     foreach (var vignette in vignettes) {
-                        // sumTotalAmount = vignette != null ? sumTotalAmount + vignette.Amount : sumTotalAmount;
-                        sumTotalAmount = sumTotalAmount + vignette.Amount;
+                        sumTotalAmount = sumTotalAmount + vignette.Amount; // sumTotalAmount = vignette != null ? sumTotalAmount + vignette.Amount : sumTotalAmount;
                     }
 
                     // Mapear la card con sus vignettes
@@ -454,7 +453,7 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> UpdateVignetteAndRecalculateTotal(VignetteViewModel model)
         {
-            GenericResponse response = new GenericResponse();
+            // GenericResponse response = new GenericResponse();
             Guid vignetteId = model.Id; 
             int sumTotalAmount = 0;
 
@@ -474,13 +473,13 @@ namespace MyAccountApp.Application.Services
 
                 Vignette existingVignette = await _vignetteRepository.GetVignetteById(vignetteId);
 
-                if (existingVignette == null)
-                {
-                    response.Resolution = false;
-                    response.ErrorCode = ErrorCodes.Common.ResourceNotFound; 
-                    response.Message = ResponseMessages.Vignette.NotFound(vignetteId); 
-
-                    return response;
+                if (existingVignette == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ResourceNotFound,
+                        Message = ResponseMessages.Vignette.NotFound(vignetteId),
+                        Errors = [ResponseMessages.Vignette.NotFound(vignetteId)],
+                    };
                 }
 
                 IEnumerable<Vignette> cardVignettes = await _vignetteRepository.GetVignetteByCardId(model.CardId);
@@ -491,39 +490,35 @@ namespace MyAccountApp.Application.Services
                 _mapper.Map(model, existingVignette);
                 await _vignetteRepository.UpdateVignette(existingVignette);
 
-                response.Resolution = true;
-                response.Message = ResponseMessages.Vignette.Updated;
-
-                response.Data = new {
-                    UpdatedVignette = existingVignette,
-                    TotalAmount = sumTotalAmount
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Vignette.Updated,
+                    Data = new { UpdatedVignette = existingVignette, TotalAmount = sumTotalAmount },
                 };
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.ErrorCode = ErrorCodes.Common.UnexpectedError; 
-                response.Message = ResponseMessages.Common.UnexpectedError; 
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError,
+                    Message = ResponseMessages.Common.UnexpectedError,
+                };
             }
-
-            return response;
         }
 
         public async Task<GenericResponse> DeleteVignetteAndRecalculateTotal(Guid vignetteId)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
                 Vignette existingVignette = await _vignetteRepository.GetVignetteById(vignetteId);
 
-                if (existingVignette == null)
-                {
-                    response.Resolution = false;
-                    response.ErrorCode = ErrorCodes.Common.ResourceNotFound; 
-                    response.Message = ResponseMessages.Vignette.NotFound(vignetteId); 
-
-                    return response;
+                if (existingVignette == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ResourceNotFound, 
+                        Message = ResponseMessages.Vignette.NotFound(vignetteId), 
+                        Errors = [ResponseMessages.Vignette.NotFound(vignetteId)], 
+                    }; 
                 }
 
                 bool deleted = await _vignetteRepository.DeleteVignette(vignetteId);
@@ -548,25 +543,22 @@ namespace MyAccountApp.Application.Services
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.ErrorCode = ErrorCodes.Common.UnexpectedError; 
-                response.Message = ResponseMessages.Common.UnexpectedError; 
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                };
             }
-
-            return response;
         }
 
         public async Task<GenericResponse> UpdateVignetteColorTheme(Guid vignetteId, string colorTheme)
         {
             try
             {
-                Vignette existingVignette =
-                    await _vignetteRepository.GetVignetteById(vignetteId);
+                Vignette existingVignette = await _vignetteRepository.GetVignetteById(vignetteId);
 
-                if (existingVignette == null)
-                {
-                    return new GenericResponse
-                    {
+                if (existingVignette == null) {
+                    return new GenericResponse {
                         Resolution = false,
                         ErrorCode = ErrorCodes.Common.ResourceNotFound,
                         Message = ResponseMessages.Common.ResourceNotFound,
@@ -578,13 +570,9 @@ namespace MyAccountApp.Application.Services
 
                 await _vignetteRepository.UpdateVignette(existingVignette);
 
-                return new GenericResponse
-                {
+                return new GenericResponse {
                     Resolution = true,
-                    Data = new
-                    {
-                        UpdatedVignette = existingVignette
-                    },
+                    Data = new { UpdatedVignette = existingVignette },
                     Message = ResponseMessages.Vignette.ColorUpdated
                 };
             }
@@ -610,10 +598,8 @@ namespace MyAccountApp.Application.Services
                 // Se obtienen la información de la hoja de cálculo a a respaldar.
                 Sheet existingSheet = await _sheetRepository.GetSheetById(sheetId);
 
-                if (existingSheet == null)
-                {
-                    return new GenericResponse
-                    {
+                if (existingSheet == null) {
+                    return new GenericResponse {
                         Resolution = false,
                         ErrorCode = ErrorCodes.Common.ResourceNotFound,
                         Message = ResponseMessages.Common.ResourceNotFound,
