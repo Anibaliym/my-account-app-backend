@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.Vignette;
@@ -16,10 +17,9 @@ namespace MyAccountApp.Application.Services
         private readonly IValidator<VignetteViewModel> _updateVignetteValidator;
         private readonly IMapper _mapper;
 
-        public VignetteAppService(
-            IVignetteRepository vignetteRepository,
-            ICardRepository cardRepository,
-            IMapper mapper,
+        public VignetteAppService(IVignetteRepository vignetteRepository, 
+            ICardRepository cardRepository, 
+            IMapper mapper, 
             IValidator<VignetteCreateViewModel> createVignetteValidator, 
             IValidator<VignetteViewModel> updateVignetteValidator
         )
@@ -40,37 +40,41 @@ namespace MyAccountApp.Application.Services
         }
         public async Task<GenericResponse> CreateVignette(VignetteCreateViewModel model)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
-                FluentValidation.Results.ValidationResult validationResult = _createVignetteValidator.Validate(model);
+                FluentValidation.Results.ValidationResult validationResult = await _createVignetteValidator.ValidateAsync(model);
 
-                if (!validationResult.IsValid)
-                {
-                    return new GenericResponse
-                    {
+                if (!validationResult.IsValid) {
+                    return new GenericResponse {
                         Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "The request contains validation errors."
+                        Message = ResponseMessages.Common.ValidationFailed, 
                     };
                 }
 
                 //Se valida que la carta relacionada exista. 
                 Card existingCard = await _cardRepository.GetCardById(model.CardId);
 
-                if (existingCard == null){
-                    response.Resolution = false;
-                    response.Message = $"No card was found with id '{model.CardId}'.";
-                    return response;
+                if (existingCard == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Card.NotFound, 
+                        Message = ResponseMessages.Card.NotFound(model.CardId),
+                        Errors = [ResponseMessages.Card.NotFound(model.CardId)],
+                    };
                 }
 
                 int totalVignettesCard = await _vignetteRepository.GetTotalVignettesCard(model.CardId); 
 
-                if (totalVignettesCard >= 20){
-                    response.Resolution = false;
-                    response.Message = "A maximum of 20 vignettes is allowed per card.";
-                    return response;
+                if (totalVignettesCard >= 20) {
+
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Vignette.LimitReached, 
+                        Message = ResponseMessages.Vignette.LimitReached,
+                        Errors = [ ResponseMessages.Vignette.LimitReached ]
+                    }; 
                 }
 
                 int order = await _vignetteRepository.GetNextOrderByCardId(model.CardId);
@@ -80,32 +84,34 @@ namespace MyAccountApp.Application.Services
                 vignette.Order = order; 
 
                 await _vignetteRepository.CreateVignette(vignette);
-                response.Resolution = true;
-                response.Data = vignette;
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Vignette.Created, 
+                    Data = vignette,
+                }; 
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Data = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                }; 
             }
-
-            return response;
         }
         public async Task<GenericResponse> UpdateVignette(VignetteViewModel model)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
-                FluentValidation.Results.ValidationResult validationResult = _updateVignetteValidator.Validate(model);
+                FluentValidation.Results.ValidationResult validationResult = await _updateVignetteValidator.ValidateAsync(model);
 
-                if (!validationResult.IsValid)
-                {
-                    return new GenericResponse
-                    {
+                if (!validationResult.IsValid) {
+                    return new GenericResponse {
                         Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "The request contains validation errors."
+                        Message = ResponseMessages.Common.ValidationFailed
                     };
                 }
 
@@ -113,24 +119,32 @@ namespace MyAccountApp.Application.Services
 
                 if (existingVignette == null)
                 {
-                    response.Resolution = false;
-                    response.Data = $"No vignette was found with id '{model.Id}'.";
-                    return response;
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Vignette.NotFound, 
+                        Message = ResponseMessages.Vignette.NotFound(model.Id), 
+                        Errors = [ ResponseMessages.Vignette.NotFound(model.Id) ], 
+                    }; 
                 }
 
                 _mapper.Map(model, existingVignette);
 
                 await _vignetteRepository.UpdateVignette(existingVignette);
-                response.Resolution = true;
-                response.Data = existingVignette;
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Vignette.Updated, 
+                    Data = existingVignette,
+                }; 
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Message = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                }; 
             }
-
-            return response;
         }
         public async Task<GenericResponse> UpdateVignetteOrderItems(List<UpdateVignetteViewModel> model)
         {
@@ -139,50 +153,66 @@ namespace MyAccountApp.Application.Services
                 foreach(UpdateVignetteViewModel vignette in model) {
                     Vignette obtainedVignette = await _vignetteRepository.GetVignetteById(vignette.Id);
 
+                    if (obtainedVignette == null) {
+                        return new GenericResponse {
+                            Resolution = false,
+                            ErrorCode = ErrorCodes.Vignette.NotFound,
+                            Message = ResponseMessages.Vignette.NotFound(vignette.Id),
+                            Errors = [ResponseMessages.Vignette.NotFound(vignette.Id)]
+                        };
+                    }                    
+
                     obtainedVignette.Order = vignette.Order; 
                     
                     await _vignetteRepository.UpdateVignette(obtainedVignette);
                 }
                 
-                return new GenericResponse
-                {
+                return new GenericResponse {
                     Resolution = true,
-                    Message = "The vignette order was updated successfully."
+                    Message = ResponseMessages.Vignette.OrderUpdated
                 };
             }
             catch (Exception error)
             {
                 return new GenericResponse {
                     Resolution = false,
-                    Message = error.Message
-                };
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                }; 
             }
         }        
         public async Task<GenericResponse> DeleteVignette(Guid id)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
                 Vignette existingVignette = await _vignetteRepository.GetVignetteById(id);
 
                 if (existingVignette == null)
                 {
-                    response.Resolution = false;
-                    response.Data = $"No vignette was found with id '{id}'.";
-                    return response;
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Vignette.NotFound, 
+                        Message = ResponseMessages.Vignette.NotFound(id), 
+                        Errors = [ ResponseMessages.Vignette.NotFound(id) ], 
+                    }; 
                 }
 
                 bool resolution = await _vignetteRepository.DeleteVignette(id);
-                response.Resolution = resolution;
-                response.Message = resolution ? "Vignette deleted successfully." : "Failed to delete the record.";
+
+                return new GenericResponse {
+                    Resolution = resolution,
+                    ErrorCode = resolution ? null : ErrorCodes.Common.OperationFailed, 
+                    Message = resolution ? ResponseMessages.Vignette.Deleted(id) : ResponseMessages.Common.OperationFailed
+                }; 
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Data = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                }; 
             }
-            return response;
         }
 
         public void Dispose()

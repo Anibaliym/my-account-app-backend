@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.Account;
@@ -15,10 +16,9 @@ namespace MyAccountApp.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IValidator<CreateAccountViewModel> _createAccountValidator;
         private readonly IValidator<UpdateAccountViewModel> _updateAccountValidator;
-
         private readonly IMapper _mapper;
 
-        public AccountAppService(
+        public AccountAppService( 
             IMapper mapper, 
             IAccountRepository accountRepository,
             IUserRepository userRepository,
@@ -34,47 +34,51 @@ namespace MyAccountApp.Application.Services
             _createAccountValidator = createAccountValidator;
             _updateAccountValidator = updateAccountValidator;
         }
-        public async Task<AccountViewModel> GetAccountById(Guid id)
+        
+        public async Task<AccountViewModel> GetAccountById(Guid accountId)
         {
-            return _mapper.Map<AccountViewModel>(await _accountRepository.GetAccountById(id));
+            return _mapper.Map<AccountViewModel>(await _accountRepository.GetAccountById(accountId));
         }
+        
         public async Task<IEnumerable<AccountViewModel>> GetAccountByUserId(Guid userId)
         {
             return _mapper.Map<IEnumerable<AccountViewModel>>(await _accountRepository.GetAccountByUserId(userId));
         }
         public async Task<GenericResponse> CreateAccount(CreateAccountViewModel model)
         {
-            GenericResponse response = new GenericResponse();
+            FluentValidation.Results.ValidationResult validationResult = await _createAccountValidator.ValidateAsync(model);
 
             try
             {
-                FluentValidation.Results.ValidationResult validationResult = _createAccountValidator.Validate(model);
-
-                if (!validationResult.IsValid)
-                {
-                    return new GenericResponse
-                    {
+                if (!validationResult.IsValid) {
+                    return new GenericResponse {
                         Resolution = false,
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "One or more validation errors were found."
+                        ErrorCode = ErrorCodes.Common.ValidationFailed,
+                        Message = ResponseMessages.Common.ValidationFailed
                     };
                 }
 
-                User user = await _userRepository.GetUserById(model.UserId);
+                User? user = await _userRepository.GetUserById(model.UserId);
 
-                if (user == null)
-                {
-                    response.Resolution = false;
-                    response.Message = $"The user with id '{model.UserId}' was not found.";
-                    return response;
+                if (user == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.User.NotFound,
+                        Message = ResponseMessages.User.NotFound(model.UserId),
+                        Errors = [ ResponseMessages.User.NotFound(model.UserId) ],
+                    };
                 }
 
                 int totalUserAccounts = await _accountRepository.GetTotalUserAccounts(model.UserId); 
 
-                if (totalUserAccounts >= 15){
-                    response.Resolution = false;
-                    response.Message = "The maximum number of accounts allowed per user is 15.";
-                    return response;
+                if (totalUserAccounts >= 15) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Account.LimitReached,
+                        Message = ResponseMessages.Account.LimitReached, 
+                        Errors = [ ResponseMessages.Account.LimitReached ]
+                    };
                 }
 
                 int order = await _accountRepository.GetNextAccountOrderByUserId(model.UserId);
@@ -85,42 +89,47 @@ namespace MyAccountApp.Application.Services
                 account.Order = order;
 
                 await _accountRepository.CreateAccount(account);
-                response.Resolution = true;
-                response.Data = account;
-            }
-            catch (Exception ex)
-            {
-                response.Resolution = false;
-                response.Message = ex.Message;
-            }
 
-            return response;
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Account.Created, 
+                    Data = account,
+                };
+            }
+            catch (Exception)
+            {
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError,
+                    Message = ResponseMessages.Common.UnexpectedError
+                };
+            }
         }
         public async Task<GenericResponse> UpdateAccount(UpdateAccountViewModel model)
         {
-            GenericResponse response = new GenericResponse();
-            int order = 0; 
+            int order;
+            FluentValidation.Results.ValidationResult validationResult = await _updateAccountValidator.ValidateAsync(model);
 
-            FluentValidation.Results.ValidationResult validationResult = _updateAccountValidator.Validate(model);
-
-            if (!validationResult.IsValid)
-            {
-                return new GenericResponse
-                {
+            if (!validationResult.IsValid) {
+                return new GenericResponse {
                     Resolution = false,
+                    ErrorCode = ErrorCodes.Common.ValidationFailed,                     
+                    Message = ResponseMessages.Common.ValidationFailed,
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    Message = "The request contains validation errors."
                 };
             }
 
             try
             {
-                Account existingAccount = await _accountRepository.GetAccountById(model.Id);
+                Account? existingAccount = await _accountRepository.GetAccountById(model.Id);
 
                 if (existingAccount == null) {
-                    response.Resolution = false;
-                    response.Message = $"No account was found with id '{model.Id}'.";
-                    return response;
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Account.NotFound,
+                        Message = ResponseMessages.Account.NotFound(model.Id),
+                        Errors = [ ResponseMessages.Account.NotFound(model.Id) ]
+                    }; 
                 }
 
                 order = existingAccount.Order; 
@@ -132,78 +141,117 @@ namespace MyAccountApp.Application.Services
                 existingAccount.Order = order;
 
                 await _accountRepository.UpdateAccount(existingAccount);
-                response.Resolution = true;
-                response.Data = existingAccount;
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Account.Updated,
+                    Data = existingAccount,
+                };
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Message = ex.Message;
-            }
-
-            return response;
-        }
-        public async Task<GenericResponse> UpdateAccountOrderItems(List<UpdateAccountViewModel> model)
-        {
-            try
-            {
-                foreach(UpdateAccountViewModel account in model) {
-                    Account obtainedAccount = await _accountRepository.GetAccountById(account.Id);
-
-                    obtainedAccount.Order = account.Order; 
-                    
-                    await _accountRepository.UpdateAccount(obtainedAccount);
-                }
-                
-                return new GenericResponse
-                {
-                    Resolution = true,
-                    Message = "The vignette order has been updated successfully."
-                };
-            }
-            catch (Exception error)
-            {
                 return new GenericResponse {
                     Resolution = false,
-                    Message = error.Message
+                    ErrorCode = ErrorCodes.Common.UnexpectedError,
+                    Message = ResponseMessages.Common.UnexpectedError
                 };
             }
         }
         
-        public async Task<GenericResponse> DeleteAccount(Guid id)
+        public async Task<GenericResponse> UpdateAccountOrderItems(List<UpdateAccountViewModel> model)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
-                Account existingAccount = await _accountRepository.GetAccountById(id);
-                IEnumerable<Sheet> sheetsAccount = await _sheetRepository.GetSheetByAccountId(id); 
+                List<Account> accountsToUpdate = new List<Account>();
 
-
-                if(sheetsAccount.Count() > 0) { 
-                    response.Resolution = false;
-                    response.Message = "The account cannot be deleted while it has associated sheets. Please remove the sheets first.";
-                    return response;
-                }
-
-                if (existingAccount == null)
+                foreach (UpdateAccountViewModel accountModel in model)
                 {
-                    response.Resolution = false;
-                    response.Message = $"la cuenta con el id '{id}', no existe.";
-                    return response;
+                    Account? obtainedAccount = await _accountRepository.GetAccountById(accountModel.Id);
+
+                    if (obtainedAccount == null) {
+                        return new GenericResponse {
+                            Resolution = false,
+                            ErrorCode = ErrorCodes.Account.NotFound,
+                            Message = ResponseMessages.Account.NotFound(accountModel.Id),
+                            Errors = [ ResponseMessages.Account.NotFound(accountModel.Id) ]
+                        };
+                    }
+
+                    obtainedAccount.Order = accountModel.Order;
+                    accountsToUpdate.Add(obtainedAccount);
                 }
 
-                bool resolution = await _accountRepository.DeleteAccount(id);
-                response.Resolution = resolution;
-                response.Message = resolution ? "The account was deleted successfully." : "Failed to delete the record.";
+                foreach (Account account in accountsToUpdate) {
+                    await _accountRepository.UpdateAccount(account);
+                }
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Account.AccountOrderUpdated, 
+                };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                response.Resolution = false;
-                response.Message = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError,
+                    Message = ResponseMessages.Common.UnexpectedError
+                };
             }
-            return response;
         }
+        
+        public async Task<GenericResponse> DeleteAccount(Guid accountId)
+        {
+            try
+            {
+                Account? existingAccount = await _accountRepository.GetAccountById(accountId);
+
+                if (existingAccount == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Account.NotFound,
+                        Message = ResponseMessages.Account.NotFound(accountId),
+                        Errors = [ResponseMessages.Account.NotFound(accountId)]
+                    };
+                }
+
+                IEnumerable<Sheet> sheetsAccount = await _sheetRepository.GetSheetByAccountId(accountId);
+
+                if (sheetsAccount.Any()) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Account.HasAssociatedSheets,
+                        Message = ResponseMessages.Account.HasAssociatedSheets,
+                        Errors = [ ResponseMessages.Account.HasAssociatedSheets ]
+                    };
+                }
+
+                bool deleted = await _accountRepository.DeleteAccount(accountId);
+
+                if (!deleted) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.OperationFailed,
+                        Message = ResponseMessages.Common.OperationFailed, 
+                        Errors = [ ResponseMessages.Common.OperationFailed ]
+                    };
+                }
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Account.Deleted
+                };
+            }
+            catch (Exception)
+            {
+                return new GenericResponse
+                {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError,
+                    Message = ResponseMessages.Common.UnexpectedError
+                };
+            }
+        }        
 
         public void Dispose()
         {

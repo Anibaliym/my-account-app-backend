@@ -1,7 +1,6 @@
 ﻿using MyAccountApp.Application.Interfaces;
 using FluentValidation;
 using MyAccountApp.Application.Responses;
-using MyAccountApp.Application.ViewModels.UserSecurity;
 using MyAccountApp.Core.Entities;
 using MyAccountApp.Core.Enum.User;
 using MyAccountApp.Core.Interfaces;
@@ -10,8 +9,8 @@ using MyAccountApp.Application.ViewModels.Vignette;
 using AutoMapper;
 using MyAccountApp.Application.ViewModels.Sheet;
 using MyAccountApp.Application.ViewModels.Card;
-using Microsoft.AspNetCore.Http;
 using MyAccountApp.Core.Enum.UserAccessLog;
+using MyAccountApp.Application.Constants;
 
 namespace MyAccountApp.Application.Services
 {
@@ -28,17 +27,15 @@ namespace MyAccountApp.Application.Services
         private readonly IMapper _mapper;
 
         public DomainServicesAppServices (
-            IUserRepository userRepository,
-            IAccountRepository accountRepository,
+            IUserRepository userRepository, 
+            IAccountRepository accountRepository, 
             IUserAccessLogRepository userAccessLogRepository, 
             ISheetRepository sheetRepository, 
-            IUserSecurityRepository userSecurityRepository,
+            IUserSecurityRepository userSecurityRepository, 
             ICardRepository cardRepository, 
             IVignetteRepository vignetteRepository, 
-            IValidator<UserSecurityCreateViewModel> createUserSecurityValidator, 
-            IValidator<VignetteViewModel> updateVignetteValidator,
-            IMapper mapper
-        )
+            IValidator<VignetteViewModel> updateVignetteValidator, 
+            IMapper mapper)
         {
             _userRepository = userRepository;
             _accountRepository = accountRepository;
@@ -75,8 +72,9 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = false,
-                    Errors = new[] { "Invalid email or password." },
-                    Message = "Authentication failed."
+                    ErrorCode = ErrorCodes.Authentication.InvalidCredentials,
+                    Errors = [ResponseMessages.Authentication.InvalidCredentials],
+                    Message = ResponseMessages.Authentication.InvalidCredentials
                 };
             }
 
@@ -91,9 +89,10 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = false,
-                    Errors = new[] { $"The account associated with '{email}' was registered using Google Sign-In. Please sign in with Google." }, 
-                    Message = "Authentication failed."
-                };
+                    ErrorCode = ErrorCodes.Authentication.GoogleSignInRequired,
+                    Errors = [ ResponseMessages.Authentication.GoogleSignInRequired(email) ],
+                    Message = ResponseMessages.Authentication.GoogleSignInRequired(email)
+                };                
             }
 
             //Se obtiene la información de la seguridad del usuario.
@@ -106,10 +105,12 @@ namespace MyAccountApp.Application.Services
 
                 await _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
 
-                return new GenericResponse {
+                return new GenericResponse
+                {
                     Resolution = false,
-                    Errors = new[] { "Invalid credentials." },
-                    Message = "Authentication failed."
+                    ErrorCode = ErrorCodes.Authentication.InvalidCredentials,
+                    Errors = [ResponseMessages.Authentication.InvalidCredentials],
+                    Message = ResponseMessages.Authentication.Failed
                 };
             }
 
@@ -123,10 +124,12 @@ namespace MyAccountApp.Application.Services
 
                 await _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
 
-                return new GenericResponse {
+                return new GenericResponse
+                {
                     Resolution = false,
-                    Errors = new[] { "Incorrect password." },
-                    Message = "Authentication failed."
+                    ErrorCode = ErrorCodes.Authentication.InvalidCredentials,
+                    Errors = [ ResponseMessages.Authentication.InvalidCredentials ],
+                    Message = ResponseMessages.Authentication.Failed
                 };
             }
             
@@ -163,12 +166,10 @@ namespace MyAccountApp.Application.Services
 
             await _userAccessLog.RegisterAccessUserLog(userAccessLogModel); 
 
-            // Si todo es correcto, devolver el usuario encontrado con las cuentas y hojas
-            return new GenericResponse
-            {
+            return new GenericResponse {
                 Resolution = true,
                 Data = responseModel, 
-                Message = "You have signed in successfully."
+                Message = ResponseMessages.Authentication.Success
             };
         }
 
@@ -177,23 +178,24 @@ namespace MyAccountApp.Application.Services
             return new GenericResponse 
             {
                 Resolution = true,
+                Message = ResponseMessages.Common.Success, 
                 Data = await _userAccessLog.GetAllSuccessUserAccessLogByUserId(userId), 
             };
         }
         
         public async Task<GenericResponse> DeleteUserAccount(DeleteUserRequest request)
         {
-            LoginResponseViewModel responseModel = new LoginResponseViewModel();
+            Guid userId = request.UserId; 
+            User userFound = await _userRepository.GetUserById(userId); 
+            UserSecurity userSecurityFound = await _userSecurityRepository.GetUserSecurityByUserId(userId);
 
-            User userFound = await _userRepository.GetUserById(request.UserId); 
-            UserSecurity userSecurityFound = await _userSecurityRepository.GetUserSecurityByUserId(request.UserId);
-
-            if(userFound == null) {
-                return new GenericResponse
-                {
+            if (userFound == null || userSecurityFound == null)
+            {
+                return new GenericResponse {
                     Resolution = false,
-                    Errors = new[] { $"The user with id '{request.UserId}' was not found." },
-                    Message = "The request contains validation errors."
+                    ErrorCode = ErrorCodes.User.NotFound,
+                    Message = ResponseMessages.User.NotFound(userId),
+                    Errors = [ ResponseMessages.User.NotFound(userId) ]
                 };
             }
 
@@ -201,11 +203,13 @@ namespace MyAccountApp.Application.Services
             bool isPasswordValid = PasswordUtils.VerifyPasswordHash(request.Password, Convert.FromBase64String(userSecurityFound.PasswordHash), Convert.FromBase64String(userSecurityFound.PasswordSalt));
 
             if(!isPasswordValid) {
-                return new GenericResponse {
+                return new GenericResponse
+                {
                     Resolution = false,
-                    Errors = new[] { "Incorrect password." },
-                    Message = "Authentication failed."
-                };
+                    ErrorCode = ErrorCodes.Authentication.InvalidCredentials,
+                    Message = ResponseMessages.Authentication.InvalidCredentials,
+                    Errors = [ ResponseMessages.Authentication.InvalidCredentials ]
+                };                
             }
 
             //Se eliminan todos los movimientos de la cuenta de usuario
@@ -242,7 +246,7 @@ namespace MyAccountApp.Application.Services
 
             return new GenericResponse {
                 Resolution = true,
-                Message = $"The user account associated with '{userFound.Email}' has been deleted successfully."
+                Message = ResponseMessages.User.Deleted(userFound.Email)
             };
         }
 
@@ -256,6 +260,8 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
+                    Message = ResponseMessages.Common.Success, 
+                    Errors = [ ResponseMessages.Common.Success ], 
                     Data = new { 
                         Account = new {
                             name = account.Description,
@@ -264,12 +270,12 @@ namespace MyAccountApp.Application.Services
                         Sheets = sheets,
                     },
                 }; 
-
             }
             else {
                 return new GenericResponse {
                     Resolution = false,
-                    Message = $"No account was found with id '{accountId}'."
+                    ErrorCode = ErrorCodes.Account.NotFound, 
+                    Message = ResponseMessages.Account.NotFound(accountId)
                 }; 
             }
         }
@@ -302,25 +308,23 @@ namespace MyAccountApp.Application.Services
             }
 
             // Si todo es correcto, devolver el usuario encontrado con las cuentas y hojas
-            return new GenericResponse
-            {
+            return new GenericResponse {
                 Resolution = true,
                 Data = responseModel,
-                Message = "You have signed in successfully."
+                Message = ResponseMessages.Common.Success
             };
         }
 
         public async Task<GenericResponse> DeleteCardWithVignettes(Guid cardId)
         {
-            LoginResponseViewModel responseModel = new LoginResponseViewModel();
-
             Card cardFound = await _cardRepository.GetCardById(cardId); 
 
             if(cardFound == null) {
-                return new GenericResponse
-                {
+                return new GenericResponse {
                     Resolution = false,
-                    Message = $"No card was found with id '{cardId}'."
+                    ErrorCode = ErrorCodes.Card.NotFound, 
+                    Message = ResponseMessages.Card.NotFound(cardId), 
+                    Errors = [ ResponseMessages.Card.NotFound(cardId) ]
                 };
             }
 
@@ -332,12 +336,20 @@ namespace MyAccountApp.Application.Services
             
 
             //se elimina la carta
-            await _cardRepository.DeleteCard(cardId); 
+            bool deleted = await _cardRepository.DeleteCard(cardId);
+
+            if (!deleted) {
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.OperationFailed,
+                    Message = ResponseMessages.Common.OperationFailed,
+                    Errors = [ ResponseMessages.Common.OperationFailed ],
+                };
+            }
 
             return new GenericResponse {
                 Resolution = true,
-                Data = responseModel,
-                Message = "The card has been deleted along with all its associated vignettes."
+                Message = ResponseMessages.Card.Deleted
             };
         }
 
@@ -348,10 +360,10 @@ namespace MyAccountApp.Application.Services
             if(sheetFound == null) {
                 return new GenericResponse {
                     Resolution = false,
-                    Message = $"No sheet was found with id '{sheetId}'."
+                    ErrorCode = ErrorCodes.Sheet.NotFound, 
+                    Message = ResponseMessages.Sheet.NotFound(sheetId)
                 };
             }
-
 
             // Se obtienen las "Cartas" relacionadas a la "Hoja de cálculo".
             IEnumerable<Card> existingCardsBySheet = await _cardRepository.GetCardBySheetId(sheetId);
@@ -360,9 +372,8 @@ namespace MyAccountApp.Application.Services
                 // Se obtienen las "Viñetas" relaciondas a cada "Carta".
                 IEnumerable<Vignette> vignettesFoundByCard = await _vignetteRepository.GetVignetteByCardId(card.Id);
 
-                foreach (Vignette vignette in vignettesFoundByCard){
-                    // Se elimina cada "Viñeta" relacionda a la "Carta".
-                    await _vignetteRepository.DeleteVignette(vignette.Id);  
+                foreach (Vignette vignette in vignettesFoundByCard) {
+                    await _vignetteRepository.DeleteVignette(vignette.Id);  // Se elimina cada "Viñeta" relacionda a la "Carta".
                 } 
                 
                 // Después de eliminar las "Viñetas relacionadas", Se elimina la "Carta" de turno
@@ -373,7 +384,7 @@ namespace MyAccountApp.Application.Services
 
             return new GenericResponse {
                 Resolution = true,
-                Message = $"The sheet with id '{sheetId}' and all its associated content have been deleted successfully."
+                Message = ResponseMessages.Sheet.Deleted(sheetId)
             };
         }
 
@@ -382,12 +393,11 @@ namespace MyAccountApp.Application.Services
             int sumTotalAmount = 0;
             try
             {
-                // Obtener las cards asociadas al sheetId
+                // Se obtienen las "cards" asociadas al sheetId
                 IEnumerable<Card> cards = await _cardRepository.GetCardBySheetId(sheetId);
 
                 // Crear el modelo que contiene las cards con sus vignettes
-                var model = new SheetCardsWithVignetteViewModel
-                {
+                SheetCardsWithVignetteViewModel model = new SheetCardsWithVignetteViewModel {
                     Cards = new List<CardWithVignettesDTO>()
                 };
 
@@ -397,13 +407,11 @@ namespace MyAccountApp.Application.Services
                     IEnumerable<Vignette> vignettes = await _vignetteRepository.GetVignetteByCardId(card.Id);
 
                     foreach (var vignette in vignettes) {
-                        // sumTotalAmount = vignette != null ? sumTotalAmount + vignette.Amount : sumTotalAmount;
-                        sumTotalAmount = sumTotalAmount + vignette.Amount;
+                        sumTotalAmount = sumTotalAmount + vignette.Amount; // sumTotalAmount = vignette != null ? sumTotalAmount + vignette.Amount : sumTotalAmount;
                     }
 
                     // Mapear la card con sus vignettes
-                    var cardWithVignettes = new CardWithVignettesDTO
-                    {
+                    CardWithVignettesDTO cardWithVignettes = new CardWithVignettesDTO {
                         Id = card.Id,
                         Title = card.Title,
                         Description = card.Description,
@@ -422,31 +430,31 @@ namespace MyAccountApp.Application.Services
 
                     sumTotalAmount = 0;
 
-                    // Agregar la card al modelo
+                    // Agregaa la card al modelo
                     model.Cards.Add(cardWithVignettes);
                 }
 
                 // Retornar el modelo en una respuesta genérica
-                return new GenericResponse
-                {
+                return new GenericResponse {
                     Resolution = true,
-                    Message = "Cards and Vignettes fetched successfully.",
-                    Data = model
+                    Data = model,     
+                    Message = ResponseMessages.Common.Success
                 };
             }
             catch (Exception ex)
             {
-                return new GenericResponse
-                {
+                return new GenericResponse {
                     Resolution = false,
-                    Message = $"An error occurred: {ex.Message}"
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError
                 };
             }
         }
 
         public async Task<GenericResponse> UpdateVignetteAndRecalculateTotal(VignetteViewModel model)
         {
-            GenericResponse response = new GenericResponse();
+            // GenericResponse response = new GenericResponse();
+            Guid vignetteId = model.Id; 
             int sumTotalAmount = 0;
 
             try
@@ -455,25 +463,23 @@ namespace MyAccountApp.Application.Services
 
                 if (!validationResult.IsValid)
                 {
-                    return new GenericResponse
-                    {
+                    return new GenericResponse {
                         Resolution = false,
+                        ErrorCode = ErrorCodes.Common.ValidationFailed, 
                         Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                        Message = "The request contains validation errors."
+                        Message = ResponseMessages.Common.ValidationFailed
                     };
                 }
 
-                Vignette existingVignette = await _vignetteRepository.GetVignetteById(model.Id);
+                Vignette existingVignette = await _vignetteRepository.GetVignetteById(vignetteId);
 
-                if (existingVignette == null)
-                {
-                    response.Resolution = false;
-                    response.Data = $"No vignette was found with id '{model.Id}'.";
-                    return response;
-                }
-
-                if (existingVignette.Amount != model.Amount) {
-                    Card card = await _cardRepository.GetCardById(model.CardId);
+                if (existingVignette == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Vignette.NotFound,
+                        Message = ResponseMessages.Vignette.NotFound(vignetteId),
+                        Errors = [ResponseMessages.Vignette.NotFound(vignetteId)],
+                    };
                 }
 
                 IEnumerable<Vignette> cardVignettes = await _vignetteRepository.GetVignetteByCardId(model.CardId);
@@ -484,87 +490,105 @@ namespace MyAccountApp.Application.Services
                 _mapper.Map(model, existingVignette);
                 await _vignetteRepository.UpdateVignette(existingVignette);
 
-                response.Resolution = true;
-                response.Data = new
-                {
-                    UpdatedVignette = existingVignette,
-                    TotalAmount = sumTotalAmount
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Vignette.Updated,
+                    Data = new { UpdatedVignette = existingVignette, TotalAmount = sumTotalAmount },
                 };
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Data = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError,
+                    Message = ResponseMessages.Common.UnexpectedError,
+                };
             }
-
-            return response;
         }
 
         public async Task<GenericResponse> DeleteVignetteAndRecalculateTotal(Guid vignetteId)
         {
-            GenericResponse response = new GenericResponse();
-            int sumTotalAmount = 0;
-
             try
             {
                 Vignette existingVignette = await _vignetteRepository.GetVignetteById(vignetteId);
 
-                if (existingVignette == null)
-                {
-                    response.Resolution = false;
-                    response.Data = $"No vignette was found with id '{vignetteId}'.";
-                    return response;
+                if (existingVignette == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Vignette.NotFound, 
+                        Message = ResponseMessages.Vignette.NotFound(vignetteId), 
+                        Errors = [ResponseMessages.Vignette.NotFound(vignetteId)], 
+                    }; 
                 }
 
-                bool resolution = await _vignetteRepository.DeleteVignette(vignetteId);
-                response.Resolution = resolution;
-                response.Message = resolution ? "Vignette deleted successfully." : "Failed to delete the record.";
-                
+                bool deleted = await _vignetteRepository.DeleteVignette(vignetteId);
+
+                if (!deleted) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.OperationFailed,
+                        Message = ResponseMessages.Common.OperationFailed
+                    };
+                }
+
                 IEnumerable<Vignette> cardVignettes = await _vignetteRepository.GetVignetteByCardId(existingVignette.CardId);
 
-                sumTotalAmount = cardVignettes.Sum(v => v.Amount);
+                int totalAmount = cardVignettes.Sum(v => v.Amount);
 
-                response.Resolution = true;
-                response.Data = new {
-                    TotalAmount = sumTotalAmount
+                return new GenericResponse {
+                    Resolution = true,
+                    Data = new { TotalAmount = totalAmount },
+                    Message = ResponseMessages.Vignette.Deleted(vignetteId)
                 };
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Data = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                };
             }
-
-            return response;
         }
 
         public async Task<GenericResponse> UpdateVignetteColorTheme(Guid vignetteId, string colorTheme)
         {
-            GenericResponse response = new GenericResponse();
-
-            Vignette existingVignette = await _vignetteRepository.GetVignetteById(vignetteId);
-
-            if (existingVignette == null)
+            try
             {
-                response.Resolution = false;
-                response.Data = $"No vignette was found with id '{vignetteId}'.";
-                return response;
+                Vignette existingVignette = await _vignetteRepository.GetVignetteById(vignetteId);
+
+                if (existingVignette == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Vignette.NotFound,
+                        Message = ResponseMessages.Vignette.NotFound(vignetteId),
+                        Errors = [ ResponseMessages.Vignette.NotFound(vignetteId)]
+                    };
+                }
+
+                existingVignette.Color = colorTheme;
+
+                await _vignetteRepository.UpdateVignette(existingVignette);
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Data = new { UpdatedVignette = existingVignette },
+                    Message = ResponseMessages.Vignette.ColorUpdated
+                };
             }
-
-            existingVignette.Color = colorTheme;
-            await _vignetteRepository.UpdateVignette(existingVignette);
-
-            response.Resolution = true;
-            response.Data = new {
-                UpdatedVignette = existingVignette,
-            };
-
-            return response;
+            catch (Exception)
+            {
+                return new GenericResponse
+                {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError,
+                    Message = ResponseMessages.Common.UnexpectedError
+                };
+            }
         }
 
         public async Task<GenericResponse> CreateSheetBackup(Guid sheetId)
         {
-            GenericResponse response = new GenericResponse();
             CreateSheetViewModel viewSheet = new CreateSheetViewModel();
             CreateCardViewModel viewCard = new CreateCardViewModel();
             VignetteCreateViewModel viewVignette = new VignetteCreateViewModel(); 
@@ -573,6 +597,15 @@ namespace MyAccountApp.Application.Services
             {
                 // Se obtienen la información de la hoja de cálculo a a respaldar.
                 Sheet existingSheet = await _sheetRepository.GetSheetById(sheetId);
+
+                if (existingSheet == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Sheet.NotFound,
+                        Message = ResponseMessages.Sheet.NotFound(sheetId),
+                        Errors = [ ResponseMessages.Sheet.NotFound(sheetId) ]
+                    };
+                }                
 
                 // Se obtienen las cartas relacionadas a la hoja de cálculo.
                 IEnumerable<Card> cardsSheet = await _cardRepository.GetCardBySheetId(sheetId);
@@ -625,8 +658,7 @@ namespace MyAccountApp.Application.Services
 
                 return new GenericResponse {
                     Resolution = true,
-                    Message = $"The sheet backup was created successfully.",
-                    Data = new {}
+                    Message = ResponseMessages.Sheet.BackupCreated
                 };
             }
             catch (Exception ex)
@@ -634,7 +666,8 @@ namespace MyAccountApp.Application.Services
                 return new GenericResponse
                 {
                     Resolution = false,
-                    Message = $"An error occurred: {ex.Message}"
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError
                 };
             }
         }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.Sheet;
@@ -15,12 +16,12 @@ namespace MyAccountApp.Application.Services
         private readonly IValidator<CreateSheetViewModel> _createSheetValidator;
         private readonly IValidator<UpdateSheetViewModel> _updateSheetValidator;
         private readonly IMapper _mapper;
+        private const int MaximumSheetsPerAccount = 15;
 
-        public SheetAppService(
-            IMapper mapper,
-            ISheetRepository sheetRepository,
+        public SheetAppService(IMapper mapper, 
+            ISheetRepository sheetRepository, 
             IAccountRepository accountRepository, 
-            IValidator<CreateSheetViewModel> createSheetValidator,
+            IValidator<CreateSheetViewModel> createSheetValidator, 
             IValidator<UpdateSheetViewModel> updateSheetValidator
         )
         {
@@ -30,6 +31,7 @@ namespace MyAccountApp.Application.Services
             _createSheetValidator = createSheetValidator;
             _updateSheetValidator = updateSheetValidator; 
         }
+
         public async Task<SheetViewModel> GetSheetById(Guid id)
         {
             return _mapper.Map<SheetViewModel>(await _sheetRepository.GetSheetById(id));
@@ -47,37 +49,40 @@ namespace MyAccountApp.Application.Services
 
         public async Task<GenericResponse> CreateSheet(CreateSheetViewModel model)
         {
-            GenericResponse response = new GenericResponse();
-
-            FluentValidation.Results.ValidationResult validationResult = _createSheetValidator.Validate(model);
+            FluentValidation.Results.ValidationResult validationResult = await _createSheetValidator.ValidateAsync(model);
 
             if (!validationResult.IsValid)
             {
-                return new GenericResponse
-                {
+                return new GenericResponse {
                     Resolution = false,
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    Message = "The request contains validation errors."
+                    ErrorCode = ErrorCodes.Common.ValidationFailed,
+                    Message = ResponseMessages.Common.ValidationFailed
                 };
             }
 
             try
             {
-                Account cuentaExistente = await _accountRepository.GetAccountById(model.AccountId);
+                Account existingAccount = await _accountRepository.GetAccountById(model.AccountId);
                 
-                if (cuentaExistente == null)
-                {
-                    response.Resolution = false;
-                    response.Message = $"No account was found with id '{model.AccountId}'.";
-                    return response;
+                if (existingAccount == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Account.NotFound, 
+                        Message = ResponseMessages.Account.NotFound(model.AccountId),
+                        Errors = [ResponseMessages.Account.NotFound(model.AccountId)],
+                    }; 
                 }
 
                 int totalSheetsAccount = await _sheetRepository.GetTotalSheetsAccount(model.AccountId); 
 
-                if (totalSheetsAccount >= 15){
-                    response.Resolution = false;
-                    response.Message = "A maximum of 15 sheets is allowed per account.";
-                    return response;
+                if (totalSheetsAccount >= MaximumSheetsPerAccount) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Sheet.LimitReached,
+                        Message = ResponseMessages.Sheet.LimitReached,
+                        Errors = [ResponseMessages.Sheet.LimitReached],
+                    }; 
                 }
 
                 //Se obtiene el orden de la hoja a crear
@@ -91,31 +96,33 @@ namespace MyAccountApp.Application.Services
                 sheet.CashBalance = 0;
 
                 await _sheetRepository.CreateSheet(sheet);
-                response.Resolution = true;
-                response.Data = sheet;
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Sheet.Created, 
+                    Data = sheet,
+                }; 
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Message = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError,
+                };
             }
-
-            return response;
         }
 
         public async Task<GenericResponse> UpdateSheet(UpdateSheetViewModel model)
         {
-            GenericResponse response = new GenericResponse();
+            FluentValidation.Results.ValidationResult validationResult = await _updateSheetValidator.ValidateAsync(model);
 
-            FluentValidation.Results.ValidationResult validationResult = _updateSheetValidator.Validate(model);
-
-            if (!validationResult.IsValid)
-            {
-                return new GenericResponse
-                {
+            if (!validationResult.IsValid) {
+                return new GenericResponse {
                     Resolution = false,
+                    ErrorCode = ErrorCodes.Common.ValidationFailed, 
+                    Message = ResponseMessages.Common.ValidationFailed,
                     Errors = validationResult.Errors.Select(e => e.ErrorMessage).ToArray(),
-                    Message = "The request contains validation errors."
                 };
             }
 
@@ -125,18 +132,22 @@ namespace MyAccountApp.Application.Services
 
                 if (existingAccount == null)
                 {
-                    response.Resolution = false;
-                    response.Message = $"No account was found with id '{model.AccountId}'.";
-                    return response;
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Account.NotFound, 
+                        Message = ResponseMessages.Account.NotFound(model.AccountId),
+                    };  
                 }
 
-
                 Sheet existingSheet = await _sheetRepository.GetSheetById(model.Id);
-                if (existingSheet == null)
-                {
-                    response.Resolution = false;
-                    response.Data = "The requested sheet was not found.";
-                    return response;
+                
+                if (existingSheet == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Sheet.NotFound, 
+                        Message = ResponseMessages.Sheet.NotFound(model.Id),
+                        Errors = [ResponseMessages.Sheet.NotFound(model.Id)],
+                    }; 
                 }
 
                 _mapper.Map(model, existingSheet);
@@ -144,16 +155,21 @@ namespace MyAccountApp.Application.Services
                 existingSheet.CreationDate = existingSheet.CreationDate.ToUniversalTime();
 
                 await _sheetRepository.UpdateSheet(existingSheet);
-                response.Resolution = true;
-                response.Data = existingSheet;
+
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Sheet.Updated, 
+                    Data = existingSheet,
+                }; 
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Data = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                }; 
             }
-
-            return response;
         }
 
         public async Task<GenericResponse> UpdateSheetOrderItems(List<UpdateSheetViewModel> model)
@@ -163,41 +179,50 @@ namespace MyAccountApp.Application.Services
                 foreach(UpdateSheetViewModel sheet in model) {
                     Sheet obtainedSheet = await _sheetRepository.GetSheetById(sheet.Id);
 
+                    if (obtainedSheet == null) {
+                        return new GenericResponse {
+                            Resolution = false,
+                            ErrorCode = ErrorCodes.Sheet.NotFound,
+                            Message = ResponseMessages.Sheet.NotFound(sheet.Id),
+                            Errors = [ ResponseMessages.Sheet.NotFound(sheet.Id) ]
+                        };
+                    }
+
                     obtainedSheet.Order = sheet.Order; 
                     obtainedSheet.CreationDate = obtainedSheet.CreationDate.ToUniversalTime();
+                    
                     await _sheetRepository.UpdateSheet(obtainedSheet);
                 }
                 
-                return new GenericResponse
-                {
+                return new GenericResponse {
                     Resolution = true,
-                    Message = "The sheet order was updated successfully."
+                    Message = ResponseMessages.Sheet.OrderUpdated, 
                 };
             }
             catch (Exception error)
             {
-                
                 return new GenericResponse {
                     Resolution = false,
-                    Message = error.Message
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
                 };
             }
         }
 
         public async Task<GenericResponse> UpdateCashBalance(Guid sheetId, int newCashBalance)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
                 // Obtén la hoja existente por su ID
                 Sheet existingSheet = await _sheetRepository.GetSheetById(sheetId);
 
-                if (existingSheet == null)
-                {
-                    response.Resolution = false;
-                    response.Message = "The requested sheet was not found.";
-                    return response;
+                if (existingSheet == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Sheet.NotFound, 
+                        Message = ResponseMessages.Sheet.NotFound(sheetId), 
+                        Errors = [ResponseMessages.Sheet.NotFound(sheetId)], 
+                    };
                 }
 
                 // Actualiza solo el campo CashBalance
@@ -207,32 +232,35 @@ namespace MyAccountApp.Application.Services
                 // Usa el método UpdateSheet del repositorio para guardar los cambios
                 await _sheetRepository.UpdateSheet(existingSheet);
 
-                response.Resolution = true;
-                response.Message = "CashBalance updated successfully.";
-                response.Data = existingSheet;
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Sheet.CashBalanceUpdated, 
+                    Data = existingSheet, 
+                };
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Message = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                };
             }
-
-            return response;
         }
 
         public async Task<GenericResponse> UpdateCurrenteAccountBalance(Guid sheetId, int currentAccountBalance)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
                 Sheet existingSheet = await _sheetRepository.GetSheetById(sheetId);
 
-                if (existingSheet == null)
-                {
-                    response.Resolution = false;
-                    response.Message = "The requested sheet was not found.";
-                    return response;
+                if (existingSheet == null) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Sheet.NotFound, 
+                        Message = ResponseMessages.Sheet.NotFound(sheetId), 
+                        Errors = [ResponseMessages.Sheet.NotFound(sheetId)], 
+                    };
                 }
 
                 existingSheet.CurrentAccountBalance = currentAccountBalance;
@@ -240,44 +268,61 @@ namespace MyAccountApp.Application.Services
 
                 await _sheetRepository.UpdateSheet(existingSheet);
 
-                response.Resolution = true;
-                response.Message = "CurrentAccountBalance updated successfully.";
-                response.Data = existingSheet;
+                return new GenericResponse {
+                    Resolution = true,
+                    Message = ResponseMessages.Sheet.CurrentAccountBalanceUpdated,
+                    Data = existingSheet 
+                };
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Message = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                };
             }
-
-            return response;
         }
-
 
         public async Task<GenericResponse> DeleteSheet(Guid id)
         {
-            GenericResponse response = new GenericResponse();
-
             try
             {
-                Sheet hojaExistente = await _sheetRepository.GetSheetById(id);
-                if (hojaExistente == null)
-                {
-                    response.Resolution = false;
-                    response.Data = "Sheet not found.";
-                    return response;
+                Sheet existingSheet = await _sheetRepository.GetSheetById(id);
+
+                if (existingSheet == null){
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Sheet.NotFound, 
+                        Message = ResponseMessages.Sheet.NotFound(id), 
+                        Errors = [ResponseMessages.Sheet.NotFound(id)]
+                    };
                 }
 
-                bool resolution = await _sheetRepository.DeleteSheet(id);
-                response.Resolution = resolution;
-                response.Message = resolution ? "Sheet deleted successfully." : "Failed to delete the record.";
+                bool deleted = await _sheetRepository.DeleteSheet(id);
+
+                if (!deleted) {
+                    return new GenericResponse {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Common.OperationFailed,
+                        Message = ResponseMessages.Common.OperationFailed, 
+                        Errors = [ResponseMessages.Common.OperationFailed], 
+                    };
+                }
+
+                return new GenericResponse  {
+                    Resolution = true,
+                    Message = ResponseMessages.Sheet.Deleted(id)
+                };
             }
             catch (Exception ex)
             {
-                response.Resolution = false;
-                response.Data = ex.Message;
+                return new GenericResponse {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                };
             }
-            return response;
         }
 
         public void Dispose()
