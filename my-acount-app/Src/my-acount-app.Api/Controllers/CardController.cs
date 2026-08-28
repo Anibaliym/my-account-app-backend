@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.Card;
@@ -21,7 +22,7 @@ namespace MyAccountApp.Api.Controllers
         [ProducesResponseType(typeof(GenericResponse<CardViewModel>), StatusCodes.Status404NotFound)]
         public Task<IActionResult> GetCardById(Guid id)
         {
-            return GetSingle(id, () => _cardAppService.GetCardById(id), ErrorCodes.CardNotFound);
+            return GetSingle(id, () => _cardAppService.GetCardById(id), ErrorCodes.Card.NotFound);
         }
 
         [HttpGet("GetCardBySheetId/{sheetId:guid}")]

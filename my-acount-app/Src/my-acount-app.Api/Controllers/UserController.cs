@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.User;
@@ -22,7 +23,7 @@ namespace MyAccountApp.Api.Controllers
         [ProducesResponseType(typeof(GenericResponse<UserViewModel>), StatusCodes.Status404NotFound)]
         public Task<IActionResult> GetUserById(Guid id)
         {
-            return GetSingle(id, () => _userAppService.GetUserById(id), ErrorCodes.UserNotFound);
+            return GetSingle(id, () => _userAppService.GetUserById(id), ErrorCodes.User.NotFound);
         }
 
         [HttpGet("GetAllUsers")]

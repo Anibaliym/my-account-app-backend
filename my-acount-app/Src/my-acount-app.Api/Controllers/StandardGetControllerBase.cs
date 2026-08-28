@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Responses;
 
 namespace MyAccountApp.Api.Controllers
@@ -20,7 +21,7 @@ namespace MyAccountApp.Api.Controllers
                     {
                         Resolution = false,
                         Data = null,
-                        Message = "The requested resource was not found.",
+                        Message = ResponseMessages.Common.ResourceNotFound,
                         ErrorCode = notFoundErrorCode,
                         Errors = null
                     });
@@ -63,7 +64,7 @@ namespace MyAccountApp.Api.Controllers
                 {
                     Resolution = response.Resolution,
                     Data = response.Resolution ? response.Data : null,
-                    Message = response.Resolution ? ResponseMessages.Success : response.Message,
+                    Message = response.Resolution ? ResponseMessages.Common.Success : response.Message,
                     ErrorCode = response.Resolution ? null : failureErrorCode,
                     Errors = response.Errors
                 };
@@ -80,7 +81,7 @@ namespace MyAccountApp.Api.Controllers
         {
             Resolution = true,
             Data = data,
-            Message = ResponseMessages.Success,
+            Message = ResponseMessages.Common.Success,
             ErrorCode = null,
             Errors = null
         };
@@ -89,8 +90,8 @@ namespace MyAccountApp.Api.Controllers
         {
             Resolution = false,
             Data = default,
-            Message = ResponseMessages.ValidationFailed,
-            ErrorCode = ErrorCodes.CommonValidationFailed,
+            Message = ResponseMessages.Common.ValidationFailed,
+            ErrorCode = ErrorCodes.Common.ValidationFailed,
             Errors = new[] { error }
         });
 
@@ -99,8 +100,8 @@ namespace MyAccountApp.Api.Controllers
             {
                 Resolution = false,
                 Data = default,
-                Message = ResponseMessages.UnexpectedError,
-                ErrorCode = ErrorCodes.CommonUnexpectedError,
+                Message = ResponseMessages.Common.UnexpectedError,
+                ErrorCode = ErrorCodes.Common.UnexpectedError,
                 Errors = null
             });
     }

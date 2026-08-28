@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyAccountApp.Api.Controllers;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Responses;
 using Xunit;
 
@@ -19,7 +20,7 @@ public class StandardGetControllerBaseTests
         var response = Assert.IsType<GenericResponse<TestItem>>(Assert.IsType<OkObjectResult>(result).Value);
         Assert.True(response.Resolution);
         Assert.Same(item, response.Data);
-        Assert.Equal(ResponseMessages.Success, response.Message);
+        Assert.Equal(ResponseMessages.Common.Success, response.Message);
         Assert.Null(response.ErrorCode);
         Assert.Null(response.Errors);
     }
@@ -45,7 +46,7 @@ public class StandardGetControllerBaseTests
         var response = Assert.IsType<GenericResponse<TestItem>>(Assert.IsType<NotFoundObjectResult>(result).Value);
         Assert.False(response.Resolution);
         Assert.Null(response.Data);
-        Assert.Equal(ErrorCodes.CardNotFound, response.ErrorCode);
+        Assert.Equal(ErrorCodes.Card.NotFound, response.ErrorCode);
     }
 
     [Fact]
@@ -57,7 +58,7 @@ public class StandardGetControllerBaseTests
         var response = Assert.IsType<GenericResponse<TestItem>>(Assert.IsType<BadRequestObjectResult>(result).Value);
         Assert.False(response.Resolution);
         Assert.Null(response.Data);
-        Assert.Equal(ErrorCodes.CommonValidationFailed, response.ErrorCode);
+        Assert.Equal(ErrorCodes.Common.ValidationFailed, response.ErrorCode);
         Assert.NotEmpty(response.Errors!);
     }
 
@@ -72,7 +73,7 @@ public class StandardGetControllerBaseTests
         var response = Assert.IsType<GenericResponse<TestItem>>(objectResult.Value);
         Assert.False(response.Resolution);
         Assert.Null(response.Data);
-        Assert.Equal(ErrorCodes.CommonUnexpectedError, response.ErrorCode);
+        Assert.Equal(ErrorCodes.Common.UnexpectedError, response.ErrorCode);
         Assert.DoesNotContain("sensitive", response.Message);
     }
 
@@ -81,7 +82,7 @@ public class StandardGetControllerBaseTests
     private sealed class TestController : StandardGetControllerBase
     {
         public Task<IActionResult> Single(Guid id, Func<Task<TestItem?>> query) =>
-            GetSingle(id, query, ErrorCodes.CardNotFound);
+            GetSingle(id, query, ErrorCodes.Card.NotFound);
 
         public Task<IActionResult> Collection(Guid id, Func<Task<IEnumerable<TestItem>>> query) =>
             GetCollection(id, query);

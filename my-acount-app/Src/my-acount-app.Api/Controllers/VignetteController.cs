@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.Vignette;
@@ -21,7 +22,7 @@ namespace MyAccountApp.Api.Controllers
         [ProducesResponseType(typeof(GenericResponse<VignetteViewModel>), StatusCodes.Status404NotFound)]
         public Task<IActionResult> GetVignetteById(Guid id)
         {
-            return GetSingle(id, () => _vignetteAppService.GetVignetteById(id), ErrorCodes.VignetteNotFound);
+            return GetSingle(id, () => _vignetteAppService.GetVignetteById(id), ErrorCodes.Vignette.NotFound);
         }
 
         [HttpGet("GetVignetteByCardId/{cardId:guid}")]

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.Account;
@@ -21,7 +22,7 @@ namespace MyAccountApp.Api.Controllers
         [ProducesResponseType(typeof(GenericResponse<AccountViewModel>), StatusCodes.Status404NotFound)]
         public Task<IActionResult> GetAccountById(Guid id)
         {
-            return GetSingle(id, () => _accountAppService.GetAccountById(id), ErrorCodes.AccountNotFound);
+            return GetSingle(id, () => _accountAppService.GetAccountById(id), ErrorCodes.Account.NotFound);
         }
 
         [HttpGet("GetAccountByUserId/{userId:guid}")]

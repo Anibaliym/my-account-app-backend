@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyAccountApp.Application;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.User;
@@ -44,28 +45,28 @@ namespace MyAccountApp.Api.Controllers
         [ProducesResponseType(typeof(GenericResponse<object>), StatusCodes.Status404NotFound)]
         public Task<IActionResult> GetSheetsAccount(Guid accountId)
         {
-            return GetStandardResponse(accountId, () => _domainServices.GetSheetsAccount(accountId), ErrorCodes.AccountNotFound);
+            return GetStandardResponse(accountId, () => _domainServices.GetSheetsAccount(accountId), ErrorCodes.Account.NotFound);
         }
 
         [HttpGet("GetUserAccountsWithSheets/{userId:guid}")]
         [ProducesResponseType(typeof(GenericResponse<object>), StatusCodes.Status200OK)]
         public Task<IActionResult> GetUserAccountsWithSheets(Guid userId)
         {
-            return GetStandardResponse(userId, () => _domainServices.GetUserAccountsWithSheets(userId), ErrorCodes.UserNotFound);
+            return GetStandardResponse(userId, () => _domainServices.GetUserAccountsWithSheets(userId), ErrorCodes.User.NotFound);
         }
 
         [HttpGet("GetSheetCardsWithVignettes/{sheetId:guid}")]
         [ProducesResponseType(typeof(GenericResponse<object>), StatusCodes.Status200OK)]
         public Task<IActionResult> GetSheetCardsWithVignettes(Guid sheetId)
         {
-            return GetStandardResponse(sheetId, () => _domainServices.GetSheetCardsWithVignettes(sheetId), ErrorCodes.SheetNotFound);
+            return GetStandardResponse(sheetId, () => _domainServices.GetSheetCardsWithVignettes(sheetId), ErrorCodes.Sheet.NotFound);
         }
 
         [HttpGet("GetAllSuccessUserAccessLogByUserId/{userId:guid}")]
         [ProducesResponseType(typeof(GenericResponse<object>), StatusCodes.Status200OK)]
         public Task<IActionResult> GetAllSuccessUserAccessLogByUserId(Guid userId)
         {
-            return GetStandardResponse(userId, () => _domainServices.GetAllSuccessUserAccessLogByUserId(userId), ErrorCodes.UserNotFound);
+            return GetStandardResponse(userId, () => _domainServices.GetAllSuccessUserAccessLogByUserId(userId), ErrorCodes.User.NotFound);
         }
 
         [HttpDelete("DeleteCardWithVignettes/{cardId:guid}")]

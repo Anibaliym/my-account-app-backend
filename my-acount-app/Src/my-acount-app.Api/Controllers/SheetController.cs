@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyAccountApp.Application.Constants;
 using MyAccountApp.Application.Interfaces;
 using MyAccountApp.Application.Responses;
 using MyAccountApp.Application.ViewModels.Sheet;
@@ -21,7 +22,7 @@ namespace MyAccountApp.Api.Controllers
         [ProducesResponseType(typeof(GenericResponse<SheetViewModel>), StatusCodes.Status404NotFound)]
         public Task<IActionResult> GetSheetById(Guid id)
         {
-            return GetSingle(id, () => _sheetAppService.GetSheetById(id), ErrorCodes.SheetNotFound);
+            return GetSingle(id, () => _sheetAppService.GetSheetById(id), ErrorCodes.Sheet.NotFound);
         }
 
         [HttpGet("GetSheetAccountByOrder")]
@@ -34,12 +35,12 @@ namespace MyAccountApp.Api.Controllers
                 {
                     Resolution = false,
                     Data = null,
-                    Message = ResponseMessages.ValidationFailed,
-                    ErrorCode = ErrorCodes.CommonValidationFailed,
+                    Message = ResponseMessages.Common.ValidationFailed,
+                    ErrorCode = ErrorCodes.Common.ValidationFailed,
                     Errors = new[] { "The order must be zero or greater." }
                 }));
 
-            return GetSingle(accountid, () => _sheetAppService.GetSheetAccountByOrder(order, accountid), ErrorCodes.SheetNotFound);
+            return GetSingle(accountid, () => _sheetAppService.GetSheetAccountByOrder(order, accountid), ErrorCodes.Sheet.NotFound);
         }
 
         [HttpGet("GetSheetByAccountId/{accountId:guid}")]
