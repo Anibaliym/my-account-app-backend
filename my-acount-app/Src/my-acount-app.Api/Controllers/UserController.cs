@@ -8,7 +8,7 @@ namespace MyAccountApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    public class UserController : StandardGetControllerBase
     {
         private readonly IUserAppService _userAppService;
 
@@ -18,15 +18,18 @@ namespace MyAccountApp.Api.Controllers
         }
 
         [HttpGet("GetUserById/{id:guid}")]
-        public async Task<UserViewModel> GetUserById(Guid id)
+        [ProducesResponseType(typeof(GenericResponse<UserViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse<UserViewModel>), StatusCodes.Status404NotFound)]
+        public Task<IActionResult> GetUserById(Guid id)
         {
-            return await _userAppService.GetUserById(id);
+            return GetSingle(id, () => _userAppService.GetUserById(id), ErrorCodes.UserNotFound);
         }
 
         [HttpGet("GetAllUsers")]
-        public async Task<IEnumerable<UserViewModel>> GetAllUsers()
+        [ProducesResponseType(typeof(GenericResponse<List<UserViewModel>>), StatusCodes.Status200OK)]
+        public Task<IActionResult> GetAllUsers()
         {
-            return await _userAppService.GetAllUsers();
+            return GetCollection(null, () => _userAppService.GetAllUsers());
         }
 
         [HttpPost("RegisterUser")]

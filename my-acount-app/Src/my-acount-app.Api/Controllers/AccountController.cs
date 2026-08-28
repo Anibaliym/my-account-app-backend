@@ -7,7 +7,7 @@ namespace MyAccountApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AccountController : ControllerBase
+    public class AccountController : StandardGetControllerBase
     {
         private readonly IAccountAppService _accountAppService;
 
@@ -17,15 +17,18 @@ namespace MyAccountApp.Api.Controllers
         }
 
         [HttpGet("GetAccountById/{id:guid}")]
-        public async Task<AccountViewModel> GetAccountById(Guid id)
+        [ProducesResponseType(typeof(GenericResponse<AccountViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse<AccountViewModel>), StatusCodes.Status404NotFound)]
+        public Task<IActionResult> GetAccountById(Guid id)
         {
-            return await _accountAppService.GetAccountById(id);
+            return GetSingle(id, () => _accountAppService.GetAccountById(id), ErrorCodes.AccountNotFound);
         }
 
         [HttpGet("GetAccountByUserId/{userId:guid}")]
-        public async Task<IEnumerable<AccountViewModel>> GetAccountByUserId(Guid userId)
+        [ProducesResponseType(typeof(GenericResponse<List<AccountViewModel>>), StatusCodes.Status200OK)]
+        public Task<IActionResult> GetAccountByUserId(Guid userId)
         {
-            return await _accountAppService.GetAccountByUserId(userId);
+            return GetCollection(userId, () => _accountAppService.GetAccountByUserId(userId));
         }
 
         [HttpPost("CreateAccount")]

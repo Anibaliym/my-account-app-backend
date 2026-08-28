@@ -7,7 +7,7 @@ namespace MyAccountApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class SheetController : ControllerBase
+    public class SheetController : StandardGetControllerBase
     {
         private readonly ISheetAppService _sheetAppService;
 
@@ -17,21 +17,36 @@ namespace MyAccountApp.Api.Controllers
         }
 
         [HttpGet("GetSheetById/{id:guid}")]
-        public async Task<SheetViewModel> GetSheetById(Guid id)
+        [ProducesResponseType(typeof(GenericResponse<SheetViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse<SheetViewModel>), StatusCodes.Status404NotFound)]
+        public Task<IActionResult> GetSheetById(Guid id)
         {
-            return await _sheetAppService.GetSheetById(id);
+            return GetSingle(id, () => _sheetAppService.GetSheetById(id), ErrorCodes.SheetNotFound);
         }
 
         [HttpGet("GetSheetAccountByOrder")]
-        public async Task<SheetViewModel> GetSheetAccountByOrder(int order, Guid accountid)
+        [ProducesResponseType(typeof(GenericResponse<SheetViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse<SheetViewModel>), StatusCodes.Status404NotFound)]
+        public Task<IActionResult> GetSheetAccountByOrder(int order, Guid accountid)
         {
-            return await _sheetAppService.GetSheetAccountByOrder(order, accountid);
+            if (order < 0)
+                return Task.FromResult<IActionResult>(BadRequest(new GenericResponse<SheetViewModel>
+                {
+                    Resolution = false,
+                    Data = null,
+                    Message = ResponseMessages.ValidationFailed,
+                    ErrorCode = ErrorCodes.CommonValidationFailed,
+                    Errors = new[] { "The order must be zero or greater." }
+                }));
+
+            return GetSingle(accountid, () => _sheetAppService.GetSheetAccountByOrder(order, accountid), ErrorCodes.SheetNotFound);
         }
 
         [HttpGet("GetSheetByAccountId/{accountId:guid}")]
-        public async Task<IEnumerable<SheetViewModel>> GetSheetByAccountId(Guid accountId)
+        [ProducesResponseType(typeof(GenericResponse<List<SheetViewModel>>), StatusCodes.Status200OK)]
+        public Task<IActionResult> GetSheetByAccountId(Guid accountId)
         {
-            return await _sheetAppService.GetSheetByAccountId(accountId);
+            return GetCollection(accountId, () => _sheetAppService.GetSheetByAccountId(accountId));
         }
 
         [HttpPost("CreateSheet")]

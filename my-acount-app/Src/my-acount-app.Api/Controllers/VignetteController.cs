@@ -7,7 +7,7 @@ namespace MyAccountApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class VignetteController : ControllerBase
+    public class VignetteController : StandardGetControllerBase
     {
         private readonly IVignetteAppService _vignetteAppService;
 
@@ -17,15 +17,18 @@ namespace MyAccountApp.Api.Controllers
         }
 
         [HttpGet("GetVignetteById/{id:guid}")]
-        public async Task<VignetteViewModel> GetVignetteById(Guid id)
+        [ProducesResponseType(typeof(GenericResponse<VignetteViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse<VignetteViewModel>), StatusCodes.Status404NotFound)]
+        public Task<IActionResult> GetVignetteById(Guid id)
         {
-            return await _vignetteAppService.GetVignetteById(id);
+            return GetSingle(id, () => _vignetteAppService.GetVignetteById(id), ErrorCodes.VignetteNotFound);
         }
 
         [HttpGet("GetVignetteByCardId/{cardId:guid}")]
-        public async Task<IEnumerable<VignetteViewModel>> GetVignetteByCardId(Guid cardId)
+        [ProducesResponseType(typeof(GenericResponse<List<VignetteViewModel>>), StatusCodes.Status200OK)]
+        public Task<IActionResult> GetVignetteByCardId(Guid cardId)
         {
-            return await _vignetteAppService.GetVignetteByCardId(cardId);
+            return GetCollection(cardId, () => _vignetteAppService.GetVignetteByCardId(cardId));
         }
 
         [HttpPost("CreateVignette")]

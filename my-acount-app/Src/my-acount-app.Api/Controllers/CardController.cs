@@ -7,7 +7,7 @@ namespace MyAccountApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CardController : ControllerBase
+    public class CardController : StandardGetControllerBase
     {
         private readonly ICardAppService _cardAppService;
 
@@ -17,15 +17,18 @@ namespace MyAccountApp.Api.Controllers
         }
 
         [HttpGet("GetCardById/{id:guid}")]
-        public async Task<CardViewModel> GetCardById(Guid id)
+        [ProducesResponseType(typeof(GenericResponse<CardViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse<CardViewModel>), StatusCodes.Status404NotFound)]
+        public Task<IActionResult> GetCardById(Guid id)
         {
-            return await _cardAppService.GetCardById(id);
+            return GetSingle(id, () => _cardAppService.GetCardById(id), ErrorCodes.CardNotFound);
         }
 
         [HttpGet("GetCardBySheetId/{sheetId:guid}")]
-        public async Task<IEnumerable<CardViewModel>> GetCardBySheetId(Guid sheetId)
+        [ProducesResponseType(typeof(GenericResponse<List<CardViewModel>>), StatusCodes.Status200OK)]
+        public Task<IActionResult> GetCardBySheetId(Guid sheetId)
         {
-            return await _cardAppService.GetCardBySheetId(sheetId);
+            return GetCollection(sheetId, () => _cardAppService.GetCardBySheetId(sheetId));
         }
 
         [HttpPost("CreateCard")]

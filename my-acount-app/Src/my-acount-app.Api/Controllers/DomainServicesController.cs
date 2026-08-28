@@ -9,7 +9,7 @@ namespace MyAccountApp.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DomainServicesController : ControllerBase
+    public class DomainServicesController : StandardGetControllerBase
     {
         private readonly IDomainServicesAppService _domainServices;
 
@@ -40,27 +40,32 @@ namespace MyAccountApp.Api.Controllers
         }
 
         [HttpGet("GetSheetsAccount/{accountId:guid}")]
-        public async Task<GenericResponse> GetSheetsAccount(Guid accountId)
+        [ProducesResponseType(typeof(GenericResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse<object>), StatusCodes.Status404NotFound)]
+        public Task<IActionResult> GetSheetsAccount(Guid accountId)
         {
-            return await _domainServices.GetSheetsAccount(accountId);
+            return GetStandardResponse(accountId, () => _domainServices.GetSheetsAccount(accountId), ErrorCodes.AccountNotFound);
         }
 
         [HttpGet("GetUserAccountsWithSheets/{userId:guid}")]
-        public async Task<GenericResponse> GetUserAccountsWithSheets(Guid userId)
+        [ProducesResponseType(typeof(GenericResponse<object>), StatusCodes.Status200OK)]
+        public Task<IActionResult> GetUserAccountsWithSheets(Guid userId)
         {
-            return await _domainServices.GetUserAccountsWithSheets(userId);
+            return GetStandardResponse(userId, () => _domainServices.GetUserAccountsWithSheets(userId), ErrorCodes.UserNotFound);
         }
 
         [HttpGet("GetSheetCardsWithVignettes/{sheetId:guid}")]
-        public async Task<GenericResponse> GetSheetCardsWithVignettes(Guid sheetId)
+        [ProducesResponseType(typeof(GenericResponse<object>), StatusCodes.Status200OK)]
+        public Task<IActionResult> GetSheetCardsWithVignettes(Guid sheetId)
         {
-            return await _domainServices.GetSheetCardsWithVignettes(sheetId);
+            return GetStandardResponse(sheetId, () => _domainServices.GetSheetCardsWithVignettes(sheetId), ErrorCodes.SheetNotFound);
         }
 
         [HttpGet("GetAllSuccessUserAccessLogByUserId/{userId:guid}")]
-        public async Task<GenericResponse> GetAllSuccessUserAccessLogByUserId(Guid userId)
+        [ProducesResponseType(typeof(GenericResponse<object>), StatusCodes.Status200OK)]
+        public Task<IActionResult> GetAllSuccessUserAccessLogByUserId(Guid userId)
         {
-            return await _domainServices.GetAllSuccessUserAccessLogByUserId(userId);
+            return GetStandardResponse(userId, () => _domainServices.GetAllSuccessUserAccessLogByUserId(userId), ErrorCodes.UserNotFound);
         }
 
         [HttpDelete("DeleteCardWithVignettes/{cardId:guid}")]
