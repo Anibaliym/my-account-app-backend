@@ -45,9 +45,9 @@ namespace MyAccountApp.Api.Controllers
                 else
                     return BadRequest(response);
             }
-            catch (Exception error)
+            catch (Exception)
             {
-                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+                return UnexpectedFailure();
             }
         }
 
@@ -63,9 +63,9 @@ namespace MyAccountApp.Api.Controllers
                 else
                     return BadRequest(response);
             }
-            catch (Exception error)
+            catch (Exception)
             {
-                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+                return UnexpectedFailure();
             }
         }
 
@@ -81,9 +81,9 @@ namespace MyAccountApp.Api.Controllers
                 else
                     return BadRequest(response);
             }
-            catch (Exception error)
+            catch (Exception)
             {
-                return StatusCode(500, $"Se produjo un error al procesar su solicitud. Detalles: {error.Message}");
+                return UnexpectedFailure();
             }
         }
     }

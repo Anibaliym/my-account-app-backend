@@ -104,5 +104,15 @@ namespace MyAccountApp.Api.Controllers
                 ErrorCode = ErrorCodes.Common.UnexpectedError,
                 Errors = null
             });
+
+        protected ObjectResult UnexpectedFailure() => StatusCode(StatusCodes.Status500InternalServerError,
+            new GenericResponse
+            {
+                Resolution = false,
+                Data = null!,
+                Message = ResponseMessages.Common.UnexpectedError,
+                ErrorCode = ErrorCodes.Common.UnexpectedError,
+                Errors = null
+            });
     }
 }
