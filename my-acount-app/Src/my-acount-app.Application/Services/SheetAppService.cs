@@ -325,6 +325,59 @@ namespace MyAccountApp.Application.Services
             }
         }
 
+        public async Task<GenericResponse<SheetViewModel>> UpdateSheetTitle(Guid sheetId, string description)
+        {
+            try
+            {
+                // Obtén la hoja existente por su ID
+                Sheet existingSheet = await _sheetRepository.GetSheetById(sheetId);
+
+                if (string.IsNullOrWhiteSpace(description))
+                {
+                    return new GenericResponse<SheetViewModel>
+                    {
+                        Resolution = false,
+                        Data = null,
+                        Message = ResponseMessages.Common.ValidationFailed,
+                        ErrorCode = ErrorCodes.Common.ValidationFailed,
+                        Errors = ["The sheet title is required."]
+                    };
+                }
+
+                if (existingSheet == null) {
+                    return new GenericResponse<SheetViewModel> {
+                        Resolution = false,
+                        ErrorCode = ErrorCodes.Sheet.NotFound, 
+                        Message = ResponseMessages.Sheet.NotFound(sheetId), 
+                        Errors = [ResponseMessages.Sheet.NotFound(sheetId)], 
+                    };
+                }
+
+                description = description.Trim();
+
+                // Actualiza solo el campo descripción de la hoja.
+                existingSheet.Description = description;
+                existingSheet.CreationDate = existingSheet.CreationDate.ToUniversalTime(); 
+
+                // Usa el método UpdateSheet del repositorio para guardar los cambios
+                await _sheetRepository.UpdateSheet(existingSheet);
+
+                return new GenericResponse<SheetViewModel> {
+                    Resolution = true,
+                    Message = ResponseMessages.Sheet.Updated, 
+                    Data = _mapper.Map<SheetViewModel>(existingSheet)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new GenericResponse<SheetViewModel> {
+                    Resolution = false,
+                    ErrorCode = ErrorCodes.Common.UnexpectedError, 
+                    Message = ResponseMessages.Common.UnexpectedError, 
+                };
+            }
+        }
+
         public void Dispose()
         {
             GC.SuppressFinalize(this);

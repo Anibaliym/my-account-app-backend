@@ -11,6 +11,7 @@ namespace MyAccountApp.Application.Interfaces
         Task<GenericResponse> CreateSheet(CreateSheetViewModel model);
         Task<GenericResponse> UpdateSheet(UpdateSheetViewModel model);
         Task<GenericResponse> UpdateCashBalance(Guid sheetId, int newCashBalance);
+        Task<GenericResponse<SheetViewModel>> UpdateSheetTitle(Guid sheetId, string description);
         Task<GenericResponse> UpdateCurrenteAccountBalance(Guid sheetId, int currentAccountBalance);
         Task<GenericResponse> UpdateSheetOrderItems(List<UpdateSheetViewModel> model);
         Task<GenericResponse> DeleteSheet(Guid id);

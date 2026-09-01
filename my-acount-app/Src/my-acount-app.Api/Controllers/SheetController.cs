@@ -104,6 +104,37 @@ namespace MyAccountApp.Api.Controllers
             }
         }
 
+        [HttpPut("UpdateSheetTitle")]
+        [ProducesResponseType(typeof(GenericResponse<SheetViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(GenericResponse<SheetViewModel>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(GenericResponse<SheetViewModel>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(GenericResponse<SheetViewModel>), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateSheetTitle([FromQuery] Guid sheetId, [FromQuery] string sheetNewTitle)
+        {
+            try
+            {
+                GenericResponse<SheetViewModel> response = await _sheetAppService.UpdateSheetTitle(sheetId, sheetNewTitle);
+
+                if (response.Resolution)
+                    return Ok(response);
+
+                if (response.ErrorCode == ErrorCodes.Sheet.NotFound)
+                    return NotFound(response);
+
+                if (response.ErrorCode == ErrorCodes.Common.UnexpectedError)
+                    return StatusCode(
+                        StatusCodes.Status500InternalServerError,
+                        response
+                    );
+
+                return BadRequest(response);
+            }
+            catch (Exception)
+            {
+                return UnexpectedFailure();
+            }
+        }
+
         [HttpPatch("UpdateCurrenteAccountBalance/{sheetId:guid}")]
         public async Task<IActionResult> UpdateCurrenteAccountBalance(Guid sheetId, [FromBody] int newCashBalance)
         {
